@@ -123,6 +123,7 @@ return array(
     'Illuminate\Workbench\WorkbenchServiceProvider',
     'Way\Generators\GeneratorsServiceProvider',
     'GrahamCampbell\Throttle\ThrottleServiceProvider',
+    'Mypleasure\Services\Providers\UserServiceProvider'
 
   ),
 

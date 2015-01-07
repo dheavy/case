@@ -22,6 +22,13 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
   use UserTrait, RemindableTrait;
 
   /**
+   * The suffix used when crafting a dummy email.
+   *
+   * @const string
+   */
+  public static $NO_EMAIL_SUFFIX = '.no.email.provided@mypleasu.re';
+
+  /**
    * The database table used by the model.
    *
    * @var string
