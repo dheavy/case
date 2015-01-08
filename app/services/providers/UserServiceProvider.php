@@ -5,10 +5,10 @@ namespace Mypleasure\Services\Providers;
 use UsersController;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
-use Mypleasure\Services\User\UserAuthValidator;
-use Mypleasure\Services\User\UserCreateValidator;
-use Mypleasure\Services\User\UserUpdateEmailValidator;
-use Mypleasure\Services\User\UserUpdatePasswordValidator;
+use Mypleasure\Services\Validation\User\UserAuthValidator;
+use Mypleasure\Services\Validation\User\UserCreateValidator;
+use Mypleasure\Services\Validation\User\UserUpdateEmailValidator;
+use Mypleasure\Services\Validation\User\UserUpdatePasswordValidator;
 
 /**
  * UserServiceProvider registers all users-related services.
