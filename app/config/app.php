@@ -84,6 +84,24 @@ return array(
 
   /*
   |--------------------------------------------------------------------------
+  | Authentication Throttling
+  |--------------------------------------------------------------------------
+  |
+  | Authentication throttling refers to the security practice of allowing
+  | a limited set of login attemps for a visitor. Among other things, it
+  | is a way to mitigate brute force attemps (at least slightly).
+  | The app uses the Laravel-Throttle package. Here we define app-wide
+  | configuration attributes for the max number of attemps and the retention
+  | time, in minutes (that is, the time needed for a user to retry after the
+  | number of max failed attempt has been reached).
+  |
+  */
+
+  'throttling_max_attempts' => 20,
+  'throttling_retention_time' => 10,
+
+  /*
+  |--------------------------------------------------------------------------
   | Autoloaded Service Providers
   |--------------------------------------------------------------------------
   |
@@ -191,6 +209,7 @@ return array(
     'URL'               => 'Illuminate\Support\Facades\URL',
     'Validator'         => 'Illuminate\Support\Facades\Validator',
     'View'              => 'Illuminate\Support\Facades\View',
+    'Throttle'          => 'GrahamCampbell\Throttle\Facades\Throttle'
 
   ),
 

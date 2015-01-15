@@ -26,7 +26,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
    *
    * @const string
    */
-  public static $NO_EMAIL_SUFFIX = '.no.email.provided@mypleasu.re';
+  public static $EMAIL_PLACEHOLDER_SUFFIX = '.no.email.provided@mypleasu.re';
 
   /**
    * The database table used by the model.
@@ -50,11 +50,32 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
   protected $fillable = array('username', 'password', 'email', 'status', 'role_id');
 
   /**
+   * Start watching UserObserver on model's boot sequence.
+   */
+  public static function boot()
+  {
+    parent::boot();
+    self::observe(new UserObserver);
+  }
+
+  /**
    * Relationship with Role model.
+   *
+   * @return Illuminate\Database\Eloquent\Relations\BelongsTo
    */
   public function role()
   {
     return $this->belongsTo('Role');
+  }
+
+  /**
+   * Whether user has a placeholder email.
+   *
+   * @return boolean
+   */
+  public function hasPlaceholderEmail()
+  {
+    return stripos($email, self::$EMAIL_PLACEHOLDER_SUFFIX);
   }
 
 }

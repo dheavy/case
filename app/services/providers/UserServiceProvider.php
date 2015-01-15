@@ -2,6 +2,9 @@
 
 namespace Mypleasure\Services\Providers;
 
+use User;
+use Config;
+use AuthController;
 use UsersController;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
@@ -39,10 +42,18 @@ class UserServiceProvider extends ServiceProvider {
 
     $this->app->bind('UsersController', function($app) {
       return new UsersController(
+        new User,
         $app->make('UserCreateValidator'),
-        $app->make('UserAuthValidator'),
         $app->make('UserUpdateEmailValidator'),
         $app->make('UserUpdatePasswordValidator')
+      );
+    });
+
+    $this->app->bind('AuthController', function($app) {
+      return new AuthController(
+        $app->make('UserAuthValidator'),
+        Config::get('app.throttling_max_attempts'),
+        Config::get('app.throttling_retention_time')
       );
     });
   }

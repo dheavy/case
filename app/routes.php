@@ -11,7 +11,51 @@
 |
 */
 
-Route::get('/', function()
-{
-	return View::make('hello');
-});
+Route::get('/', array(
+  'uses' => 'StaticPagesController@getHome',
+  'as' => 'static.home'
+));
+
+
+
+Route::get('/register', array(
+  'uses' => 'AuthController@getRegister',
+  'as' => 'auth.register'
+));
+
+Route::post('/register', array(
+  'uses' => 'UsersController@store'
+));
+
+Route::get('/login', array(
+  'uses' => 'AuthController@getLogin',
+  'as' => 'auth.login'
+));
+
+Route::post('/login', array(
+  'uses' => 'AuthController@postLogin'
+));
+
+
+
+Route::controller('password', 'RemindersController');
+
+
+
+Route::get('/me', array(
+  'uses' => 'ProfileController@getProfile',
+  'as' => 'user.profile',
+  'before' => 'auth'
+));
+
+Route::get('/me/edit/email', array(
+  'uses' => 'ProfileController@getEditEmail',
+  'as' => 'user.edit.email',
+  'before' => 'auth'
+));
+
+Route::get('/me/edit/password', array(
+  'uses' => 'ProfileController@getEditPassword',
+  'as' => 'user.edit.password',
+  'before' => 'auth'
+));
