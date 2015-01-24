@@ -24,7 +24,8 @@ Route::get('/register', array(
 ));
 
 Route::post('/register', array(
-  'uses' => 'UsersController@store'
+  'uses' => 'UsersController@store',
+  'before' => 'csrf'
 ));
 
 Route::get('/login', array(
@@ -33,7 +34,13 @@ Route::get('/login', array(
 ));
 
 Route::post('/login', array(
-  'uses' => 'AuthController@postLogin'
+  'uses' => 'AuthController@postLogin',
+  'before' => 'csrf'
+));
+
+Route::get('/logout', array(
+  'uses' => 'AuthController@getLogout',
+  'as' => 'auth.logout'
 ));
 
 
@@ -54,8 +61,24 @@ Route::get('/me/edit/email', array(
   'before' => 'auth'
 ));
 
+Route::post('/me/edit/email', array(
+  'uses' => 'UsersController@updateEmail',
+  'before' => 'auth|csrf'
+));
+
 Route::get('/me/edit/password', array(
   'uses' => 'ProfileController@getEditPassword',
   'as' => 'user.edit.password',
+  'before' => 'auth'
+));
+
+Route::post('/me/edit/password', array(
+  'uses' => 'UsersController@updatePassword',
+  'before' => 'auth|csrf'
+));
+
+Route::get('/me/videos', array(
+  'uses' => 'ProfileController@getVideos',
+  'as' => 'user.videos',
   'before' => 'auth'
 ));

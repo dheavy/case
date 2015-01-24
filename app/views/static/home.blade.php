@@ -6,7 +6,7 @@
   <section class="alert alert-info">{{{ Session::get('message') }}}</section>
   @endif
 
-  <h3 class="col-sm-12 col-md-12 col-lg-12">mypleasu.re</h3>
+  <h3 class="col-sm-12 col-md-12 col-lg-12">Hello stranger... Please register or sign in.</h3>
 
   <nav class="col-sm-12 col-md-12 col-lg-12">
     <ul>

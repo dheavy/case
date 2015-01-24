@@ -75,7 +75,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
    */
   public function hasPlaceholderEmail()
   {
-    return stripos($email, self::$EMAIL_PLACEHOLDER_SUFFIX);
+    return stripos($this->email, self::$EMAIL_PLACEHOLDER_SUFFIX);
   }
 
 }

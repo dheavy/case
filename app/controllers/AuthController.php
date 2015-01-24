@@ -75,7 +75,7 @@ class AuthController extends BaseController {
   public function getLogout()
   {
     if (Auth::check()) Auth::logout();
-    return Redirect::to('static.home');
+    return Redirect::route('static.home');
   }
 
   /**

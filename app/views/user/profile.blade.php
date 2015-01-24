@@ -11,7 +11,7 @@
   <nav class="col-sm-12 col-md-12 col-lg-12">
     <ul>
       <li><a href="{{{ URL::route('user.edit.password') }}}">Change my password</a></li>
-      <li><a href="{{{ URL::route('user.edit.email') }}}">Add or remove my email</a></li>
+      <li><a href="{{{ URL::route('user.edit.email') }}}">Edit my email</a></li>
 
       @if ($user->role->name === 'admin')
       <li><a href="{{{ URL::route('admin.show.users') }}}">List users</a></li>

@@ -25,8 +25,9 @@
         @if (Auth::check())
           <li><a href="{{{ URL::route('user.profile') }}}">me</a></li>
           <li><a href="{{{ URL::route('user.videos') }}}">my videos</a></li>
-          <li><a href="{{{ URL::route('user.editemail') }}}">change email</a></li>
-          <li><a href="{{{ URL::route('user.editpassword') }}}">change password</a></li>
+          <li><a href="{{{ URL::route('user.edit.email') }}}">edit email</a></li>
+          <li><a href="{{{ URL::route('user.edit.password') }}}">change password</a></li>
+          <li><a href="{{{ URL::route('auth.logout') }}}">log out</a></li>
         @else
           <li><a href="{{{ URL::route('auth.register') }}}">register</a></li>
           <li><a href="{{{ URL::route('auth.login') }}}">sign in</a></li>
