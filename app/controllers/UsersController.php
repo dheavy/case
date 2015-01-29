@@ -36,24 +36,25 @@ class UsersController extends \BaseController {
    */
   protected $updatePasswordValidator;
 
+  protected $collectionsController;
+
+  protected $videosController;
+
   /**
    * Create instance.
    *
-   * @param User                        $user                    The current user.
-   * @param UserCreateValidator         $createValidator         A form validator for user creation.
-   * @param UserUpdateEmailValidator    $updateEmailValidator    A form validator for user's email update.
-   * @param UserUpdatePasswordValidator $updatePasswordValidator A form validator for user's password update.
+   * @param User  $user        The current user.
+   * @param array $validators  An array containing instances of UserCreateValidator, UserUpdateEmailValidator, UserUpdatePasswordValidator.
+   * @param array $controllers An array containing instances of CollectionsController and VideosController.
    */
-  public function __construct(
-    User $user,
-    UserCreateValidator $createValidator,
-    UserUpdateEmailValidator $updateEmailValidator,
-    UserUpdatePasswordValidator $updatePasswordValidator)
+  public function __construct(User $user, array $validators, array $controllers)
   {
     $this->user = $user;
-    $this->createValidator = $createValidator;
-    $this->updateEmailValidator = $updateEmailValidator;
-    $this->updatePasswordValidator = $updatePasswordValidator;
+    $this->createValidator = $validators['create'];
+    $this->updateEmailValidator = $validators['updateEmail'];
+    $this->updatePasswordValidator = $validators['updatePassword'];
+    $this->collectionsController = $controllers['collection'];
+    $this->videosController = $controllers['video'];
   }
 
   public function index()
@@ -108,6 +109,9 @@ class UsersController extends \BaseController {
       return Redirect::to('register')
         ->with('message', 'There was an error while creating your account. Please try again.');
     }
+
+    // Create and link user's default collection.
+    $this->collectionsController->createUserCollection($this->user->id, 'default');
 
     // Redirect the now logged-in user profile page otherwise.
     Auth::attempt(array(

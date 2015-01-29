@@ -24,7 +24,9 @@ class Role extends Eloquent {
   protected $fillable = array('name');
 
   /**
-   * Relationship with User model.
+   * Relation with User model.
+   *
+   * @return  Illuminate\Database\Eloquent\Relations\HasMany
    */
   public function users()
   {

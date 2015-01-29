@@ -14,15 +14,22 @@
       <li><a href="{{{ URL::route('user.edit.email') }}}">Edit my email</a></li>
 
       @if ($user->role->name === 'admin')
-      <li><a href="{{{ URL::route('admin.show.users') }}}">List users</a></li>
+      <li><a href="{{{ URL::route('admin.users.show') }}}">List users</a></li>
       @elseif ($user->role->name === 'curator')
-      <li><a href="#">Add video</a></li>
+      <li><a href="{{{ URL::route('user.videos.add') }}}">Add video</a></li>
       @endif
     </ul>
   </nav>
 
   <section class="col-sm-12 col-md-12 col-lg-12">
-    Hello world
+    You have {{{ $user->collections->count() }}} collection,
+    and curated {{{ count($user->videos()) }}}
+
+    @if (count($user->videos()) > 1)
+    videos.
+    @else
+    video.
+    @endif
   </section>
 
 @stop

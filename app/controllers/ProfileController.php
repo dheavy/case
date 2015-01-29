@@ -8,6 +8,7 @@ class ProfileController extends \BaseController {
 
   /**
    * The current user.
+   *
    * @var User
    */
   protected $user;
@@ -51,13 +52,13 @@ class ProfileController extends \BaseController {
   }
 
   /**
-   * Display user's list of collections and videos.
+   * Display "add video" form.
    *
    * @return Illuminate\View\View
    */
-  public function getVideos()
+  public function getAddVideo()
   {
-    return View::make('user.videos')->with('user', $this->user);
+    return View::make('user.addvideo')->with('user', $this->user);
   }
 
 }

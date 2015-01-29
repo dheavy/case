@@ -3,9 +3,13 @@
 namespace Mypleasure\Services\Providers;
 
 use User;
+use Video;
 use Config;
+use Collection;
 use AuthController;
 use UsersController;
+use VideosController;
+use CollectionsController;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use Mypleasure\Services\Validation\User\UserAuthValidator;
@@ -40,12 +44,26 @@ class UserServiceProvider extends ServiceProvider {
       return new UserUpdatePasswordValidator(Validator::getFacadeRoot());
     });
 
+    $this->app->bind('CollectionsController', function($app) {
+      return new CollectionsController(new Collection);
+    });
+
+    $this->app->bind('VideosController', function($app) {
+      return new VideosController(new Video);
+    });
+
     $this->app->bind('UsersController', function($app) {
       return new UsersController(
         new User,
-        $app->make('UserCreateValidator'),
-        $app->make('UserUpdateEmailValidator'),
-        $app->make('UserUpdatePasswordValidator')
+        array(
+          'create' => $app->make('UserCreateValidator'),
+          'updateEmail' => $app->make('UserUpdateEmailValidator'),
+          'updatePassword' => $app->make('UserUpdatePasswordValidator')
+        ),
+        array(
+          'collection' => $app->make('CollectionsController'),
+          'video' => $app->make('VideosController')
+        )
       );
     });
 

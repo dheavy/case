@@ -4,6 +4,7 @@ use Illuminate\Auth\UserTrait;
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\Reminders\RemindableTrait;
 use Illuminate\Auth\Reminders\RemindableInterface;
+use Illuminate\Database\Eloquent\Collection as IlluminateCollection;
 
 /**
  * id             {integer}
@@ -59,13 +60,45 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
   }
 
   /**
-   * Relationship with Role model.
+   * Relation with Role model.
    *
    * @return Illuminate\Database\Eloquent\Relations\BelongsTo
    */
   public function role()
   {
     return $this->belongsTo('Role');
+  }
+
+  /**
+   * Relation with Collection model.
+   *
+   * @return Illuminate\Database\Eloquent\Relations\HasMany
+   */
+  public function collections()
+  {
+    return $this->hasMany('Collection');
+  }
+
+  /**
+   * Returns an Illuminate collection of Video instances linked to this User.
+   *
+   * @return Illuminate\Database\Eloquent\Collection
+   */
+  public function videos()
+  {
+    // First, the Illuminate\Support\Collection's of "Collection" models.
+    $collectionsList = $this->collections;
+
+    // Prepare results array.
+    $videos = new IlluminateCollection;
+
+    // Traverse Illuminate\Support\Collection's to get Collection model instances,
+    // and access the Illuminate\Support\Collection list of videos herein.
+    $collectionsList->each(function($collectionModel) use (&$videos) {
+      $videos = $videos->merge($collectionModel->videos);
+    });
+
+    return $videos;
   }
 
   /**
@@ -76,6 +109,28 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
   public function hasPlaceholderEmail()
   {
     return stripos($this->email, self::$EMAIL_PLACEHOLDER_SUFFIX);
+  }
+
+  /**
+   * Use given hash to find out if user has already
+   * curated a particular video.
+   *
+   * @param  string  $hash Hash generated from the URL-encoded UTF8 transcoded name of the video.
+   * @return boolean       True if user already has the video, false otherwise.
+   */
+  public function hasVideoFromHash($hash)
+  {
+    $hasVideo = false;
+
+    $this->collections->each(function($collection) use (&$hasVideo, &$hash) {
+      $collection->videos->each(function($video) use (&$hasVideo, &$hash) {
+        if ($video->hash === $hash) {
+          $hasVideo = true;
+        }
+      });
+    });
+
+    return $hasVideo;
   }
 
 }

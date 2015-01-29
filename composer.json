@@ -12,7 +12,8 @@
     "fzaninotto/faker": "1.5.*@dev",
     "graham-campbell/throttle": "~2.0",
     "doctrine/dbal": "2.3.4",
-    "rmccue/requests": ">=1.0"
+    "rmccue/requests": ">=1.0",
+    "jenssegers/mongodb": "~2.0"
   },
   "autoload": {
     "classmap": [

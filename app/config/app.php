@@ -141,6 +141,7 @@ return array(
     'Illuminate\Workbench\WorkbenchServiceProvider',
     'Way\Generators\GeneratorsServiceProvider',
     'GrahamCampbell\Throttle\ThrottleServiceProvider',
+    'Jenssegers\Mongodb\MongodbServiceProvider',
     'Mypleasure\Services\Providers\UserServiceProvider'
 
   ),

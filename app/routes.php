@@ -40,7 +40,8 @@ Route::post('/login', array(
 
 Route::get('/logout', array(
   'uses' => 'AuthController@getLogout',
-  'as' => 'auth.logout'
+  'as' => 'auth.logout',
+  'before' => 'auth'
 ));
 
 
@@ -78,7 +79,18 @@ Route::post('/me/edit/password', array(
 ));
 
 Route::get('/me/videos', array(
-  'uses' => 'ProfileController@getVideos',
+  'uses' => 'VideosController@index',
   'as' => 'user.videos',
   'before' => 'auth'
+));
+
+Route::get('/me/videos/add', array(
+  'uses' => 'ProfileController@getAddVideo',
+  'as' => 'user.videos.add',
+  'before' => 'auth'
+));
+
+Route::post('/me/videos/add', array(
+  'uses' => 'VideosController@store',
+  'before' => 'auth|csrf'
 ));

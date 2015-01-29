@@ -14,7 +14,7 @@ class UserObserver {
    */
   public function saving(User $user)
   {
-    if (!$user->email) {
+    if (!$user->email || $user->email === '') {
       $user->email = md5($user->username) . User::$EMAIL_PLACEHOLDER_SUFFIX;
     }
   }
