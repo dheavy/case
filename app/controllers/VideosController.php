@@ -2,15 +2,35 @@
 
 use Carbon\Carbon;
 
+/**
+ * VideosController deals with video resources for a User,
+ * from creating instance from MongoDB to displaying views.
+ */
+
 class VideosController extends \BaseController {
 
+  /**
+   * An instance of the Video model passed via injection, to loosen dependencies and allow easier testing.
+   *
+   * @var Video
+   */
   protected $video;
 
+  /**
+   * Create instance.
+   *
+   * @param Video $video An instance of the User model passed via injection, to loosen dependencies and allow easier testing.
+   */
   public function __construct(Video $video)
   {
     $this->video = $video;
   }
 
+  /**
+   * List a User's videos in a dedicated view.
+   *
+   * @return Illuminate\View\View
+   */
   public function index()
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
@@ -18,6 +38,7 @@ class VideosController extends \BaseController {
     // Get user.
     $user = Auth::user();
 
+    // Get and consolidate videos user might have waiting for herself.
     $this->fetchNewlyCurated($user->id);
 
     // Aggregate all videos now, and build view.
@@ -26,6 +47,11 @@ class VideosController extends \BaseController {
     return View::make('user.videos', array('videos' => $videos, 'user' => $user));
   }
 
+  /**
+   * Store a video for the User.
+   *
+   * @return Illuminate\Http\RedirectResponse
+   */
   public function store()
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
@@ -87,7 +113,13 @@ class VideosController extends \BaseController {
         ->with('message', 'Your videos has been added to processing queue and will be available shortly.');
   }
 
-  public function fetchNewlyCurated($userId)
+  /**
+   * Poll the queue to find possible videos ready for User.
+   *
+   * @param  integer $userId ID of the current user.
+   * @return void
+   */
+  protected function fetchNewlyCurated($userId)
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
 
@@ -121,33 +153,42 @@ class VideosController extends \BaseController {
     }
   }
 
+  /**
+   * Creates an Eloquent Video model from the data fetched from the videostore.
+   *
+   * @param  integer $collectionId ID of the collection to attach this video to.
+   * @param  array   $instance     The data extracted from the video in the MongoDB storage.
+   * @return Illuminate\Http\RedirectResponse
+   */
   protected function createVideoInstance($collectionId, $instance)
   {
     $now = Carbon::now()->toDateTimeString();
 
-    $video = new Video;
-    $video->hash = $instance['hash'];
-    $video->title = $instance['title'];
-    $video->poster = $instance['poster'];
-    $video->method = $instance['method'];
-    $video->original_url = $instance['original_url'];
-    $video->embed_url = $instance['embed_url'];
-    $video->duration = $instance['duration'];
-    $video->slug = $this->slugify($video->title);
-    $video->created_at = $now;
-    $video->updated_at = $now;
+    // Populate video instance with data from the videostore.
+    $this->video->hash = $instance['hash'];
+    $this->video->title = $instance['title'];
+    $this->video->poster = $instance['poster'];
+    $this->video->method = $instance['method'];
+    $this->video->original_url = $instance['original_url'];
+    $this->video->embed_url = $instance['embed_url'];
+    $this->video->duration = $instance['duration'];
+    $this->video->slug = $this->slugify($this->video->title);
+    $this->video->created_at = $now;
+    $this->video->updated_at = $now;
 
-    $saved = $video->save();
+    // Save video in DB.
+    $saved = $this->video->save();
 
     if (!$saved) {
       return Redirect::route('user.videos.add')
         ->with('message', 'Oops! There was an error adding your video. Please try again later...');
     }
 
+    // Create relationship with Collection and redirect user.
     $created = DB::table('collection_video')
       ->insert(array(
         'collection_id' => $collectionId,
-        'video_id' => $video->id,
+        'video_id' => $this->video->id,
         'created_at' => $now,
         'updated_at' => $now
       ));

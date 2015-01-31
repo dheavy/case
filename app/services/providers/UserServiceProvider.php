@@ -28,6 +28,17 @@ class UserServiceProvider extends ServiceProvider {
 
   public function register()
   {
+    $this->bindValidators();
+    $this->bindControllers();
+  }
+
+  /**
+   * Bind calls to diverse user form validators.
+   *
+   * @return void
+   */
+  protected function bindValidators()
+  {
     $this->app->bind('UserAuthValidator', function($app) {
       return new UserAuthValidator(Validator::getFacadeRoot());
     });
@@ -43,7 +54,15 @@ class UserServiceProvider extends ServiceProvider {
     $this->app->bind('UserUpdatePasswordValidator', function($app) {
       return new UserUpdatePasswordValidator(Validator::getFacadeRoot());
     });
+  }
 
+  /**
+   * Bind calls to diverse controllers.
+   *
+   * @return void
+   */
+  protected function bindControllers()
+  {
     $this->app->bind('CollectionsController', function($app) {
       return new CollectionsController(new Collection);
     });

@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * RemindersController takes care of all task regarding password reset.
+ */
+
 class RemindersController extends Controller {
 
 	/**

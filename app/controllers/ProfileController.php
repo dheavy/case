@@ -7,7 +7,7 @@
 class ProfileController extends \BaseController {
 
   /**
-   * The current user.
+   * An instance of the User model passed via injection, to loosen dependencies and allow easier testing.
    *
    * @var User
    */

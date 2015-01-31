@@ -6,10 +6,15 @@ use Mypleasure\Services\Validation\User\UserCreateValidator;
 use Mypleasure\Services\Validation\User\UserUpdateEmailValidator;
 use Mypleasure\Services\Validation\User\UserUpdatePasswordValidator;
 
+/**
+ * UsersController manages all that relates to the User as a direct resource:
+ * user creation, deletion, password and email edition.
+ */
+
 class UsersController extends \BaseController {
 
   /**
-   * The current user.
+   * An instance of the User model passed via injection, to loosen dependencies and allow easier testing.
    *
    * @var User
    */
@@ -36,14 +41,24 @@ class UsersController extends \BaseController {
    */
   protected $updatePasswordValidator;
 
+  /**
+   * An instance of CollectionsController.
+   *
+   * @var CollectionsController
+   */
   protected $collectionsController;
 
+  /**
+   * An instance of VideosController.
+   *
+   * @var VideosController
+   */
   protected $videosController;
 
   /**
    * Create instance.
    *
-   * @param User  $user        The current user.
+   * @param User  $user        An instance of the User model passed via injection, to loosen dependencies and allow easier testing.
    * @param array $validators  An array containing instances of UserCreateValidator, UserUpdateEmailValidator, UserUpdatePasswordValidator.
    * @param array $controllers An array containing instances of CollectionsController and VideosController.
    */
@@ -55,11 +70,6 @@ class UsersController extends \BaseController {
     $this->updatePasswordValidator = $validators['updatePassword'];
     $this->collectionsController = $controllers['collection'];
     $this->videosController = $controllers['video'];
-  }
-
-  public function index()
-  {
-
   }
 
   /**
@@ -121,16 +131,6 @@ class UsersController extends \BaseController {
     return Redirect::route('user.profile');
   }
 
-  public function show($id)
-  {
-
-  }
-
-  public function destroy($id)
-  {
-
-  }
-
   /**
    * Update user's password.
    *
@@ -166,7 +166,7 @@ class UsersController extends \BaseController {
         ->with('message', 'Your current password is invalid. Please try again.');
     }
 
-    // Update and save.
+    // Update, save, leave.
     $user->password = Hash::make($newPassword);
     $saved = $user->save();
 

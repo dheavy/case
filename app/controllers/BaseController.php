@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * The Controller most controllers inherit from in our app.
+ */
+
 class BaseController extends Controller {
 
   /**

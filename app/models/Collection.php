@@ -45,11 +45,21 @@ class Collection extends Eloquent {
     return $this->belongsToMany('Video', 'collection_video');
   }
 
+  /**
+   * Is the collection public?
+   *
+   * @return boolean True if it is, false otherwise.
+   */
   public function isPublic()
   {
     return $this->status === 1;
   }
 
+  /**
+   * Is the collection private?
+   *
+   * @return boolean True if it is, false otherwise.
+   */
   public function isPrivate()
   {
     return $this->status === 0;
