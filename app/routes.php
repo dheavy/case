@@ -1,23 +1,17 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Application Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register all of the routes for an application.
-| It's a breeze. Simply tell Laravel the URIs it should respond to
-| and give it the Closure to execute when that URI is requested.
-|
-*/
-
+/**
+ * Home
+ */
 Route::get('/', array(
   'uses' => 'StaticPagesController@getHome',
   'as' => 'static.home'
 ));
 
 
-
+/**
+ * Register, login, logout
+ */
 Route::get('/register', array(
   'uses' => 'AuthController@getRegister',
   'as' => 'auth.register'
@@ -45,11 +39,15 @@ Route::get('/logout', array(
 ));
 
 
-
+/**
+ * Password reminder
+ */
 Route::controller('password', 'RemindersController');
 
 
-
+/**
+ * User account
+ */
 Route::get('/me', array(
   'uses' => 'ProfileController@getProfile',
   'as' => 'user.profile',
