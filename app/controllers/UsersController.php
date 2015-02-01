@@ -64,6 +64,7 @@ class UsersController extends \BaseController {
    */
   public function __construct(User $user, array $validators, array $controllers)
   {
+    parent::__construct();
     $this->user = $user;
     $this->createValidator = $validators['create'];
     $this->updateEmailValidator = $validators['updateEmail'];

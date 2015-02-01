@@ -38,6 +38,7 @@ class AuthController extends BaseController {
    */
   public function __construct(UserAuthValidator $validator, $throttleAttemptLimit, $throttleRetentionTime)
   {
+    parent::__construct();
     $this->validator = $validator;
     $this->throttleAttemptLimit = $throttleAttemptLimit;
     $this->throttleRetentionTime = $throttleRetentionTime;

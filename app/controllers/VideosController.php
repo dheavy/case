@@ -23,6 +23,7 @@ class VideosController extends \BaseController {
    */
   public function __construct(Video $video)
   {
+    parent::__construct();
     $this->video = $video;
   }
 

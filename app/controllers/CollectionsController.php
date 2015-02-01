@@ -20,6 +20,7 @@ class CollectionsController extends \BaseController {
    */
   public function __construct(Collection $collection)
   {
+    parent::__construct();
     $this->collection = $collection;
   }
 

@@ -7,6 +7,16 @@
 class StaticPagesController extends \BaseController {
 
   /**
+   * Create instance.
+   *
+   * @return void
+   */
+  public function __construct()
+  {
+    parent::__construct();
+  }
+
+  /**
    * Renders Homepage view.
    *
    * @return Illuminate\View\View

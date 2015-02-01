@@ -18,6 +18,7 @@ class ProfileController extends \BaseController {
  */
   public function __construct()
   {
+    parent::__construct();
     $this->user = Auth::user();
   }
 

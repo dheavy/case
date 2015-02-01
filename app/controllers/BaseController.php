@@ -7,6 +7,18 @@
 class BaseController extends Controller {
 
   /**
+   * Create instance.
+   * Protect controllers actions de facto with some beforeFilters.
+   *
+   * @return void
+   */
+  public function __construct()
+  {
+    $this->beforeFilter('force.ssl');
+    $this->beforeFilter('csrf', array('on' => 'post|patch|delete|put'));
+  }
+
+  /**
    * Setup the layout used by the controller.
    *
    * @return void
