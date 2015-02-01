@@ -64,7 +64,7 @@ class UserServiceProvider extends ServiceProvider {
   protected function bindControllers()
   {
     $this->app->bind('CollectionsController', function($app) {
-      return new CollectionsController(new Collection);
+      return new CollectionsController;
     });
 
     $this->app->bind('VideosController', function($app) {
