@@ -10,21 +10,11 @@ use Carbon\Carbon;
 class VideosController extends \BaseController {
 
   /**
-   * An instance of the Video model passed via injection, to loosen dependencies and allow easier testing.
-   *
-   * @var Video
-   */
-  protected $video;
-
-  /**
    * Create instance.
-   *
-   * @param Video $video An instance of the User model passed via injection, to loosen dependencies and allow easier testing.
    */
   public function __construct(Video $video)
   {
     parent::__construct();
-    $this->video = $video;
   }
 
   /**
@@ -166,41 +156,29 @@ class VideosController extends \BaseController {
     $now = Carbon::now()->toDateTimeString();
 
     // Populate video instance with data from the videostore.
-    $this->video->hash = $instance['hash'];
-    $this->video->title = $instance['title'];
-    $this->video->poster = $instance['poster'];
-    $this->video->method = $instance['method'];
-    $this->video->original_url = $instance['original_url'];
-    $this->video->embed_url = $instance['embed_url'];
-    $this->video->duration = $instance['duration'];
-    $this->video->slug = $this->slugify($this->video->title);
-    $this->video->created_at = $now;
-    $this->video->updated_at = $now;
+    $video = new Video;
+    $video->hash = $instance['hash'];
+    $video->title = $instance['title'];
+    $video->poster = $instance['poster'];
+    $video->method = $instance['method'];
+    $video->original_url = $instance['original_url'];
+    $video->embed_url = $instance['embed_url'];
+    $video->duration = $instance['duration'];
+    $video->slug = $this->slugify($video->title);
+    $video->created_at = $now;
+    $video->updated_at = $now;
 
     // Save video in DB.
-    $saved = $this->video->save();
-
-    if (!$saved) {
-      return Redirect::route('user.videos.add')
-        ->with('message', 'Oops! There was an error adding your video. Please try again later...');
-    }
+    $video->save();
 
     // Create relationship with Collection and redirect user.
     $created = DB::table('collection_video')
       ->insert(array(
         'collection_id' => $collectionId,
-        'video_id' => $this->video->id,
+        'video_id' => $video->id,
         'created_at' => $now,
         'updated_at' => $now
       ));
-
-    if (!$created) {
-      return Redirect::route('user.videos.add')
-        ->with('message', 'Oops! There was an error adding your video. Please try again later...');
-    }
-
-    return Redirect::route('user.videos.add')
-      ->with('message', 'Video added successfully.');
   }
 
 }

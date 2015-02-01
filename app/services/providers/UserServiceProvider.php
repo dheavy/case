@@ -68,7 +68,7 @@ class UserServiceProvider extends ServiceProvider {
     });
 
     $this->app->bind('VideosController', function($app) {
-      return new VideosController(new Video);
+      return new VideosController;
     });
 
     $this->app->bind('UsersController', function($app) {
