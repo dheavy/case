@@ -14,6 +14,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use Mypleasure\Services\Validation\User\UserAuthValidator;
 use Mypleasure\Services\Validation\User\UserCreateValidator;
+use Mypleasure\Services\Validation\User\UserDestroyValidator;
 use Mypleasure\Services\Validation\User\UserUpdateEmailValidator;
 use Mypleasure\Services\Validation\User\UserUpdatePasswordValidator;
 
@@ -47,6 +48,10 @@ class UserServiceProvider extends ServiceProvider {
       return new UserCreateValidator(Validator::getFacadeRoot());
     });
 
+    $this->app->bind('UserDestroyValidator', function($app) {
+      return new UserDestroyValidator(Validator::getFacadeRoot());
+    });
+
     $this->app->bind('UserUpdateEmailValidator', function($app) {
       return new UserUpdateEmailValidator(Validator::getFacadeRoot());
     });
@@ -76,6 +81,7 @@ class UserServiceProvider extends ServiceProvider {
         new User,
         array(
           'create' => $app->make('UserCreateValidator'),
+          'destroy' => $app->make('UserDestroyValidator'),
           'updateEmail' => $app->make('UserUpdateEmailValidator'),
           'updatePassword' => $app->make('UserUpdatePasswordValidator')
         ),

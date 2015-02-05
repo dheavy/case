@@ -54,7 +54,7 @@ return array(
   |
   */
 
-  'from' => array('address' => 'donotereply@mypleasu.re', 'name' => 'MyPleasure Team'),
+  'from' => array('address' => 'donotereply@mypleasu.re', 'name' => 'mypleasure'),
 
   /*
   |--------------------------------------------------------------------------

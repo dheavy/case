@@ -92,3 +92,14 @@ Route::post('/me/videos/add', array(
   'uses' => 'VideosController@store',
   'before' => 'auth|csrf'
 ));
+
+Route::get('/me/delete', array(
+  'uses' => 'ProfileController@getDelete',
+  'as' => 'user.delete',
+  'before' => 'auth'
+));
+
+Route::post('/me/delete', array(
+  'uses' => 'UsersController@destroy',
+  'before' => 'auth|csrf'
+));

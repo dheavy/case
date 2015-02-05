@@ -18,6 +18,8 @@
       @elseif ($user->role->name === 'curator')
       <li><a href="{{{ URL::route('user.videos.add') }}}">Add video</a></li>
       @endif
+
+      <li><a href="{{{ URL::route('user.delete') }}}">Delete my account</a></li>
     </ul>
   </nav>
 

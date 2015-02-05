@@ -18,6 +18,16 @@
     </div>
     @endforeach
 
+    @if ($pending > 0)
+      @for ($i = 0; $i < $pending; $i++)
+        <div class="col-sm-12 col-md-3 col-lg-3">
+          <div class="col-sm-12 col-md-12 col-lg-12" style="background:#CCC">
+          <h5 class="col-sm-12 col-md-12 col-lg-12">Processing...</h5>
+          <div class="col-sm-12 col-md-12 col-lg-12">(will be available shortly)</div>
+        </div>
+      @endfor
+    @endif
+
   </div>
 
 @stop

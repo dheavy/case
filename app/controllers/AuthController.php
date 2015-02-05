@@ -47,18 +47,19 @@ class AuthController extends BaseController {
   /**
    * Display register view.
    * Redirect to user profile if user is already logged in.
+   * GET /register
    *
    * @return  Illuminate\View\View
    */
   public function getRegister()
   {
-    if (Auth::check()) return Redirect::to('me');
     return View::make('auth.register');
   }
 
   /**
    * Display login view.
    * Redirect to user profile if user is already logged in.
+   * GET /login
    *
    * @return  Illuminate\View\View
    */
@@ -70,6 +71,7 @@ class AuthController extends BaseController {
 
   /**
    * Log user out, then redirect to homepage.
+   * GET /logout
    *
    * @return  Illuminate\Http\RedirectResponse
    */
@@ -81,6 +83,7 @@ class AuthController extends BaseController {
 
   /**
    * Process login form input.
+   * POST /login
    *
    * @return  Illuminate\Http\RedirectResponse
    */
@@ -90,7 +93,7 @@ class AuthController extends BaseController {
 
     $this->throttle(Request::getClientIp(), URL::current());
 
-    $credentials = $this->getCredentials($input);
+    $credentials = $this->retrieveCredentials($input);
 
     if (!$credentials) {
       return Redirect::to('login')->with('message', 'Username or password missing.');
@@ -126,7 +129,7 @@ class AuthController extends BaseController {
    * @param   array $input  The user input from a form.
    * @return  array|false
    */
-  protected function getCredentials($input)
+  protected function retrieveCredentials($input)
   {
     if (!array_key_exists('username', $input)
      || !array_key_exists('password', $input)

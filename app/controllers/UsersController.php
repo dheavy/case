@@ -42,6 +42,13 @@ class UsersController extends \BaseController {
   protected $updatePasswordValidator;
 
   /**
+   * An instance of the form validator for user's destruction.
+   *
+   * @var Mypleasure\Services\Validation\User\UserDestroyValidator
+   */
+  protected $destroyValidator;
+
+  /**
    * An instance of CollectionsController.
    *
    * @var CollectionsController
@@ -59,7 +66,7 @@ class UsersController extends \BaseController {
    * Create instance.
    *
    * @param User  $user        An instance of the User model passed via injection, to loosen dependencies and allow easier testing.
-   * @param array $validators  An array containing instances of UserCreateValidator, UserUpdateEmailValidator, UserUpdatePasswordValidator.
+   * @param array $validators  An array containing instances of UserCreateValidator, UserUpdateEmailValidator, UserUpdatePasswordValidator, UserDestroyValidator.
    * @param array $controllers An array containing instances of CollectionsController and VideosController.
    */
   public function __construct(User $user, array $validators, array $controllers)
@@ -69,12 +76,14 @@ class UsersController extends \BaseController {
     $this->createValidator = $validators['create'];
     $this->updateEmailValidator = $validators['updateEmail'];
     $this->updatePasswordValidator = $validators['updatePassword'];
+    $this->destroyValidator = $validators['destroy'];
     $this->collectionsController = $controllers['collection'];
     $this->videosController = $controllers['video'];
   }
 
   /**
    * Store new User resource.
+   * POST /register
    *
    * @return Illuminate\Http\RedirectResponse
    */
@@ -108,12 +117,7 @@ class UsersController extends \BaseController {
     }
 
     // Create new User resource.
-    $this->user->username = $input['username'];
-    $this->user->email = $input['email'];
-    $this->user->password = Hash::make($input['password']);
-    $this->user->status = $input['status'];
-    $this->user->role_id = $defaultRole->id;
-    $saved = $this->user->save();
+    $saved = $this->createUser($input, $defaultRole->id);
 
     // Redirect with error message, if save is unsuccessful.
     if (!$saved) {
@@ -133,7 +137,49 @@ class UsersController extends \BaseController {
   }
 
   /**
+   * Destroys the specified User.
+   * POST /me/delete
+   *
+   * @param  integer $id The ID of the user to destroy.
+   * @return Illuminate\Http\RedirectResponse
+   */
+  public function destroy()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+
+    // Get user.
+    $user = Auth::user();
+
+    $password = Input::get('password', '');
+
+    // Validate input.
+    $valid = $this->destroyValidator->with(array('password' => $password))->passes();
+    if (!$valid) {
+      return Redirect::route('user.delete')
+        ->withErrors($this->destroyValidator->errors());
+    }
+
+    $match = Hash::check($password, $user->getAuthPassword());
+    if (!$match) {
+      return Redirect::route('user.delete')
+        ->with('message', 'Password does not match, please try again.');
+    }
+
+    // Manually destroy related collections and videos.
+    $this->collectionsController->destroyCollections($user->collections);
+    $this->videosController->destroyVideos($user->videos());
+
+    // Log out and destroy user.
+    Auth::logout();
+    $user->delete();
+
+    // Redirect to landing page.
+    return Redirect::route('static.home');
+  }
+
+  /**
    * Update user's password.
+   * POST /me/edit/password
    *
    * @return Illuminate\Http\RedirectResponse
    */
@@ -181,6 +227,7 @@ class UsersController extends \BaseController {
 
   /**
    * Update user's email.
+   * POST /me/edit/email
    *
    * @return Illuminate\Http\RedirectResponse
    */
@@ -236,6 +283,23 @@ class UsersController extends \BaseController {
   {
     $userClass = get_class($this->user);
     return md5($seed) . $userClass::$EMAIL_PLACEHOLDER_SUFFIX;
+  }
+
+  /**
+   * Create a new User resource and save it in database.
+   *
+   * @param  array    $input    The array of attributes to create User from.
+   * @param  integer  $roleId   The ID of the Role to assign to the user.
+   * @return bool   True if resource was created, false otherwise.
+   */
+  protected function createUser($input, $roleId)
+  {
+    $this->user->username = $input['username'];
+    $this->user->email = $input['email'];
+    $this->user->password = Hash::make($input['password']);
+    $this->user->status = $input['status'];
+    $this->user->role_id = $roleId;
+    return $this->user->save();
   }
 
 }

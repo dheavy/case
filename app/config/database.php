@@ -46,42 +46,26 @@ return array(
 
   'connections' => array(
 
-    'sqlite' => array(
-      'driver'   => 'sqlite',
-      'database' => __DIR__.'/../database/production.sqlite',
-      'prefix'   => '',
-    ),
-
-    'mysql' => array(
-      'driver'    => 'mysql',
-      'host'      => 'localhost',
-      'database'  => 'forge',
-      'username'  => 'forge',
-      'password'  => '',
-      'charset'   => 'utf8',
-      'collation' => 'utf8_unicode_ci',
-      'prefix'    => '',
-    ),
-
-    'pgsql' => array(
+    /*'pgsql' => array(
       'driver'   => 'pgsql',
-      'host'     => 'localhost',
-      'database' => 'forge',
-      'username' => 'forge',
-      'password' => '',
+      'host'     => $_ENV['PSQL_HOST'],
+      'database' => $_ENV['PSQL_DATABASE'],
+      'username' => $_ENV['PSQL_USERNAME'],
+      'password' => $_ENV['PSQL_PASSWORD'],
       'charset'  => 'utf8',
       'prefix'   => '',
       'schema'   => 'public',
     ),
 
-    'sqlsrv' => array(
-      'driver'   => 'sqlsrv',
-      'host'     => 'localhost',
-      'database' => 'database',
-      'username' => 'root',
-      'password' => '',
-      'prefix'   => '',
-    ),
+    'mongodb' => array(
+      'driver'   => 'mongodb',
+      'host'     => $_ENV['MONGODB_HOST'],
+      // 'port'     => 27017,
+      'port'     => $_ENV['MONGODB_PORT'],
+      'username' => $_ENV['MONGODB_USERNAME'],
+      'password' => $_ENV['MONGODB_PASSWORD'],
+      'database' => 'mypleasure-videostore'
+    ),*/
 
   ),
 

@@ -12,7 +12,7 @@ class VideosController extends \BaseController {
   /**
    * Create instance.
    */
-  public function __construct(Video $video)
+  public function __construct()
   {
     parent::__construct();
   }
@@ -30,12 +30,13 @@ class VideosController extends \BaseController {
     $user = Auth::user();
 
     // Get and consolidate videos user might have waiting for herself.
-    $this->fetchNewlyCurated($user->id);
+    // Retrieve the number of videos possibly still pending while user displays her videos page.
+    $pending = $this->fetchNewlyCurated($user->id);
 
     // Aggregate all videos now, and build view.
-    $videos = $user->videos();
+    $videos = $user->videos()->reverse();
 
-    return View::make('user.videos', array('videos' => $videos, 'user' => $user));
+    return View::make('user.videos', array('videos' => $videos, 'user' => $user, 'pending' => $pending));
   }
 
   /**
@@ -51,11 +52,10 @@ class VideosController extends \BaseController {
     $user = Auth::user();
 
     // Clean up input, remove GET variables, ensure it is a proper URL.
-    $url = trim(Input::get('url', ''), '!"#$%&\'()*+,-./@:;<=>[\\]^_`{|}~');
-    $url = strtok($url, '?');
+    $url = $this->cleanupUrlInput(Input::get('url', ''));
+
     if (filter_var($url, FILTER_VALIDATE_URL) === false) {
-      return Redirect::route('user.videos.add')
-        ->with('message', 'URL not valid. Please try again.');
+      return Redirect::route('user.videos.add')->with('message', 'URL not valid. Please try again.');
     }
 
     // Create video hash.
@@ -63,15 +63,11 @@ class VideosController extends \BaseController {
 
     // Stop here if user already added this video.
     if ($user->hasVideoFromHash($hash)) {
-      return Redirect::route('user.videos.add')
-        ->with('message', "Oops... It looks like you've already added this video!");
+      return Redirect::route('user.videos.add')->with('message', "Oops... It looks like you've already added this video!");
     }
 
     // Check if video already exist in videostore.
-    $video = DB::connection('mongodb')
-      ->collection('videos')
-      ->where('hash', '=', $hash)
-      ->get();
+    $video = $this->retrieveVideoInStoreFromHash($hash);
 
     // If video does exist, create an instance for this user.
     // Otherwise, add to queue in MongoDB.
@@ -82,26 +78,31 @@ class VideosController extends \BaseController {
       // The ObjectID is based on the hash of the video to look for dups.
       // It is reduced to 24 characters match ObjectID's requirements.
       try {
-        DB::connection('mongodb')
-        ->collection('queue')
-        ->insert(array(
-          '_id' => new MongoId(substr($hash, 0, 24)),
-          'hash' => $hash,
-          'url' => $url,
-          'requester' => $user->id,
-          'status' => 'pending',
-          'created_at' => Carbon::now()->toDateTimeString(),
-          'updated_at' => Carbon::now()->toDateTimeString()
-        ));
+        $this->addVideoRequestToQueue($hash, $url, $user->id);
       } catch (MongoDuplicateKeyException $error) {
-        return Redirect::route('user.profile')
-          ->with('message', 'Your video is already being processed and will show up in your collection in a short moment.');
+        return Redirect::route('user.profile')->with('message', 'Your video is already being processed and will show up in your collection in a short moment.');
       }
     }
 
     // Redirect user with a short message.
-    return Redirect::route('user.profile')
-        ->with('message', 'Your videos has been added to processing queue and will be available shortly.');
+    return Redirect::route('user.profile')->with('message', 'Your videos has been added to processing queue and will be available shortly.');
+  }
+
+  /**
+   * Batch delete videos from a list.
+   *
+   * @param  Illuminate\Database\Eloquent\Collection $videos The list of videos.
+   * @throws ModelNotFoundException
+   * @return bool True if deleted successfully.
+   */
+  public function destroyVideos($videos)
+  {
+    $videos->each(function($v) {
+      $video = Video::findOrFail($v['id']);
+      $video->delete();
+    });
+
+    return true;
   }
 
   /**
@@ -117,6 +118,38 @@ class VideosController extends \BaseController {
     // Get user.
     $user = Auth::user();
 
+    $pending = $this->fetchNewAndPending();
+    $this->fetchNewAndReady();
+
+    return $pending;
+  }
+
+  /**
+   * Gives information about the number of videos still pending between
+   * two cron jobs while user request to see her videos in the /videos page.
+   *
+   * @return integer The number of videos still pending at the time.
+   */
+  protected function fetchNewAndPending()
+  {
+    // Check if we have videos ready for this user in the 'queue' collection.
+    $pending = DB::connection('mongodb')
+      ->collection('queue')
+      ->where('status', '=', 'pending')
+      ->where('requester', '=', $userId)
+      ->get();
+
+    return count($pending);
+  }
+
+  /**
+   * Process the videos in store ready for this user.
+   * Update queue status for these videos and invoke Video model creation.
+   *
+   * @return void
+   */
+  protected function fetchNewAndReady()
+  {
     // Check if we have videos ready for this user in the 'queue' collection.
     $ready = DB::connection('mongodb')
       ->collection('queue')
@@ -178,6 +211,57 @@ class VideosController extends \BaseController {
         'video_id' => $video->id,
         'created_at' => $now,
         'updated_at' => $now
+      ));
+  }
+
+  /**
+   * Clean URL passed as argument to canonize it for insertion in video store.
+   *
+   * @param  string $taintedUrl The original URL.
+   * @return string The cleaned-up URL.
+   */
+  protected function cleanupUrlInput($taintedUrl)
+  {
+    $url = trim($url, '!"#$%&\'()*+,-./@:;<=>[\\]^_`{|}~');
+    $url = strtok($url, '?');
+    return $url;
+  }
+
+  /**
+   * Retrieve a video in store based on its hash.
+   *
+   * @param  string $hash The hash of the video to retrieve.
+   * @return Illuminate\Database\Eloquent\Collection|null
+   */
+  protected function retrieveVideoInStoreFromHash($hash)
+  {
+    $video = DB::connection('mongodb')
+      ->collection('videos')
+      ->where('hash', '=', $hash)
+      ->get();
+
+    return $video;
+  }
+
+  /**
+   * Add a video request to the queue.
+   *
+   * @param string  $hash      The hash of the requested video.
+   * @param string  $url       The URL of the requested video.
+   * @param integer $requester The ID of the User making the request.
+   */
+  protected function addVideoRequestToQueue($hash, $url, $requester)
+  {
+    $request = DB::connection('mongodb')
+      ->collection('queue')
+      ->insert(array(
+        '_id' => new MongoId(substr($hash, 0, 24)),
+        'hash' => $hash,
+        'url' => $url,
+        'requester' => $requester,
+        'status' => 'pending',
+        'created_at' => Carbon::now()->toDateTimeString(),
+        'updated_at' => Carbon::now()->toDateTimeString()
       ));
   }
 

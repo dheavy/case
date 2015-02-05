@@ -62,4 +62,14 @@ class ProfileController extends \BaseController {
     return View::make('user.addvideo')->with('user', $this->user);
   }
 
+  /**
+   * Display "delete account" form
+   *
+   * @return Illuminate\View\View
+   */
+  public function getDelete()
+  {
+    return View::make('user.delete')->with('user', $this->user);
+  }
+
 }

@@ -37,4 +37,20 @@ class CollectionsController extends \BaseController {
     return true;
   }
 
+  /**
+   * Batch delete collections from a list.
+   *
+   * @param  Illuminate\Database\Eloquent\Collection $collections The list of collections.
+   * @return bool True if deleted successfully.
+   */
+  public function destroyCollections($collections)
+  {
+    $collections->each(function($c) {
+      $collection = Collection::findOrFail($c['id']);
+      $collection->delete();
+    });
+
+    return true;
+  }
+
 }

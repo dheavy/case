@@ -18,6 +18,7 @@ class StaticPagesController extends \BaseController {
 
   /**
    * Renders Homepage view.
+   * GET /
    *
    * @return Illuminate\View\View
    */
