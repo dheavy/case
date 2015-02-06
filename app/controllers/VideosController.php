@@ -85,7 +85,42 @@ class VideosController extends \BaseController {
     }
 
     // Redirect user with a short message.
-    return Redirect::route('user.profile')->with('message', 'Your videos has been added to processing queue and will be available shortly.');
+    return Redirect::route('user.profile')->with('message', 'Your video has been added to processing queue and will be available shortly.');
+  }
+
+  /**
+   * Store a dummy video for user. Use it for development and test purpose.
+   *
+   * @return Illuminate\Http\RedirectResponse
+   */
+  public function storeDebug()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+
+    // Get user.
+    $user = Auth::user();
+
+    // Create instance from dummy data.
+    $now = Carbon::now()->toDateTimeString();
+    $faker = Faker\Factory::create();
+    $seed = $faker->word . (string)rand(1, 10000);
+    $originalUrl = 'http://example.com/' . $seed;
+    $hash = md5(urlencode(utf8_encode($originalUrl)));
+    $title = $faker->word;
+
+    $data = array(
+      'hash' => $hash,
+      'title' => $title,
+      'poster' => $originalUrl . '/poster.jpg',
+      'method' => '_dummy',
+      'original_url' => $originalUrl,
+      'embed_url' => $originalUrl . '/embed',
+      'duration' => '00:10:05'
+    );
+
+    $this->createVideoInstance($user->collections[0]->id, $data);
+
+    return Redirect::route('user.profile')->with('message', 'Fake video added to your list of videos.');
   }
 
   /**
@@ -118,8 +153,8 @@ class VideosController extends \BaseController {
     // Get user.
     $user = Auth::user();
 
-    $pending = $this->fetchNewAndPending();
-    $this->fetchNewAndReady();
+    $pending = $this->fetchNewAndPending($user->id);
+    $this->fetchNewAndReady($user->id);
 
     return $pending;
   }
@@ -128,9 +163,10 @@ class VideosController extends \BaseController {
    * Gives information about the number of videos still pending between
    * two cron jobs while user request to see her videos in the /videos page.
    *
+   * @param  integer $userId  The ID of the user.
    * @return integer The number of videos still pending at the time.
    */
-  protected function fetchNewAndPending()
+  protected function fetchNewAndPending($userId)
   {
     // Check if we have videos ready for this user in the 'queue' collection.
     $pending = DB::connection('mongodb')
@@ -146,9 +182,10 @@ class VideosController extends \BaseController {
    * Process the videos in store ready for this user.
    * Update queue status for these videos and invoke Video model creation.
    *
+   * @param integer $userId  The ID of the user.
    * @return void
    */
-  protected function fetchNewAndReady()
+  protected function fetchNewAndReady($userId)
   {
     // Check if we have videos ready for this user in the 'queue' collection.
     $ready = DB::connection('mongodb')
@@ -222,7 +259,7 @@ class VideosController extends \BaseController {
    */
   protected function cleanupUrlInput($taintedUrl)
   {
-    $url = trim($url, '!"#$%&\'()*+,-./@:;<=>[\\]^_`{|}~');
+    $url = trim($taintedUrl, '!"#$%&\'()*+,-./@:;<=>[\\]^_`{|}~');
     $url = strtok($url, '?');
     return $url;
   }

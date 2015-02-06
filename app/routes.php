@@ -88,8 +88,19 @@ Route::get('/me/videos/add', array(
   'before' => 'auth'
 ));
 
+Route::get('/me/videos/add/debug', array(
+  'uses' => 'ProfileController@getAddVideoDebug',
+  'as' => 'user.videos.add.debug',
+  'before' => 'auth'
+));
+
 Route::post('/me/videos/add', array(
   'uses' => 'VideosController@store',
+  'before' => 'auth|csrf'
+));
+
+Route::post('/me/videos/add/debug', array(
+  'uses' => 'VideosController@storeDebug',
   'before' => 'auth|csrf'
 ));
 

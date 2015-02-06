@@ -63,6 +63,16 @@ class ProfileController extends \BaseController {
   }
 
   /**
+   * Display "add fake video" page.
+   *
+   * @return Illuminate\View\View
+   */
+  public function getAddVideoDebug()
+  {
+    return View::make('debug.addvideo')->with('user', $this->user);
+  }
+
+  /**
    * Display "delete account" form
    *
    * @return Illuminate\View\View

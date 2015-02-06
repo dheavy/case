@@ -20,6 +20,10 @@
       @endif
 
       <li><a href="{{{ URL::route('user.delete') }}}">Delete my account</a></li>
+
+      @if (App::environment() === 'local')
+      <li><hr><a href="{{{ URL::route('user.videos.add.debug') }}}">[DEBUG] Add fake video</a></li>
+      @endif
     </ul>
   </nav>
 
