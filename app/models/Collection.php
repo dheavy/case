@@ -32,7 +32,7 @@ class Collection extends Eloquent {
    */
   public function user()
   {
-    return $this->belongsTo('User');
+    return $this->belongsTo('User')->withTimestamps();
   }
 
   /**
@@ -42,7 +42,7 @@ class Collection extends Eloquent {
    */
   public function videos()
   {
-    return $this->belongsToMany('Video', 'collection_video');
+    return $this->belongsToMany('Video', 'collection_video')->withTimestamps();
   }
 
   /**

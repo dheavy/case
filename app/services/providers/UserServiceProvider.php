@@ -80,7 +80,7 @@ class UserServiceProvider extends ServiceProvider {
     });
 
     $this->app->bind('TagsController', function($app) {
-      return new TagsController(new Tag);
+      return new TagsController(new Tag, new Video);
     });
 
     $this->app->bind('UsersController', function($app) {

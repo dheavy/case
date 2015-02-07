@@ -23,7 +23,7 @@
       <ul class="col-sm-12 col-md-12 col-lg-12">
         <li><a class="play" href="#">Play video</a></li>
         <li><a class="play" href="#">Edit video</a></li>
-        <li><a class="play" href="#">View/Edit tags</a></li>
+        <li><a class="play" href="{{{ URL::route('user.tags.edit', [$video->id]) }}}">View/Edit tags</a></li>
         <li><a class="play" href="#">Delete video</a></li>
       </ul>
     </div>

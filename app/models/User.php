@@ -48,7 +48,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
    *
    * @var array
    */
-  protected $fillable = array('username', 'password', 'email', 'status', 'role_id');
+  protected $fillable = array('username', 'password', 'email', 'status', 'role_id', 'created_at', 'updated_at');
 
   /**
    * Start watching UserObserver on model's boot sequence.

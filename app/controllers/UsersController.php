@@ -294,12 +294,17 @@ class UsersController extends \BaseController {
    */
   protected function createUser($input, $roleId)
   {
+    $now = Carbon::now()->toDateTimeString();
+
     $user = new User;
     $user->username = $input['username'];
     $user->email = $input['email'];
     $user->password = Hash::make($input['password']);
     $user->status = $input['status'];
     $user->role_id = $roleId;
+    $user->created_at = $now;
+    $user->updated_at = $now;
+
     return $user->save();
   }
 

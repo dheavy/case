@@ -39,7 +39,7 @@ class Video extends Eloquent {
    */
   public function collections()
   {
-    return $this->belongsToMany('Collection', 'collection_video');
+    return $this->belongsToMany('Collection', 'collection_video')->withTimestamps();
   }
 
   /**
@@ -49,7 +49,7 @@ class Video extends Eloquent {
    */
   public function tags()
   {
-    return $this->belongsToMany('Tags', 'tag_video');
+    return $this->belongsToMany('Tag', 'tag_video')->withTimestamps();
   }
 
 }

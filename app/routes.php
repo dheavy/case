@@ -104,6 +104,17 @@ Route::post('/me/videos/add/debug', array(
   'before' => 'auth|csrf'
 ));
 
+Route::get('/me/videos/{videoId}/tags/edit', array(
+  'uses' => 'TagsController@getEditTags',
+  'as' => 'user.tags.edit',
+  'before' => 'auth'
+))->where(array('videoId' => '[0-9]+'));
+
+Route::post('/me/videos/{videoId}/tags/edit', array(
+  'uses' => 'TagsController@update',
+  'before' => 'auth|csrf'
+))->where(array('videoId' => '[0-9]+'));
+
 Route::get('/me/delete', array(
   'uses' => 'ProfileController@getDelete',
   'as' => 'user.delete',
