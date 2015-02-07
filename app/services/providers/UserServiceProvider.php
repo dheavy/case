@@ -2,16 +2,19 @@
 
 namespace Mypleasure\Services\Providers;
 
+use Tag;
 use User;
 use Video;
 use Config;
 use Collection;
+use TagsController;
 use AuthController;
 use UsersController;
 use VideosController;
 use CollectionsController;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
+use Mypleasure\Services\Url\UrlSanitizer;
 use Mypleasure\Services\Validation\User\UserAuthValidator;
 use Mypleasure\Services\Validation\User\UserCreateValidator;
 use Mypleasure\Services\Validation\User\UserDestroyValidator;
@@ -73,7 +76,11 @@ class UserServiceProvider extends ServiceProvider {
     });
 
     $this->app->bind('VideosController', function($app) {
-      return new VideosController;
+      return new VideosController(new UrlSanitizer);
+    });
+
+    $this->app->bind('TagsController', function($app) {
+      return new TagsController(new Tag);
     });
 
     $this->app->bind('UsersController', function($app) {
@@ -87,7 +94,8 @@ class UserServiceProvider extends ServiceProvider {
         ),
         array(
           'collection' => $app->make('CollectionsController'),
-          'video' => $app->make('VideosController')
+          'video' => $app->make('VideosController'),
+          'tag' => $app->make('TagsController')
         )
       );
     });

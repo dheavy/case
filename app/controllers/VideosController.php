@@ -1,6 +1,7 @@
 <?php
 
 use Carbon\Carbon;
+use Mypleasure\Services\Url\UrlSanitizer;
 
 /**
  * VideosController deals with video resources for a User,
@@ -10,11 +11,19 @@ use Carbon\Carbon;
 class VideosController extends \BaseController {
 
   /**
+   * An instance of UrlSanitizer.
+   *
+   * @var Mypleasure\Services\Url\UrlSanitizer
+   */
+  protected $urlSanitizer;
+
+  /**
    * Create instance.
    */
-  public function __construct()
+  public function __construct(UrlSanitizer $urlSanitizer)
   {
     parent::__construct();
+    $this->urlSanitizer = $urlSanitizer;
   }
 
   /**
@@ -51,12 +60,14 @@ class VideosController extends \BaseController {
     // Get user.
     $user = Auth::user();
 
-    // Clean up input, remove GET variables, ensure it is a proper URL.
-    $url = $this->cleanupUrlInput(Input::get('url', ''));
+    // Ensure URL validity and canonize it.
+    $url = Input::get('url', '');
 
-    if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+    if (!$this->urlSanitizer->validate($url)) {
       return Redirect::route('user.videos.add')->with('message', 'URL not valid. Please try again.');
     }
+
+    $url = $this->urlSanitizer->canonize($url);
 
     // Create video hash.
     $hash = md5(urlencode(utf8_encode($url)));
@@ -73,7 +84,10 @@ class VideosController extends \BaseController {
     // Otherwise, add to queue in MongoDB.
     $exists = (bool)$video;
     if ($exists) {
-      $this->createVideoInstance($user->collections[0]->id, $video[0]);
+      $created = $this->createVideoInstance($user->collections[0]->id, $video[0]);
+      if (!(bool)$created) {
+        return Redirect::route('user.profile')->with('message', 'Oops.. there was an error adding a video.');
+      }
     } else {
       // The ObjectID is based on the hash of the video to look for dups.
       // It is reduced to 24 characters match ObjectID's requirements.
@@ -154,7 +168,7 @@ class VideosController extends \BaseController {
     $user = Auth::user();
 
     $pending = $this->fetchNewAndPending($user->id);
-    $this->fetchNewAndReady($user->id);
+    $this->fetchNewAndReady($user->id, $user->collections[0]->id);
 
     return $pending;
   }
@@ -168,13 +182,7 @@ class VideosController extends \BaseController {
    */
   protected function fetchNewAndPending($userId)
   {
-    // Check if we have videos ready for this user in the 'queue' collection.
-    $pending = DB::connection('mongodb')
-      ->collection('queue')
-      ->where('status', '=', 'pending')
-      ->where('requester', '=', $userId)
-      ->get();
-
+    $pending = $this->getPendingVideos($userId);
     return count($pending);
   }
 
@@ -183,16 +191,12 @@ class VideosController extends \BaseController {
    * Update queue status for these videos and invoke Video model creation.
    *
    * @param integer $userId  The ID of the user.
-   * @return void
+   * @return boolean  True if successful, false otherwise.
    */
-  protected function fetchNewAndReady($userId)
+  protected function fetchNewAndReady($userId, $collectionId)
   {
     // Check if we have videos ready for this user in the 'queue' collection.
-    $ready = DB::connection('mongodb')
-      ->collection('queue')
-      ->where('status', '=', 'ready')
-      ->where('requester', '=', $userId)
-      ->get();
+    $ready = $this->getReadyVideos($userId);
 
     if (count($ready) === 0) return;
 
@@ -203,7 +207,8 @@ class VideosController extends \BaseController {
         ->where('hash', '=', $v['hash'])
         ->first();
 
-      $this->createVideoInstance($user->collections[0]->id, $instance);
+      $created = $this->createVideoInstance($collectionId, $instance);
+      if (!(bool)$created) return false;
 
       // Mark as 'done'.
       DB::connection('mongodb')
@@ -212,6 +217,8 @@ class VideosController extends \BaseController {
         ->where('requester', '=', $userId)
         ->update(array('status' => 'done'));
     }
+
+    return true;
   }
 
   /**
@@ -219,7 +226,7 @@ class VideosController extends \BaseController {
    *
    * @param  integer $collectionId ID of the collection to attach this video to.
    * @param  array   $instance     The data extracted from the video in the MongoDB storage.
-   * @return Illuminate\Http\RedirectResponse
+   * @return boolean  True if successful, false otherwise.
    */
   protected function createVideoInstance($collectionId, $instance)
   {
@@ -239,7 +246,9 @@ class VideosController extends \BaseController {
     $video->updated_at = $now;
 
     // Save video in DB.
-    $video->save();
+    $saved = $video->save();
+
+    if (!(bool)$saved) return false;
 
     // Create relationship with Collection and redirect user.
     $created = DB::table('collection_video')
@@ -249,19 +258,40 @@ class VideosController extends \BaseController {
         'created_at' => $now,
         'updated_at' => $now
       ));
+
+    return (bool)$created;
   }
 
   /**
-   * Clean URL passed as argument to canonize it for insertion in video store.
+   * Fetch from MongoDB queue collection the video documents
+   * marked 'ready', matching the passed argument as requester.
    *
-   * @param  string $taintedUrl The original URL.
-   * @return string The cleaned-up URL.
+   * @param  integer $userId The ID of the user to match as requester.
+   * @return Illuminate\Support\Collection The results from the queue.
    */
-  protected function cleanupUrlInput($taintedUrl)
+  protected function getReadyVideos($userId)
   {
-    $url = trim($taintedUrl, '!"#$%&\'()*+,-./@:;<=>[\\]^_`{|}~');
-    $url = strtok($url, '?');
-    return $url;
+    return DB::connection('mongodb')
+      ->collection('queue')
+      ->where('status', '=', 'ready')
+      ->where('requester', '=', $userId)
+      ->get();
+  }
+
+  /**
+   * Fetch from MongoDB queue collection the video documents
+   * marked 'pending', matching the passed argument as requester.
+   *
+   * @param  integer $userId The ID of the user to match as requester.
+   * @return Illuminate\Support\Collection The results from the queue.
+   */
+  protected function getPendingVideos($userId)
+  {
+    return DB::connection('mongodb')
+      ->collection('queue')
+      ->where('status', '=', 'pending')
+      ->where('requester', '=', $userId)
+      ->get();
   }
 
   /**

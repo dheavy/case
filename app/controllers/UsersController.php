@@ -294,12 +294,13 @@ class UsersController extends \BaseController {
    */
   protected function createUser($input, $roleId)
   {
-    $this->user->username = $input['username'];
-    $this->user->email = $input['email'];
-    $this->user->password = Hash::make($input['password']);
-    $this->user->status = $input['status'];
-    $this->user->role_id = $roleId;
-    return $this->user->save();
+    $user = new User;
+    $user->username = $input['username'];
+    $user->email = $input['email'];
+    $user->password = Hash::make($input['password']);
+    $user->status = $input['status'];
+    $user->role_id = $roleId;
+    return $user->save();
   }
 
 }

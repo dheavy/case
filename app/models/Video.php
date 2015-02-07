@@ -32,9 +32,24 @@ class Video extends Eloquent {
    */
   protected $fillable = array('hash', 'title', 'slug', 'poster', 'method', 'original_url', 'embed_url', 'active', 'duration');
 
+  /**
+   * Relation with Collection model.
+   *
+   * @return Illuminate\Database\Eloquent\Relations\BelongsToMany
+   */
   public function collections()
   {
     return $this->belongsToMany('Collection', 'collection_video');
+  }
+
+  /**
+   * Relation with Tag model.
+   *
+   * @return Illuminate\Database\Eloquent\Relations\BelongsToMany
+   */
+  public function tags()
+  {
+    return $this->belongsToMany('Tags', 'tag_video');
   }
 
 }
