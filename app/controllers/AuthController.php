@@ -33,8 +33,8 @@ class AuthController extends BaseController {
    * Create instance.
    *
    * @param UserAuthValidator $validator              An instance of the validator used for user's authentication.
-   * @param int               $throttleAttemptLimit   The maximum number of login attempts before throttling is enabled.
-   * @param int               $throttleRetentionTime  The amount of time before disabling throttling.
+   * @param integer           $throttleAttemptLimit   The maximum number of login attempts before throttling is enabled.
+   * @param integer           $throttleRetentionTime  The amount of time before disabling throttling.
    */
   public function __construct(UserAuthValidator $validator, $throttleAttemptLimit, $throttleRetentionTime)
   {
@@ -49,7 +49,7 @@ class AuthController extends BaseController {
    * Redirect to user profile if user is already logged in.
    * GET /register
    *
-   * @return  Illuminate\View\View
+   * @return  Illuminate\View\View|Illuminate\Http\RedirectResponse
    */
   public function getRegister()
   {
@@ -61,7 +61,7 @@ class AuthController extends BaseController {
    * Redirect to user profile if user is already logged in.
    * GET /login
    *
-   * @return  Illuminate\View\View
+   * @return  Illuminate\View\View|Illuminate\Http\RedirectResponse
    */
   public function getLogin()
   {

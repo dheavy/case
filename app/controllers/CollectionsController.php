@@ -17,7 +17,7 @@ class CollectionsController extends \BaseController {
   /**
    * Create a collection for a User.
    *
-   * @param  integer $userId         ID of the user.
+   * @param  mixed   $userId         ID of the user.
    * @param  string  $collectionName Name for the new collection.
    * @return boolean True if succeeded, false otherwise.
    */

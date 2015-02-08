@@ -157,7 +157,7 @@ class VideosController extends \BaseController {
   /**
    * Poll the queue to find possible videos ready for User.
    *
-   * @param  integer $userId ID of the current user.
+   * @param  mixed $userId ID of the current user.
    * @return void
    */
   protected function fetchNewlyCurated($userId)
@@ -177,7 +177,7 @@ class VideosController extends \BaseController {
    * Gives information about the number of videos still pending between
    * two cron jobs while user request to see her videos in the /videos page.
    *
-   * @param  integer $userId  The ID of the user.
+   * @param  mixed $userId  The ID of the user.
    * @return integer The number of videos still pending at the time.
    */
   protected function fetchNewAndPending($userId)
@@ -190,7 +190,7 @@ class VideosController extends \BaseController {
    * Process the videos in store ready for this user.
    * Update queue status for these videos and invoke Video model creation.
    *
-   * @param integer $userId  The ID of the user.
+   * @param  mixed $userId  The ID of the user.
    * @return boolean  True if successful, false otherwise.
    */
   protected function fetchNewAndReady($userId, $collectionId)
@@ -224,7 +224,7 @@ class VideosController extends \BaseController {
   /**
    * Creates an Eloquent Video model from the data fetched from the videostore.
    *
-   * @param  integer $collectionId ID of the collection to attach this video to.
+   * @param  mixed   $collectionId ID of the collection to attach this video to.
    * @param  array   $instance     The data extracted from the video in the MongoDB storage.
    * @return boolean  True if successful, false otherwise.
    */
@@ -266,7 +266,7 @@ class VideosController extends \BaseController {
    * Fetch from MongoDB queue collection the video documents
    * marked 'ready', matching the passed argument as requester.
    *
-   * @param  integer $userId The ID of the user to match as requester.
+   * @param  mixed $userId The ID of the user to match as requester.
    * @return Illuminate\Support\Collection The results from the queue.
    */
   protected function getReadyVideos($userId)
@@ -282,7 +282,7 @@ class VideosController extends \BaseController {
    * Fetch from MongoDB queue collection the video documents
    * marked 'pending', matching the passed argument as requester.
    *
-   * @param  integer $userId The ID of the user to match as requester.
+   * @param  mixed $userId The ID of the user to match as requester.
    * @return Illuminate\Support\Collection The results from the queue.
    */
   protected function getPendingVideos($userId)
@@ -315,7 +315,7 @@ class VideosController extends \BaseController {
    *
    * @param string  $hash      The hash of the requested video.
    * @param string  $url       The URL of the requested video.
-   * @param integer $requester The ID of the User making the request.
+   * @param mixed   $requester The ID of the User making the request.
    */
   protected function addVideoRequestToQueue($hash, $url, $requester)
   {

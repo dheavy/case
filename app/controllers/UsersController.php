@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use GrahamCampbell\Throttle\Facades\Throttle;
 use Mypleasure\Services\Validation\User\UserAuthValidator;
 use Mypleasure\Services\Validation\User\UserCreateValidator;
@@ -107,26 +108,26 @@ class UsersController extends \BaseController {
     }
 
     // Validate inputs.
-    $valid = $this->createValidator->with($input)->passes();
+    $user = $this->createValidator->with($input)->passes();
 
     // Redirect with errors messages, if validation is unsuccessful.
-    if (!$valid) {
+    if (!$user) {
       return Redirect::route('auth.register')
         ->withErrors($this->createValidator->errors())
         ->withInput(Input::except('password', 'password_confirmation'));
     }
 
     // Create new User resource.
-    $saved = $this->createUser($input, $defaultRole->id);
+    $user = $this->createUser($input, $defaultRole->id);
 
     // Redirect with error message, if save is unsuccessful.
-    if (!$saved) {
+    if (!$user) {
       return Redirect::to('register')
         ->with('message', 'There was an error while creating your account. Please try again.');
     }
 
     // Create and link user's default collection.
-    $this->collectionsController->createUserCollection($this->user->id, 'default');
+    $this->collectionsController->createUserCollection($user->id, 'default');
 
     // Redirect the now logged-in user profile page otherwise.
     Auth::attempt(array(
@@ -305,7 +306,8 @@ class UsersController extends \BaseController {
     $user->created_at = $now;
     $user->updated_at = $now;
 
-    return $user->save();
+    if ($user->save()) return $user;
+    return null;
   }
 
 }
