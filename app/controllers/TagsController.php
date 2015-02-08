@@ -76,18 +76,41 @@ class TagsController extends \BaseController {
     // Get user.
     $user = Auth::user();
 
-    $taintedTags = Input::get('tags', '');
-    $taintedTags = strtolower($taintedTags);
-    $taintedTagsArray = explode(',', $taintedTags);
+    // Get tags as list of strings, exploded into an array.
+    $inputTags = strtolower(Input::get('tags', ''));
+    $inputTagsArray = explode(',', $inputTags);
+    foreach ($inputTagsArray as $index => $name) {
+      // Remove blanks.
+      if (trim($name) == '') {
+        unset($inputTagsArray[$index]);
+        continue;
+      }
+      // Trim names.
+      $inputTagsArray[$index] = trim($name);
+    }
 
+    // Get related video.
     $videoId = (integer)Input::get('video', '');
     $video = $this->video->find($videoId);
 
-    foreach ($taintedTagsArray as $tagName) {
+    // Create new tags and attach them to the video.
+    foreach ($inputTagsArray as $tagName) {
       $tag = $this->generateTagFromName($tagName);
       if (!$video->tags->contains($tag->id)) {
         $video->tags()->attach($tag->id);
       }
+    }
+
+    // Remove tags not used anymore.
+    if (count($inputTagsArray) !== $video->tags->count()) {
+      $tags = &$video->tags;
+      $tagsFn = $video->tags();
+      $tags->each(function($tag) use (&$inputTagsArray, &$tags, &$tagsFn) {
+        $tagName = $tag->name;
+        if (!in_array($tagName, $inputTagsArray) && $tags->contains($tag->id)) {
+          $tagsFn->detach($tag->id);
+        }
+      });
     }
 
     return Redirect::route('user.videos')->with('message', 'Tags updated.');
