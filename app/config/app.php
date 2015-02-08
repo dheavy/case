@@ -26,7 +26,7 @@ return array(
   |
   */
 
-  'url' => 'http://localhost',
+  'url' => ' https://still-mountain-6425.herokuapp.com/',
 
   /*
   |--------------------------------------------------------------------------
