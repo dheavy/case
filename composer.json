@@ -15,6 +15,9 @@
     "rmccue/requests": ">=1.0",
     "jenssegers/mongodb": "~2.0"
   },
+  "require-dev": {
+    "heroku/heroku-buildpack-php": "*"
+  },
   "autoload": {
     "classmap": [
       "app/commands",
