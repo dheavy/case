@@ -46,18 +46,19 @@ return array(
 
   'connections' => array(
 
-    /*'pgsql' => array(
+    'pgsql' => array(
       'driver'   => 'pgsql',
-      'host'     => $_ENV['PSQL_HOST'],
-      'database' => $_ENV['PSQL_DATABASE'],
-      'username' => $_ENV['PSQL_USERNAME'],
-      'password' => $_ENV['PSQL_PASSWORD'],
+      'host'     => getenv('PSQL_HOST')
+      'database' => getenv('PSQL_DATABASE')
+      'username' => getenv('PSQL_USERNAME')
+      'password' => getenv('PSQL_PASSWORD')
       'charset'  => 'utf8',
       'prefix'   => '',
+      'port'     => getenv('PSQL_PORT')
       'schema'   => 'public',
     ),
 
-    'mongodb' => array(
+    /*'mongodb' => array(
       'driver'   => 'mongodb',
       'host'     => $_ENV['MONGODB_HOST'],
       // 'port'     => 27017,
