@@ -18,7 +18,7 @@
     </div>
 
     <div class="col-sm-12 col-md-12 col-lg-12">
-      {{ Form::open(array('url' => '/me/videos/add')) }}
+      {{ Form::open(array('url' => URL::to('/me/videos/add', [], true))) }}
 
         <div class="form-group">
           {{ Form::label('url', 'Page URL') }}

@@ -14,7 +14,7 @@
     </div>
 
     <div class="col-sm-12 col-md-12 col-lg-12">
-      {{ Form::open(array('url' => '/me/videos/add/debug')) }}
+      {{ Form::open(array('url' => URL::to('/me/videos/add/debug', [], true))) }}
         {{ Form::submit('Add fake video', array('class' => 'btn btn-primary')) }}
       {{ Form::close() }}
     </div>

@@ -19,7 +19,7 @@
     </div>
 
     <div class="col-sm-12 col-md-12 col-lg-12">
-      {{ Form::open(array('url' => '/me/edit/email')) }}
+      {{ Form::open(array('url' => URL::to('/me/edit/email', [], true))) }}
 
         <div class="form-group">
           {{ Form::label('email', 'Email') }}
