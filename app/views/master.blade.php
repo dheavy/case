@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>mypleasu.re</title>
 
-    {{ HTML::style('css/bootstrap.min.css', null, true) }}
-    {{ HTML::style('css/bootstrap-theme.min.css', null, true) }}
+    {{ HTML::style('css/bootstrap.min.css', [], true) }}
+    {{ HTML::style('css/bootstrap-theme.min.css', [], true) }}
 
     <!--[if lt IE 9]>
       <script src="//oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -39,8 +39,8 @@
       @yield('content', 'mypleasu.re')
     </section>
 
-    {{ HTML::script('js/jquery.min.js', null, true) }}
-    {{ HTML::script('js/bootstrap.min.js', null, true) }}
+    {{ HTML::script('js/jquery.min.js', [], true) }}
+    {{ HTML::script('js/bootstrap.min.js', [], true) }}
   </body>
 
 </html>
