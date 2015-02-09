@@ -48,13 +48,13 @@ return array(
 
     'pgsql' => array(
       'driver'   => 'pgsql',
-      'host'     => getenv('PSQL_HOST')
-      'database' => getenv('PSQL_DATABASE')
-      'username' => getenv('PSQL_USERNAME')
-      'password' => getenv('PSQL_PASSWORD')
+      'host'     => getenv('PSQL_HOST'),
+      'database' => getenv('PSQL_DATABASE'),
+      'username' => getenv('PSQL_USERNAME'),
+      'password' => getenv('PSQL_PASSWORD'),
       'charset'  => 'utf8',
       'prefix'   => '',
-      'port'     => getenv('PSQL_PORT')
+      'port'     => getenv('PSQL_PORT'),
       'schema'   => 'public',
     ),
 
