@@ -5,9 +5,14 @@
   "license": "All Rights Reserved MyPleasu.re 2015",
   "type": "project",
   "require": {
+    "phpunit/phpunit": "3.7.*",
+    "way/phpunit-wrappers": "dev-master",
+    "way/generators": "2.*",
+    "way/laravel-test-helpers": "dev-master",
     "fzaninotto/faker": "1.5.*@dev",
     "graham-campbell/throttle": "~2.0",
     "doctrine/dbal": "2.3.4",
+    "rmccue/requests": ">=1.0",
     "jenssegers/mongodb": "~2.0",
     "ext-memcached": "*"
   },
