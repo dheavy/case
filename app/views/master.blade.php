@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>mypleasu.re</title>
 
-    {{ HTML::linkSecureAsset('css/bootstrap.min.css') }}
-    {{ HTML::linkSecureAsset('css/bootstrap-theme.min.css') }}
+    <link rel="stylesheet" href="{{ HTML::linkSecureAsset('css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ HTML::linkSecureAsset('css/bootstrap-theme.min.css') }}">
 
     <!--[if lt IE 9]>
       <script src="//oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -39,8 +39,8 @@
       @yield('content', 'mypleasu.re')
     </section>
 
-    {{ HTML::linkSecureAsset('js/jquery.min.js') }}
-    {{ HTML::linkSecureAsset('js/bootstrap.min.js') }}
+    <script type="text/javascript" src="{{ HTML::linkSecureAsset('js/jquery.min.js') }}"></script>
+    <script type="text/javascript" src="{{ HTML::linkSecureAsset('js/bootstrap.min.js') }}"></script>
   </body>
 
 </html>
