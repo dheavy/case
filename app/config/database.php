@@ -60,11 +60,11 @@ return array(
 
     'mongodb' => array(
       'driver'   => 'mongodb',
-      'host'     => $_ENV['MONGODB_HOST'],
-      'port'     => $_ENV['MONGODB_PORT'],
-      'username' => $_ENV['MONGODB_USERNAME'],
-      'password' => $_ENV['MONGODB_PASSWORD'],
-      'database' => $_ENV['MONGODB_DATABASE'],
+      'host'     => getenv('MONGODB_HOST'),
+      'port'     => getenv('MONGODB_PORT'),
+      'username' => getenv('MONGODB_USERNAME'),
+      'password' => getenv('MONGODB_PASSWORD'),
+      'database' => getenv('MONGODB_DATABASE')
     ),
 
   ),
