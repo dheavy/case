@@ -13,7 +13,9 @@
 
 App::before(function($request)
 {
-	//
+  if( (Request::header('x-forwarded-proto') <> 'https') && !App::environment('local', 'staging')) {
+     return Redirect::secure(Request::getRequestUri());
+  }
 });
 
 
@@ -96,7 +98,7 @@ Route::filter('csrf', function()
 |
 */
 
-Route::filter('force.ssl', function()
+/*Route::filter('force.ssl', function()
 {
 	if (!Request::secure()) return Redirect::secure(Request::path());
-});
+});*/

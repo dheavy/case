@@ -13,7 +13,12 @@
     "graham-campbell/throttle": "~2.0",
     "doctrine/dbal": "2.3.4",
     "rmccue/requests": ">=1.0",
-    "jenssegers/mongodb": "~2.0"
+    "jenssegers/mongodb": "~2.0",
+    "ext-mongo": "*",
+    "ext-memcached": "*"
+  },
+  "require-dev": {
+    "heroku/heroku-buildpack-php": "*"
   },
   "autoload": {
     "classmap": [

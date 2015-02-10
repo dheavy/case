@@ -46,26 +46,27 @@ return array(
 
   'connections' => array(
 
-    /*'pgsql' => array(
+    'pgsql' => array(
       'driver'   => 'pgsql',
-      'host'     => $_ENV['PSQL_HOST'],
-      'database' => $_ENV['PSQL_DATABASE'],
-      'username' => $_ENV['PSQL_USERNAME'],
-      'password' => $_ENV['PSQL_PASSWORD'],
+      'host'     => getenv('PSQL_HOST'),
+      'database' => getenv('PSQL_DATABASE'),
+      'username' => getenv('PSQL_USERNAME'),
+      'password' => getenv('PSQL_PASSWORD'),
       'charset'  => 'utf8',
       'prefix'   => '',
+      'port'     => getenv('PSQL_PORT'),
       'schema'   => 'public',
     ),
 
     'mongodb' => array(
       'driver'   => 'mongodb',
-      'host'     => $_ENV['MONGODB_HOST'],
-      // 'port'     => 27017,
-      'port'     => $_ENV['MONGODB_PORT'],
-      'username' => $_ENV['MONGODB_USERNAME'],
-      'password' => $_ENV['MONGODB_PASSWORD'],
-      'database' => 'mypleasure-videostore'
-    ),*/
+      'host'     => getenv('MONGODB_HOST'),
+      'port'     => getenv('MONGODB_PORT'),
+      'username' => getenv('MONGODB_USERNAME'),
+      'password' => getenv('MONGODB_PASSWORD'),
+      'database' => getenv('MONGODB_DATABASE'),
+      'options'  => array('replicaSet' => getenv('MONGODB_RS'))
+    ),
 
   ),
 

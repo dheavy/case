@@ -69,13 +69,7 @@ return array(
 
   'memcached' => array(
 
-    array(
-      'host' => parse_url(getenv("MEMCACHEDCLOUD_SERVERS"))['host'],
-      'port' => parse_url(getenv("MEMCACHEDCLOUD_SERVERS"))['port'],
-      'weight' => 100,
-      'username' => getenv("MEMCACHEDCLOUD_USERNAME"),
-      'password' => getenv("MEMCACHEDCLOUD_PASSWORD")
-    ),
+    array('host' => '127.0.0.1', 'port' => 11211, 'weight' => 100),
 
   ),
 

@@ -7,10 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>mypleasu.re</title>
 
-    {{ HTML::style('css/bootstrap.min.css') }}
-    {{ HTML::style('css/bootstrap-theme.min.css') }}
-    {{ HTML::script('js/jquery.min.js') }}
-    {{ HTML::script('js/bootstrap.min.js') }}
+    {{ HTML::style('css/bootstrap.min.css', [], true) }}
+    {{ HTML::style('css/bootstrap-theme.min.css', [], true) }}
+    {{ HTML::script('js/jquery.min.js', [], true) }}
+    {{ HTML::script('js/bootstrap.min.js', [], true) }}
 
     <!--[if lt IE 9]>
       <script src="//oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
