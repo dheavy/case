@@ -14,10 +14,11 @@
     "doctrine/dbal": "2.3.4",
     "rmccue/requests": ">=1.0",
     "jenssegers/mongodb": "~2.0",
-    "ext-memcached": "*"
+    "ext-memcached": "*",
+    "ext-mongo": "*"
   },
   "require-dev": {
-    "heroku/heroku-buildpack-php": "*"
+    "heroku/heroku-buildpack-php": "*",
   },
   "autoload": {
     "classmap": [
