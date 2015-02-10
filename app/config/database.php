@@ -72,7 +72,8 @@ return array(
       'port'     => 10118,
       'username' => 'mypleasureadmin',
       'password' => 'bonjouronclepiscou',
-      'database' => 'mypleasure-videostore?replicaSet=set-54d9d749fcfb14251500053f'
+      'database' => 'mypleasure-videostore',
+      'options'  => array('replicaSet' => 'set-54d9d749fcfb14251500053f')
     ),
 
   ),
