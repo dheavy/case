@@ -14,8 +14,8 @@
     "doctrine/dbal": "2.3.4",
     "rmccue/requests": ">=1.0",
     "jenssegers/mongodb": "~2.0",
-    "ext-memcached": "*",
-    "ext-mongo": "*"
+    "ext-mongo": "*",
+    "ext-memcached": "*"
   },
   "require-dev": {
     "heroku/heroku-buildpack-php": "*"
