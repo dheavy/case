@@ -64,7 +64,7 @@ return array(
       'port'     => getenv('MONGODB_PORT'),
       'username' => getenv('MONGODB_USERNAME'),
       'password' => getenv('MONGODB_PASSWORD'),
-      'database' => getenv('MONGODB_DATABASE')
+      'database' => getenv('MONGODB_DATABASE'),
       'options'  => array('replicaSet' => 'set-54d9d749fcfb14251500053f')
     ),
 
