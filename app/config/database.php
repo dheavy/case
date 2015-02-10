@@ -58,21 +58,13 @@ return array(
       'schema'   => 'public',
     ),
 
-    /*'mongodb' => array(
+    'mongodb' => array(
       'driver'   => 'mongodb',
       'host'     => getenv('MONGODB_HOST'),
       'port'     => getenv('MONGODB_PORT'),
       'username' => getenv('MONGODB_USERNAME'),
       'password' => getenv('MONGODB_PASSWORD'),
       'database' => getenv('MONGODB_DATABASE')
-    ),*/
-    'mongodb' => array(
-      'driver'   => 'mongodb',
-      'host'     => 'c118.candidate.39.mongolayer.com',
-      'port'     => 10118,
-      'username' => 'mypleasureadmin',
-      'password' => 'bonjouronclepiscou',
-      'database' => 'mypleasure-videostore',
       'options'  => array('replicaSet' => 'set-54d9d749fcfb14251500053f')
     ),
 
