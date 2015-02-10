@@ -68,11 +68,11 @@ return array(
     ),*/
     'mongodb' => array(
       'driver'   => 'mongodb',
-      'host'     => 'mongosoup-cont002.mongosoup.de',
-      'port'     => 31774,
-      'username' => 'VcMgbrhpnhtZ',
-      'password' => 'HMUnQvEBdQlo',
-      'database' => 'cc_VcMgbrhpnhtZ'
+      'host'     => 'c118.candidate.39.mongolayer.com',
+      'port'     => 10118,
+      'username' => 'mypleasureadmin',
+      'password' => 'bonjouronclepiscou',
+      'database' => 'mypleasure-videostore?replicaSet=set-54d9d749fcfb14251500053f'
     ),
 
   ),
