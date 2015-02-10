@@ -58,13 +58,21 @@ return array(
       'schema'   => 'public',
     ),
 
-    'mongodb' => array(
+    /*'mongodb' => array(
       'driver'   => 'mongodb',
       'host'     => getenv('MONGODB_HOST'),
       'port'     => getenv('MONGODB_PORT'),
       'username' => getenv('MONGODB_USERNAME'),
       'password' => getenv('MONGODB_PASSWORD'),
       'database' => getenv('MONGODB_DATABASE')
+    ),*/
+    'mongodb' => array(
+      'driver'   => 'mongodb',
+      'host'     => 'mongosoup-cont002.mongosoup.de',
+      'port'     => 31774,
+      'username' => 'VcMgbrhpnhtZ',
+      'password' => 'HMUnQvEBdQlo',
+      'database' => 'cc_VcMgbrhpnhtZ'
     ),
 
   ),
