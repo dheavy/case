@@ -58,15 +58,14 @@ return array(
       'schema'   => 'public',
     ),
 
-    /*'mongodb' => array(
+    'mongodb' => array(
       'driver'   => 'mongodb',
       'host'     => $_ENV['MONGODB_HOST'],
-      // 'port'     => 27017,
       'port'     => $_ENV['MONGODB_PORT'],
       'username' => $_ENV['MONGODB_USERNAME'],
       'password' => $_ENV['MONGODB_PASSWORD'],
-      'database' => 'mypleasure-videostore'
-    ),*/
+      'database' => $_ENV['MONGODB_DATABASE'],
+    ),
 
   ),
 
