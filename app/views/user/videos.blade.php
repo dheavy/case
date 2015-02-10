@@ -11,7 +11,7 @@
   <div class="row">
 
     @foreach($videos as $video)
-    <div class="col-sm-12 col-md-3 col-lg-3 video">
+    <div class="col-sm-12 col-md-3 col-lg-3 video" data-video="{{ $video->embed_url }}">
       @if ($video->method === '_dummy')
       <div class="col-sm-12 col-md-12 col-lg-12 dummy" style="display:block;width:100%;height:200px;background:#CCC"></div>
       @else
@@ -22,9 +22,9 @@
       <div class="col-sm-12 col-md-12 col-lg-12">{{{ $video->duration }}}</div>
       <ul class="col-sm-12 col-md-12 col-lg-12">
         <li><a class="play" href="#">Play video</a></li>
-        <li><a class="play" href="#">Edit video</a></li>
-        <li><a class="play" href="{{{ URL::route('user.tags.edit', [$video->id]) }}}">View/Edit tags</a></li>
-        <li><a class="play" href="#">Delete video</a></li>
+        <li><a class="edit" href="#">Edit video</a></li>
+        <li><a class="tags" href="{{{ URL::route('user.tags.edit', [$video->id]) }}}">View/Edit tags</a></li>
+        <li><a class="delete" href="#">Delete video</a></li>
       </ul>
     </div>
     @endforeach
@@ -40,5 +40,45 @@
     @endif
 
   </div>
+
+    <div class="modal fade" id="player" tabindex="-1" role="dialog" aria-labelledby="player" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="player-label">Hello</h4>
+          </div>
+          <div class="modal-body">
+              <div id="embed-body"></div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal"><<</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" data-dismiss="modal">>></button>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  $(function() {
+    var $modal = $('#player'),
+        $label = $('#player-label'),
+        $body = $('#embed-body'),
+        $playBtns = $('.play');
+
+    $playBtns.bind('click', function p(e) {
+      e.preventDefault();
+
+      var $root = $(e.target).parent().parent().parent(),
+          embed = $root.attr('data-video');
+
+      var iframe = '<iframe width="565" height="300" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="' + embed + '"></iframe>';
+
+      $body.html(iframe);
+      $modal.modal();
+    });
+  });
+  </script>
 
 @stop
