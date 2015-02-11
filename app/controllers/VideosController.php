@@ -149,7 +149,12 @@ class VideosController extends \BaseController {
       // TODO: Sanitize input.
       $video->title = Input::get('title', '');
       $video->save();
-      return Redirect::route('user.videos')->with('message', 'Your video has been updated.');
+      if (!$saved) {
+        return Redirect::route('user.videos.edit', [$video->id])
+          ->with('message', 'Oops... there was an error updating your video. Please try again.');
+      }
+      return Redirect::route('user.videos')
+          ->with('message', 'Your video has been updated.');
     }
     return Redirect::route('user.videos');
   }

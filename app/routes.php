@@ -119,7 +119,6 @@ Route::get('/me/videos/{videoId}/edit', array(
 
 Route::post('/me/videos/{videoId}/edit', array(
   'uses' => 'VideosController@edit',
-  'as' => 'user.videos.edit',
   'before' => 'auth|csrf'
 ))->where(array('videoId' => '[0-9]+'));
 
