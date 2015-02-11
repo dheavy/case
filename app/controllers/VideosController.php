@@ -137,6 +137,20 @@ class VideosController extends \BaseController {
     return Redirect::route('user.profile')->with('message', 'Fake video added to your list of videos.');
   }
 
+  public function destroy($id) {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+
+    // Get user.
+    $user = Auth::user();
+
+    $video = Video::findOrFail($id);
+    if ($user->hasVideo($video->id)) {
+      $video->delete();
+      return Redirect::route('user.videos')->with('message', 'Video deleted.');
+    }
+    return Redirect::route('user.videos');
+  }
+
   /**
    * Batch delete videos from a list.
    *

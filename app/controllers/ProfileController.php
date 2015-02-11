@@ -82,4 +82,51 @@ class ProfileController extends \BaseController {
     return View::make('user.delete')->with('user', $this->user);
   }
 
+  /**
+   * Display the "edit tags" form.
+   *
+   * @param  mixed $videoId The ID of the video to which the tags belong.
+   * @return Illuminate\View\View
+   */
+  public function getEditTags($videoId)
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+
+    // Get user.
+    $user = Auth::user();
+
+    // Get video.
+    $video = Video::findOrFail($videoId);
+
+    // Fetch tags for this video into an array of tag names.
+    $tagsCollection = $video->tags;
+    $tagsArray = array();
+    $tagsCollection->each(function($tag) use (&$tagsArray) {
+      $tagsArray[] = $tag->name;
+    });
+
+    // Format array into a string we'll display to the user.
+    $tags = join(', ', $tagsArray);
+
+    // Build URL for form action.
+    $url = URL::route('user.tags.edit', $video->id);
+
+    // Return view.
+    return View::make('tags.edit')->with(array('user' => $user, 'video' => $video, 'tags' => $tags, 'url' => $url));
+  }
+
+  public function getDeleteVideo($videoId)
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+
+    // Get user and video.
+    $user = Auth::user();
+    $video = Video::findOrFail($videoId);
+
+    // Build URL for form action.
+    $url = URL::route('user.videos.delete', $video->id);
+
+    return View::make('user.deletevideo')->with(array('user' => $user, 'video' => $video, 'url' => $url));
+  }
+
 }

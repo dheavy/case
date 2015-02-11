@@ -24,7 +24,7 @@
         <li><a class="play" data-index="<?php echo $i ?>" href="#">Play video</a></li>
         <li><a class="edit" href="#">Edit video</a></li>
         <li><a class="tags" href="{{{ URL::route('user.tags.edit', [$video->id]) }}}">View/Edit tags</a></li>
-        <li><a class="delete" href="#">Delete video</a></li>
+        <li><a class="delete" href="{{{ URL::route('user.videos.delete', [$video->id]) }}}">Delete video</a></li>
       </ul>
     </div>
     @endforeach
@@ -52,9 +52,9 @@
               <div id="embed-body"></div>
           </div>
           <div class="modal-footer">
-              <button type="button" class="btn btn-primary prevBtn"><<</button>
+              <button type="button" class="btn btn-primary prev-btn"><<</button>
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary nextBtn">>></button>
+              <button type="button" class="btn btn-primary next-btn">>></button>
           </div>
       </div>
     </div>
@@ -66,8 +66,8 @@
         $label = $('#player-label'),
         $body = $('#embed-body'),
         $playBtns = $('.play'),
-        $prevBtn = $('.prevBtn'),
-        $nextBtn = $('.nextBtn'),
+        $prevBtn = $('.prev-btn'),
+        $nextBtn = $('.next-btn'),
         embeds = [];
         currentIndex = 0,
         iframe = null;

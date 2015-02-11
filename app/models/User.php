@@ -112,6 +112,27 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
   }
 
   /**
+   * Use given id to find out if user has video or not.
+   *
+   * @param  integer  $id The ID of video to check.
+   * @return boolean  True if user has the video, false otherwise.
+   */
+  public function hasVideo($id)
+  {
+    $hasVideo = false;
+
+    $this->collections->each(function($collection) use (&$hasVideo, &$id) {
+      $collection->videos->each(function($video) use (&$hasVideo, &$id) {
+        if ($video->id === $id) {
+          $hasVideo = true;
+        }
+      });
+    });
+
+    return $hasVideo;
+  }
+
+  /**
    * Use given hash to find out if user has already
    * curated a particular video.
    *
