@@ -18,7 +18,7 @@ App::before(function($request)
   }
 
   if(!Request::secure()) {
-    return Redirect::secure(Request::path());
+    return Redirect::secure(Request::getRequestUri());
   }
 });
 
