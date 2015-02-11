@@ -28,8 +28,8 @@ $app = new Illuminate\Foundation\Application;
 |
 */
 $config = array();
-$config['MEMCACHEDCLOUD_SERVERS_HOST'] = getenv("MEMCACHEDCLOUD_SERVERS")['host'] ? getenv("MEMCACHEDCLOUD_SERVERS")['host'] : '';
-$config['MEMCACHEDCLOUD_SERVERS_PORT'] = getenv("MEMCACHEDCLOUD_SERVERS")['port'] ? getenv("MEMCACHEDCLOUD_SERVERS")['port'] : '';
+$config['MEMCACHEDCLOUD_SERVERS_HOST'] = getenv("MEMCACHEDCLOUD_SERVERS") ? getenv("MEMCACHEDCLOUD_SERVERS")['host'] : '';
+$config['MEMCACHEDCLOUD_SERVERS_PORT'] = getenv("MEMCACHEDCLOUD_SERVERS") ? getenv("MEMCACHEDCLOUD_SERVERS")['port'] : '';
 $config['MEMCACHEDCLOUD_USERNAME'] = getenv("MEMCACHEDCLOUD_USERNAME") ? getenv("MEMCACHEDCLOUD_USERNAME") : '';
 $config['MEMCACHEDCLOUD_PASSWORD'] = getenv("MEMCACHEDCLOUD_PASSWORD") ? getenv("MEMCACHEDCLOUD_PASSWORD") : '';
 $config['PSQL_HOST'] = getenv("PSQL_HOST") ? getenv("PSQL_HOST") : '';
