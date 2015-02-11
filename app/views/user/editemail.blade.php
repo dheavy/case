@@ -19,7 +19,7 @@
     </div>
 
     <div class="col-sm-12 col-md-12 col-lg-12">
-      {{ Form::open(array('url' => URL::secure('/me/edit/email', [], true))) }}
+      {{ Form::open(array('url' => URL::secure('/me/edit/email'))) }}
 
         <div class="form-group">
           {{ Form::label('email', 'Email') }}

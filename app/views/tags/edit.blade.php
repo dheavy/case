@@ -20,7 +20,8 @@
     </div>
 
     <div class="col-sm-12 col-md-12 col-lg-12">
-      {{ Form::open(array('url' => URL::to($url, [], true))) }}
+      <?php $url = "/me/videos/{$video->id}/tags/edit" ?>
+      {{ Form::open(array('url' => $url)) }}
 
         {{ Form::hidden('video', $video->id) }}
         <div class="form-group">

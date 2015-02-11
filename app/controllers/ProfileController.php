@@ -108,11 +108,8 @@ class ProfileController extends \BaseController {
     // Format array into a string we'll display to the user.
     $tags = join(', ', $tagsArray);
 
-    // Build URL for form action.
-    $url = 'me/videos/' . $video->id . '/tags/edit';
-
     // Return view.
-    return View::make('tags.edit')->with(array('user' => $user, 'video' => $video, 'tags' => $tags, 'url' => $url));
+    return View::make('tags.edit')->with(array('user' => $user, 'video' => $video, 'tags' => $tags));
   }
 
   public function getEditVideo($videoId)
@@ -123,9 +120,7 @@ class ProfileController extends \BaseController {
     $user = Auth::user();
     $video = Video::findOrFail($videoId);
 
-    $url = 'me/videos/' . $video->id . '/edit';
-
-    return View::make('user.editvideo')->with(array('user' => $user, 'video' => $video, 'url' => $url));
+    return View::make('user.editvideo')->with(array('user' => $user, 'video' => $video));
   }
 
   public function getDeleteVideo($videoId)
@@ -136,10 +131,7 @@ class ProfileController extends \BaseController {
     $user = Auth::user();
     $video = Video::findOrFail($videoId);
 
-    // Build URL for form action.
-    $url = $url = 'me/videos/' . $video->id . '/delete';
-
-    return View::make('user.deletevideo')->with(array('user' => $user, 'video' => $video, 'url' => $url));
+    return View::make('user.deletevideo')->with(array('user' => $user, 'video' => $video));
   }
 
 }

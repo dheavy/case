@@ -10,7 +10,7 @@
     <div class="alert alert-info">{{ Session::get('message') }}</div>
   @endif
 
-  {{ Form::open(array('url' => URL::to('/login', [], true))) }}
+  {{ Form::open(array('url' => URL::secure('/login'))) }}
 
   <div class="form-group">
     {{ Form::label('username', 'Username') }}

@@ -5,7 +5,7 @@
 
   {{ HTML::ul($errors->all()) }}
 
-  {{ Form::open(array('url' => URL::to('/register', [], true))) }}
+  {{ Form::open(array('url' => URL::secure('/register'))) }}
 
   <div class="form-group">
     {{ Form::label('username', 'Username') }}
