@@ -28,21 +28,21 @@ $app = new Illuminate\Foundation\Application;
 |
 */
 $config = array();
-$config['MEMCACHEDCLOUD_SERVERS_HOST'] = (getenv("MEMCACHEDCLOUD_SERVERS") && array_key_exists('host', getenv("MEMCACHEDCLOUD_SERVERS"))) ? getenv("MEMCACHEDCLOUD_SERVERS")['host'] : '';
-$config['MEMCACHEDCLOUD_SERVERS_PORT'] = (getenv("MEMCACHEDCLOUD_SERVERS") && array_key_exists('port', getenv("MEMCACHEDCLOUD_SERVERS"))) ? (int)getenv("MEMCACHEDCLOUD_SERVERS")['port'] : '';
-$config['MEMCACHEDCLOUD_USERNAME'] = getenv("MEMCACHEDCLOUD_USERNAME") ? getenv("MEMCACHEDCLOUD_USERNAME") : '';
-$config['MEMCACHEDCLOUD_PASSWORD'] = getenv("MEMCACHEDCLOUD_PASSWORD") ? getenv("MEMCACHEDCLOUD_PASSWORD") : '';
-$config['PSQL_HOST'] = getenv("PSQL_HOST") ? getenv("PSQL_HOST") : '';
-$config['PSQL_DATABASE'] = getenv("PSQL_DATABASE") ? getenv("PSQL_DATABASE") : '';
-$config['PSQL_USERNAME'] = getenv("PSQL_USERNAME") ? getenv("PSQL_USERNAME") : '';
-$config['PSQL_PASSWORD'] = getenv("PSQL_PASSWORD") ? getenv("PSQL_PASSWORD") : '';
-$config['PSQL_PORT'] = getenv("PSQL_PORT") ? (int)getenv("PSQL_PORT") : '';
-$config['MONGODB_HOST'] = getenv("MONGODB_HOST") ? getenv("MONGODB_HOST") : '';
-$config['MONGODB_PORT'] = getenv("MONGODB_PORT") ? (int)getenv("MONGODB_PORT") : '';
-$config['MONGODB_DATABASE'] = getenv("MONGODB_DATABASE") ? getenv("MONGODB_DATABASE") : '';
-$config['MONGODB_USERNAME'] = getenv("MONGODB_USERNAME") ? getenv("MONGODB_USERNAME") : '';
-$config['MONGODB_PASSWORD'] = getenv("MONGODB_PASSWORD") ? getenv("MONGODB_PASSWORD") : '';
-$config['MONGODB_RS'] = getenv("MONGODB_RS") ? getenv("MONGODB_RS") : '';
+$config['MEMCACHEDCLOUD_SERVERS_HOST'] = ($_ENV("MEMCACHEDCLOUD_SERVERS") && array_key_exists('host', $_ENV("MEMCACHEDCLOUD_SERVERS"))) ? $_ENV("MEMCACHEDCLOUD_SERVERS")['host'] : '';
+$config['MEMCACHEDCLOUD_SERVERS_PORT'] = ($_ENV("MEMCACHEDCLOUD_SERVERS") && array_key_exists('port', $_ENV("MEMCACHEDCLOUD_SERVERS"))) ? (int)$_ENV("MEMCACHEDCLOUD_SERVERS")['port'] : '';
+$config['MEMCACHEDCLOUD_USERNAME'] = $_ENV("MEMCACHEDCLOUD_USERNAME") ? $_ENV("MEMCACHEDCLOUD_USERNAME") : '';
+$config['MEMCACHEDCLOUD_PASSWORD'] = $_ENV("MEMCACHEDCLOUD_PASSWORD") ? $_ENV("MEMCACHEDCLOUD_PASSWORD") : '';
+$config['PSQL_HOST'] = $_ENV("PSQL_HOST") ? $_ENV("PSQL_HOST") : '';
+$config['PSQL_DATABASE'] = $_ENV("PSQL_DATABASE") ? $_ENV("PSQL_DATABASE") : '';
+$config['PSQL_USERNAME'] = $_ENV("PSQL_USERNAME") ? $_ENV("PSQL_USERNAME") : '';
+$config['PSQL_PASSWORD'] = $_ENV("PSQL_PASSWORD") ? $_ENV("PSQL_PASSWORD") : '';
+$config['PSQL_PORT'] = $_ENV("PSQL_PORT") ? (int)$_ENV("PSQL_PORT") : '';
+$config['MONGODB_HOST'] = $_ENV("MONGODB_HOST") ? $_ENV("MONGODB_HOST") : '';
+$config['MONGODB_PORT'] = $_ENV("MONGODB_PORT") ? (int)$_ENV("MONGODB_PORT") : '';
+$config['MONGODB_DATABASE'] = $_ENV("MONGODB_DATABASE") ? $_ENV("MONGODB_DATABASE") : '';
+$config['MONGODB_USERNAME'] = $_ENV("MONGODB_USERNAME") ? $_ENV("MONGODB_USERNAME") : '';
+$config['MONGODB_PASSWORD'] = $_ENV("MONGODB_PASSWORD") ? $_ENV("MONGODB_PASSWORD") : '';
+$config['MONGODB_RS'] = $_ENV("MONGODB_RS") ? $_ENV("MONGODB_RS") : '';
 $app['_config'] = $config;
 
 /*
@@ -57,8 +57,8 @@ $app['_config'] = $config;
 */
 
 $env = $app->detectEnvironment(function() {
-  if (getenv('LARAVEL_ENV')) {
-    return getenv('LARAVEL_ENV');
+  if ($_ENV('LARAVEL_ENV')) {
+    return $_ENV('LARAVEL_ENV');
   } else {
     return 'local'; // Default
   }
