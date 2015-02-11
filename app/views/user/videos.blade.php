@@ -10,8 +10,8 @@
 
   <div class="row">
 
-    @foreach($videos as $video)
-    <div class="col-sm-12 col-md-3 col-lg-3 video" data-video="{{ $video->embed_url }}">
+    @foreach($videos as $i => $video)
+    <div class="col-sm-12 col-md-3 col-lg-3 video" data-video="{{ $video->embed_url }}" data-index="<?php echo $i ?>">
       @if ($video->method === '_dummy')
       <div class="col-sm-12 col-md-12 col-lg-12 dummy" style="display:block;width:100%;height:200px;background:#CCC"></div>
       @else
@@ -21,7 +21,7 @@
       <h5 class="col-sm-12 col-md-12 col-lg-12">{{{ $video->title }}}</h5>
       <div class="col-sm-12 col-md-12 col-lg-12">{{{ $video->duration }}}</div>
       <ul class="col-sm-12 col-md-12 col-lg-12">
-        <li><a class="play" href="#">Play video</a></li>
+        <li><a class="play" data-index="<?php echo $i ?>" href="#">Play video</a></li>
         <li><a class="edit" href="#">Edit video</a></li>
         <li><a class="tags" href="{{{ URL::route('user.tags.edit', [$video->id]) }}}">View/Edit tags</a></li>
         <li><a class="delete" href="#">Delete video</a></li>
@@ -52,9 +52,9 @@
               <div id="embed-body"></div>
           </div>
           <div class="modal-footer">
-              <button type="button" class="btn btn-primary" data-dismiss="modal"><<</button>
+              <button type="button" class="btn btn-primary prevBtn"><<</button>
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" data-dismiss="modal">>></button>
+              <button type="button" class="btn btn-primary nextBtn">>></button>
           </div>
       </div>
     </div>
@@ -65,19 +65,61 @@
     var $modal = $('#player'),
         $label = $('#player-label'),
         $body = $('#embed-body'),
-        $playBtns = $('.play');
+        $playBtns = $('.play'),
+        $prevBtn = $('.prevBtn'),
+        $nextBtn = $('.nextBtn'),
+        embeds = [];
+        currentIndex = 0,
+        iframe = null;
 
-    $playBtns.bind('click', function p(e) {
+    function init() {
+      var $videos = $('.video');
+
+      _.each($videos, function iter(video) {
+        embeds.push($(video).attr('data-video'));
+      });
+
+      $playBtns.bind('click', openModal);
+      $prevBtn.bind('click', prevVideo);
+      $nextBtn.bind('click', nextVideo);
+      $modal.bind('hide.bs.modal', closeModal);
+    }
+
+    function makeIframe(embed) {
+      var iframe = '<iframe width="565" height="300" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="' + embed + '"></iframe>';
+      $body.html(iframe);
+    }
+
+    function openModal(e) {
       e.preventDefault();
 
-      var $root = $(e.target).parent().parent().parent(),
-          embed = $root.attr('data-video');
+      currentIndex = parseInt($(e.target).attr('data-index'));
+      embed = embeds[currentIndex];
+      makeIframe(embed);
 
-      var iframe = '<iframe width="565" height="300" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="' + embed + '"></iframe>';
-
-      $body.html(iframe);
       $modal.modal();
-    });
+    }
+
+    function closeModal(e) {
+      iframe = null;
+      $body.html('');
+    }
+
+    function prevVideo() {
+      var previous = currentIndex === 0 ? embeds.length - 1 : currentIndex - 1;
+      embed = embeds[previous];
+      makeIframe(embed);
+      currentIndex = previous;
+    }
+
+    function nextVideo() {
+      var next = currentIndex === embeds.length - 1 ? 0 : currentIndex + 1;
+      embed = embeds[next];
+      makeIframe(embed);
+      currentIndex = next;
+    }
+
+    init();
   });
   </script>
 

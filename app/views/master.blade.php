@@ -11,6 +11,7 @@
     {{ HTML::style('css/bootstrap-theme.min.css', [], true) }}
     {{ HTML::script('js/jquery.min.js', [], true) }}
     {{ HTML::script('js/bootstrap.min.js', [], true) }}
+    {{ HTML::script('js/lodash.min.js', [], true) }}
 
     <!--[if lt IE 9]>
       <script src="//oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
