@@ -26,15 +26,15 @@
       </header>
       <ul class="nav navbar-nav">
         @if (Auth::check())
-          <li><a href="{{{ secure_url(URL::route('user.profile')) }}}">me</a></li>
-          <li><a href="{{{ secure_url(URL::route('user.videos')) }}}">my videos</a></li>
-          <li><a href="{{{ secure_url(URL::route('user.videos.add')) }}}">add video</a></li>
-          <li><a href="{{{ secure_url(URL::route('user.edit.email')) }}}">edit email</a></li>
-          <li><a href="{{{ secure_url(URL::route('user.edit.password')) }}}">change password</a></li>
-          <li><a href="{{{ secure_url(URL::route('auth.logout')) }}}">log out</a></li>
+          <li><a href="{{{ URL::secure('/me') }}}">me</a></li>
+          <li><a href="{{{ URL::secure('/me/videos') }}}">my videos</a></li>
+          <li><a href="{{{ URL::secure('/me/videos/add') }}}">add video</a></li>
+          <li><a href="{{{ URL::secure('/me/edit/email') }}}">edit email</a></li>
+          <li><a href="{{{ URL::secure('/me/edit/password') }}}">change password</a></li>
+          <li><a href="{{{ URL::secure('/logout') }}}">log out</a></li>
         @else
-          <li><a href="{{{ secure_url(URL::route('auth.register')) }}}">register</a></li>
-          <li><a href="{{{ secure_url(URL::route('auth.login')) }}}">sign in</a></li>
+          <li><a href="{{{ URL::secure('/register') }}}">register</a></li>
+          <li><a href="{{{ URL::secure('/login') }}}">sign in</a></li>
         @endif
       </ul>
     </nav>

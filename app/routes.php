@@ -1,5 +1,5 @@
 <?php
-Route::when('*', 'secure');
+
 /**
  * Home
  */

@@ -102,11 +102,3 @@ Route::filter('csrf', function()
 {
 	if (!Request::secure()) return Redirect::secure(Request::path());
 });*/
-Route::filter('secure', function () {
-    if (! Request::secure()) {
-        return Redirect::secure(
-            Request::path(),
-            in_array(Request::getMethod(), ['POST', 'PUT', 'DELETE']) ? 307 : 302
-        );
-    }
-});
