@@ -97,7 +97,11 @@
       embed = embeds[currentIndex];
       makeIframe(embed);
 
-      $modal.modal();
+      var options = {
+        'backdrop': true,
+        'keyboard': true
+      };
+      $modal.modal(options);
     }
 
     function closeModal(e) {
