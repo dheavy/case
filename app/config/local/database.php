@@ -28,6 +28,7 @@ return array(
       'password' => 'secret',
       'charset'  => 'utf8',
       'prefix'   => '',
+      'port'     => 5432,
       'schema'   => 'public',
     ),
 

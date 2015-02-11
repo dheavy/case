@@ -70,11 +70,11 @@ return array(
   'memcached' => array(
 
     array(
-      'host' => parse_url(getenv("MEMCACHEDCLOUD_SERVERS"))['host'],
-      'port' => parse_url(getenv("MEMCACHEDCLOUD_SERVERS"))['port'],
+      'host' => App::getFacadeRoot()->_config['MEMCACHEDCLOUD_SERVERS_HOST'],
+      'port' => App::getFacadeRoot()->_config['MEMCACHEDCLOUD_SERVERS_PORT'],
       'weight' => 100,
-      'username' => getenv("MEMCACHEDCLOUD_USERNAME"),
-      'password' => getenv("MEMCACHEDCLOUD_PASSWORD")
+      'username' => App::getFacadeRoot()->_config['MEMCACHEDCLOUD_USERNAME'],
+      'password' => App::getFacadeRoot()->_config['MEMCACHEDCLOUD_PASSWORD']
     ),
 
   ),

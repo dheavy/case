@@ -43,29 +43,28 @@ return array(
   | choice installed on your machine before you begin development.
   |
   */
-
   'connections' => array(
 
     'pgsql' => array(
       'driver'   => 'pgsql',
-      'host'     => getenv('PSQL_HOST'),
-      'database' => getenv('PSQL_DATABASE'),
-      'username' => getenv('PSQL_USERNAME'),
-      'password' => getenv('PSQL_PASSWORD'),
+      'host'     => App::getFacadeRoot()->_config['PSQL_HOST'],
+      'database' => App::getFacadeRoot()->_config['PSQL_DATABASE'],
+      'username' => App::getFacadeRoot()->_config['PSQL_USERNAME'],
+      'password' => App::getFacadeRoot()->_config['PSQL_PASSWORD'],
       'charset'  => 'utf8',
       'prefix'   => '',
-      'port'     => getenv('PSQL_PORT'),
+      'port'     => App::getFacadeRoot()->_config['PSQL_PORT'],
       'schema'   => 'public',
     ),
 
     'mongodb' => array(
       'driver'   => 'mongodb',
-      'host'     => getenv('MONGODB_HOST'),
-      'port'     => getenv('MONGODB_PORT'),
-      'username' => getenv('MONGODB_USERNAME'),
-      'password' => getenv('MONGODB_PASSWORD'),
-      'database' => getenv('MONGODB_DATABASE'),
-      'options'  => array('replicaSet' => getenv('MONGODB_RS'))
+      'host'     => App::getFacadeRoot()->_config['MONGODB_HOST'],
+      'port'     => App::getFacadeRoot()->_config['MONGODB_PORT'],
+      'username' => App::getFacadeRoot()->_config['MONGODB_USERNAME'],
+      'password' => App::getFacadeRoot()->_config['MONGODB_PASSWORD'],
+      'database' => App::getFacadeRoot()->_config['MONGODB_DATABASE'],
+      'options'  => array('replicaSet' => App::getFacadeRoot()->_config['MONGODB_RS'])
     ),
 
   ),

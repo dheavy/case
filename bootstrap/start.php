@@ -10,8 +10,40 @@
 | the IoC container for the system binding all of the various parts.
 |
 */
-
 $app = new Illuminate\Foundation\Application;
+
+/*
+|--------------------------------------------------------------------------
+| Config util
+|--------------------------------------------------------------------------
+|
+| Production config files are loaded first and then merged with overrides
+| from other environments. If the production file generates an error
+| (e.g. undefined index) the config loading will bail early without loading
+| the overrides. This has the undesirable effect of pressing production
+| configuration into the local environment.
+| The following array, embedding into the $app variable, contains the env
+| variables the production environment requires, or provides fallbacks
+| in case they do not exist (e.g. in local environments).
+|
+*/
+$config = array();
+$config['MEMCACHEDCLOUD_SERVERS_HOST'] = getenv("MEMCACHEDCLOUD_SERVERS")['host'] ? getenv("MEMCACHEDCLOUD_SERVERS")['host'] : '';
+$config['MEMCACHEDCLOUD_SERVERS_PORT'] = getenv("MEMCACHEDCLOUD_SERVERS")['port'] ? getenv("MEMCACHEDCLOUD_SERVERS")['port'] : '';
+$config['MEMCACHEDCLOUD_USERNAME'] = getenv("MEMCACHEDCLOUD_USERNAME") ? getenv("MEMCACHEDCLOUD_USERNAME") : '';
+$config['MEMCACHEDCLOUD_PASSWORD'] = getenv("MEMCACHEDCLOUD_PASSWORD") ? getenv("MEMCACHEDCLOUD_PASSWORD") : '';
+$config['PSQL_HOST'] = getenv("PSQL_HOST") ? getenv("PSQL_HOST") : '';
+$config['PSQL_DATABASE'] = getenv("PSQL_DATABASE") ? getenv("PSQL_DATABASE") : '';
+$config['PSQL_USERNAME'] = getenv("PSQL_USERNAME") ? getenv("PSQL_USERNAME") : '';
+$config['PSQL_PASSWORD'] = getenv("PSQL_PASSWORD") ? getenv("PSQL_PASSWORD") : '';
+$config['PSQL_PORT'] = getenv("PSQL_PORT") ? getenv("PSQL_PORT") : '';
+$config['MONGODB_HOST'] = getenv("MONGODB_HOST") ? getenv("MONGODB_HOST") : '';
+$config['MONGODB_PORT'] = getenv("MONGODB_PORT") ? getenv("MONGODB_PORT") : '';
+$config['MONGODB_DATABASE'] = getenv("MONGODB_DATABASE") ? getenv("MONGODB_DATABASE") : '';
+$config['MONGODB_USERNAME'] = getenv("MONGODB_USERNAME") ? getenv("MONGODB_USERNAME") : '';
+$config['MONGODB_PASSWORD'] = getenv("MONGODB_PASSWORD") ? getenv("MONGODB_PASSWORD") : '';
+$config['MONGODB_RS'] = getenv("MONGODB_RS") ? getenv("MONGODB_RS") : '';
+$app['_config'] = $config;
 
 /*
 |--------------------------------------------------------------------------
