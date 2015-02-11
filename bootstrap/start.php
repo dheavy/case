@@ -28,8 +28,8 @@ $app = new Illuminate\Foundation\Application;
 |
 */
 $config = array();
-$config['MEMCACHEDCLOUD_SERVERS_HOST'] = ($_ENV("MEMCACHEDCLOUD_SERVERS") && array_key_exists('host', $_ENV("MEMCACHEDCLOUD_SERVERS"))) ? $_ENV("MEMCACHEDCLOUD_SERVERS")['host'] : '';
-$config['MEMCACHEDCLOUD_SERVERS_PORT'] = ($_ENV("MEMCACHEDCLOUD_SERVERS") && array_key_exists('port', $_ENV("MEMCACHEDCLOUD_SERVERS"))) ? (int)$_ENV("MEMCACHEDCLOUD_SERVERS")['port'] : '';
+$config['MEMCACHEDCLOUD_SERVERS_HOST'] = ($_ENV("MEMCACHEDCLOUD_SERVERS") && array_key_exists('host', $_ENV("MEMCACHEDCLOUD_SERVERS"))) ? getenv("MEMCACHEDCLOUD_SERVERS")['host'] : '';
+$config['MEMCACHEDCLOUD_SERVERS_PORT'] = ($_ENV("MEMCACHEDCLOUD_SERVERS") && array_key_exists('port', $_ENV("MEMCACHEDCLOUD_SERVERS"))) ? (int)getenv("MEMCACHEDCLOUD_SERVERS")['port'] : '';
 $config['MEMCACHEDCLOUD_USERNAME'] = $_ENV("MEMCACHEDCLOUD_USERNAME") ? $_ENV("MEMCACHEDCLOUD_USERNAME") : '';
 $config['MEMCACHEDCLOUD_PASSWORD'] = $_ENV("MEMCACHEDCLOUD_PASSWORD") ? $_ENV("MEMCACHEDCLOUD_PASSWORD") : '';
 $config['PSQL_HOST'] = $_ENV("PSQL_HOST") ? $_ENV("PSQL_HOST") : '';
