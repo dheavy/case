@@ -115,6 +115,19 @@ class ProfileController extends \BaseController {
     return View::make('tags.edit')->with(array('user' => $user, 'video' => $video, 'tags' => $tags, 'url' => $url));
   }
 
+  public function getEditVideo($videoId)
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+
+    // Get user and video.
+    $user = Auth::user();
+    $video = Video::findOrFail($videoId);
+
+    $url = URL::route('user.videos.edit', $video->id);
+
+    return View::make('user.editvideo')->with(array('user' => $user, 'video' => $video, 'url' => $url));
+  }
+
   public function getDeleteVideo($videoId)
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');

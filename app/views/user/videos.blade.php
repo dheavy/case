@@ -22,7 +22,7 @@
       <div class="col-sm-12 col-md-12 col-lg-12">{{{ $video->duration }}}</div>
       <ul class="col-sm-12 col-md-12 col-lg-12">
         <li><a class="play" data-index="<?php echo $i ?>" href="#">Play video</a></li>
-        <li><a class="edit" href="#">Edit video</a></li>
+        <li><a class="edit" href="{{{ URL::route('user.videos.edit', [$video->id]) }}}">Edit video</a></li>
         <li><a class="tags" href="{{{ URL::route('user.tags.edit', [$video->id]) }}}">View/Edit tags</a></li>
         <li><a class="delete" href="{{{ URL::route('user.videos.delete', [$video->id]) }}}">Delete video</a></li>
       </ul>

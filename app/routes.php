@@ -110,6 +110,19 @@ Route::post('/me/videos/add/debug', array(
   'before' => 'auth|csrf'
 ));
 
+// Edit videos.
+Route::get('/me/videos/{videoId}/edit', array(
+  'uses' => 'ProfileController@getEditVideo',
+  'as' => 'user.videos.edit',
+  'before' => 'auth'
+))->where(array('videoId' => '[0-9]+'));
+
+Route::post('/me/videos/{videoId}/edit', array(
+  'uses' => 'VideosController@edit',
+  'as' => 'user.videos.edit',
+  'before' => 'auth|csrf'
+))->where(array('videoId' => '[0-9]+'));
+
 // Edit video tags.
 Route::get('/me/videos/{videoId}/tags/edit', array(
   'uses' => 'ProfileController@getEditTags',

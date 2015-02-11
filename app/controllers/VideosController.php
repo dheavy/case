@@ -137,7 +137,30 @@ class VideosController extends \BaseController {
     return Redirect::route('user.profile')->with('message', 'Fake video added to your list of videos.');
   }
 
-  public function destroy($id) {
+  public function edit()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+
+    // Get user.
+    $user = Auth::user();
+
+    $video = Video::findOrFail((int)Input::get('video', 0));
+    if ($user->hasVideo($video->id)) {
+      // TODO: Sanitize input.
+      $video->title = Input::get('title', '');
+      $saved = $video->save();
+      if (!$saved) {
+        return Redirect::route('user.videos.edit', [$video->id])
+          ->with('message', 'Oops... there was an error updating your video. Please try again.');
+      }
+      return Redirect::route('user.videos')
+          ->with('message', 'Your video has been updated.');
+    }
+    return Redirect::route('user.videos');
+  }
+
+  public function destroy($id)
+  {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
 
     // Get user.
@@ -146,7 +169,7 @@ class VideosController extends \BaseController {
     $video = Video::findOrFail($id);
     if ($user->hasVideo($video->id)) {
       $video->delete();
-      return Redirect::route('user.videos')->with('message', 'Video deleted.');
+      return Redirect::route('user.videos')->with('message', 'Your video has been deleted.');
     }
     return Redirect::route('user.videos');
   }
