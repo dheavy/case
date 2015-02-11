@@ -17,7 +17,7 @@
     </div>
 
     <div class="col-sm-12 col-md-12 col-lg-12">
-      {{ Form::open(array('url' => URL::to('/me/delete', [], true))) }}
+      {{ Form::open(array('url' => URL::secure('/me/delete', [], true))) }}
 
         <div class="form-group">
           {{ Form::label('password', 'Password') }}

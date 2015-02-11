@@ -21,7 +21,7 @@
       <div class="col-sm-12 col-md-12 col-lg-12">{{{ $video->duration }}}</div>
     </div>
 
-    {{ Form::open(array('url' => URL::to($url, [], true))) }}
+    {{ Form::open(array('url' => URL::secure($url, [], true))) }}
       {{ Form::hidden('video', $video->id) }}
       <div class="col-sm-12 col-md-6 col-lg-6">
         <h4>Are you sure you want to delete this video?</h4>
