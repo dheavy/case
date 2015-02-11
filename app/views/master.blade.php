@@ -22,7 +22,7 @@
   <body>
     <nav class="navbar navbar-inverse">
       <header class="navbar-header">
-        <a class="navbar-brand" href="">mypleasu.re</a>
+        <a class="navbar-brand" href="/">mypleasu.re</a>
       </header>
       <ul class="nav navbar-nav">
         @if (Auth::check())
