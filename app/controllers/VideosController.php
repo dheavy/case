@@ -145,7 +145,6 @@ class VideosController extends \BaseController {
     $user = Auth::user();
 
     $video = Video::findOrFail((int)Input::get('video', 0));
-    dd($video);
     if ($user->hasVideo($video->id)) {
       // TODO: Sanitize input.
       $video->title = Input::get('title', '');

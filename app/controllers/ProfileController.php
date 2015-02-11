@@ -109,7 +109,7 @@ class ProfileController extends \BaseController {
     $tags = join(', ', $tagsArray);
 
     // Build URL for form action.
-    $url = URL::route('user.tags.edit', $video->id);
+    $url = secure_url(URL::route('user.tags.edit', $video->id));
 
     // Return view.
     return View::make('tags.edit')->with(array('user' => $user, 'video' => $video, 'tags' => $tags, 'url' => $url));
@@ -123,7 +123,7 @@ class ProfileController extends \BaseController {
     $user = Auth::user();
     $video = Video::findOrFail($videoId);
 
-    $url = URL::route('user.videos.edit', $video->id);
+    $url = secure_url(URL::route('user.videos.edit', $video->id));
 
     return View::make('user.editvideo')->with(array('user' => $user, 'video' => $video, 'url' => $url));
   }
@@ -137,7 +137,7 @@ class ProfileController extends \BaseController {
     $video = Video::findOrFail($videoId);
 
     // Build URL for form action.
-    $url = URL::route('user.videos.delete', $video->id);
+    $url = secure_url(URL::route('user.videos.delete', $video->id));
 
     return View::make('user.deletevideo')->with(array('user' => $user, 'video' => $video, 'url' => $url));
   }
