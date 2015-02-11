@@ -18,7 +18,7 @@
       @endif
     </div>
 
-    <?php $url = "/me/videos/{$video->id}/edit" ?>
+    <?php $url = URL::secure("/me/videos/{$video->id}/edit") ?>
     {{ Form::open(array('url' => $url)) }}
     {{ Form::hidden('video', $video->id) }}
     <div class="col-sm-12 col-md-6 col-lg-6">

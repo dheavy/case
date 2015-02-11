@@ -20,7 +20,7 @@
     </div>
 
     <div class="col-sm-12 col-md-12 col-lg-12">
-      <?php $url = "/me/videos/{$video->id}/tags/edit" ?>
+      <?php $url = URL::secure("/me/videos/{$video->id}/tags/edit") ?>
       {{ Form::open(array('url' => $url)) }}
 
         {{ Form::hidden('video', $video->id) }}
