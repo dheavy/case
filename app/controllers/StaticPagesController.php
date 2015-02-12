@@ -24,6 +24,10 @@ class StaticPagesController extends \BaseController {
    */
   public function getHome()
   {
+    if (Auth::check()) {
+      $user = Auth::user();
+      return View::make('users.profile')->with('user', $user);
+    }
     return View::make('static.home');
   }
 

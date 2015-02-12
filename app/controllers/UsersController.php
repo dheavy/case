@@ -83,6 +83,78 @@ class UsersController extends \BaseController {
   }
 
   /**
+   * Display user's profile index page.
+   *
+   * @return Illuminate\View\View
+   */
+  public function getProfile()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+    $user = Auth::user();
+    return View::make('users.profile')->with('user', $user);
+  }
+
+  /**
+   * Display "edit email" form.
+   *
+   * @return Illuminate\View\View
+   */
+  public function getEditEmail()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+    $user = Auth::user();
+    return View::make('users.email')->with('user', $user);
+  }
+
+  /**
+   * Display "edit password" form.
+   *
+   * @return Illuminate\View\View
+   */
+  public function getEditPassword()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+    $user = Auth::user();
+    return View::make('users.password')->with('user', $user);
+  }
+
+  /**
+   * Display "add video" form.
+   *
+   * @return Illuminate\View\View
+   */
+  public function getAddVideo()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+    $user = Auth::user();
+    return View::make('videos.create')->with('user', $user);
+  }
+
+  /**
+   * Display "add fake video" page.
+   *
+   * @return Illuminate\View\View
+   */
+  public function getAddVideoDebug()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+    $user = Auth::user();
+    return View::make('debug.addvideo')->with('user', $user);
+  }
+
+  /**
+   * Display "delete account" form
+   *
+   * @return Illuminate\View\View
+   */
+  public function getDelete()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+    $user = Auth::user();
+    return View::make('users.delete')->with('user', $user);
+  }
+
+  /**
    * Store new User resource.
    * POST /register
    *
