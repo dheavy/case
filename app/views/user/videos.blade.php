@@ -6,12 +6,19 @@
   <div class="alert alert-info">{{{ Session::get('message') }}}</div>
   @endif
 
-  <h3 class="col-sm-12 col-md-12 col-lg-12">{{{ $user->username }}} (videos)</h3>
+  <div class="row">
+    <h3 class="col-sm-12 col-md-12 col-lg-12">{{{ $user->username }}} (videos)</h3>
+  </div>
 
   <div class="row">
-
+  @for($i = 0; $i < count($collections); $i++)
+    <?php
+      $name = $collections[$i]->name;
+      $videos = $collections[$i]->videos;
+    ?>
+    <h4 class="col-sm-12 col-md-12 col-lg-12">Collection "{{ $name }}"</h4>
     @foreach($videos as $i => $video)
-    <div class="col-sm-12 col-md-3 col-lg-3 video" data-video="{{ $video->embed_url }}" data-index="<?php echo $i ?>">
+    <div class="col-sm-12 col-md-3 col-lg-3 video" data-video="{{ $video->embed_url }}" data-index="<?php echo $i ?>" style="height:330px">
       @if ($video->method === '_dummy')
       <div class="col-sm-12 col-md-12 col-lg-12 dummy" style="display:block;width:100%;height:200px;background:#CCC"></div>
       @else
@@ -38,6 +45,7 @@
         </div>
       @endfor
     @endif
+  @endfor
 
   </div>
 

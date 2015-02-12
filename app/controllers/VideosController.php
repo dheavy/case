@@ -42,10 +42,21 @@ class VideosController extends \BaseController {
     // Retrieve the number of videos possibly still pending while user displays her videos page.
     $pending = $this->fetchNewlyCurated($user->id);
 
-    // Aggregate all videos now, and build view.
-    $videos = $user->videos()->reverse();
+    $collections = array();
+    $collectionsList = $user->collections;
+    $collectionsList->each(function($collectionModel) use (&$collections) {
+      $collection = new stdClass;
+      $collection->name = $collectionModel->name;
+      $collection->videos = array();
+      $videoList = $collectionModel->videos;
+      $videoList->each(function($videoModel) use (&$collection) {
+        $collection->videos[] = $videoModel;
+      });
+      $collection->videos = array_reverse($collection->videos);
+      $collections[] = $collection;
+    });
 
-    return View::make('user.videos', array('videos' => $videos, 'user' => $user, 'pending' => $pending));
+    return View::make('user.videos', array('collections' => $collections, 'user' => $user, 'pending' => $pending));
   }
 
   /**
