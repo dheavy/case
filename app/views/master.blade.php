@@ -29,7 +29,7 @@
           <li><a href="{{{ URL::secure('/me') }}}">me</a></li>
           <li><a href="{{{ URL::secure('/me/videos') }}}">my videos</a></li>
           <li><a href="{{{ URL::secure('/me/videos/add') }}}">add video</a></li>
-          <li><a href="{{{ URL::secure('/me/edit/email') }}}">edit email</a></li>
+          <li><a href="{{{ URL::secure('/me/edit/email') }}}">change/remove email</a></li>
           <li><a href="{{{ URL::secure('/me/edit/password') }}}">change password</a></li>
           <li><a href="{{{ URL::secure('/logout') }}}">log out</a></li>
         @else

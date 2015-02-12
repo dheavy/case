@@ -42,10 +42,13 @@ class VideosController extends \BaseController {
     // Retrieve the number of videos possibly still pending while user displays her videos page.
     $pending = $this->fetchNewlyCurated($user->id);
 
+    // Create a multidimensional array containing arrays, each holding
+    // a collection id and name, and a sub-array of its videos.
     $collections = array();
     $collectionsList = $user->collections;
     $collectionsList->each(function($collectionModel) use (&$collections) {
       $collection = new stdClass;
+      $collection->id = $collectionModel->id;
       $collection->name = $collectionModel->name;
       $collection->videos = array();
       $videoList = $collectionModel->videos;
@@ -56,7 +59,42 @@ class VideosController extends \BaseController {
       $collections[] = $collection;
     });
 
-    return View::make('user.videos', array('collections' => $collections, 'user' => $user, 'pending' => $pending));
+    // Make view.
+    return View::make('videos.index', array('collections' => $collections, 'user' => $user, 'pending' => $pending));
+  }
+
+  /**
+   * Display the "edit video" form.
+   *
+   * @param  integer $videoId The ID of the Video to edit.
+   * @return Illuminate\Http\RedirectResponse
+   */
+  public function getEditVideo($videoId)
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+
+    // Get user and video.
+    $user = Auth::user();
+    $video = Video::findOrFail($videoId);
+
+    return View::make('videos.edit')->with(array('user' => $user, 'video' => $video));
+  }
+
+  /**
+   * Display the "delete video" page.
+   *
+   * @param  integer $videoId The ID of the Video to delete
+   * @return Illuminate\Http\RedirectResponse
+   */
+  public function getDeleteVideo($videoId)
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+
+    // Get user and video.
+    $user = Auth::user();
+    $video = Video::findOrFail($videoId);
+
+    return View::make('videos.delete')->with(array('user' => $user, 'video' => $video));
   }
 
   /**
@@ -75,9 +113,10 @@ class VideosController extends \BaseController {
     $url = Input::get('url', '');
 
     if (!$this->urlSanitizer->validate($url)) {
-      return Redirect::route('user.videos.add')->with('message', 'URL not valid. Please try again.');
+      return Redirect::route('videos.create')->with('message', 'URL not valid. Please try again.');
     }
 
+    // Canonize URL.
     $url = $this->urlSanitizer->canonize($url);
 
     // Create video hash.
@@ -85,7 +124,7 @@ class VideosController extends \BaseController {
 
     // Stop here if user already added this video.
     if ($user->hasVideoFromHash($hash)) {
-      return Redirect::route('user.videos.add')->with('message', "Oops... It looks like you've already added this video!");
+      return Redirect::route('videos.create')->with('message', "Oops... It looks like you've already added this video!");
     }
 
     // Check if video already exist in videostore.
@@ -97,7 +136,7 @@ class VideosController extends \BaseController {
     if ($exists) {
       $created = $this->createVideoInstance($user->collections[0]->id, $video[0]);
       if (!(bool)$created) {
-        return Redirect::route('user.profile')->with('message', 'Oops.. there was an error adding a video.');
+        return Redirect::route('users.profile')->with('message', 'Oops.. there was an error adding a video.');
       }
     } else {
       // The ObjectID is based on the hash of the video to look for dups.
@@ -105,12 +144,12 @@ class VideosController extends \BaseController {
       try {
         $this->addVideoRequestToQueue($hash, $url, $user->id);
       } catch (MongoDuplicateKeyException $error) {
-        return Redirect::route('user.profile')->with('message', 'Your video is already being processed and will show up in your collection in a short moment.');
+        return Redirect::route('users.profile')->with('message', 'Your video is already being processed and will show up in your collection in a short moment.');
       }
     }
 
     // Redirect user with a short message.
-    return Redirect::route('user.profile')->with('message', 'Your video has been added to processing queue and will be available shortly.');
+    return Redirect::route('users.profile')->with('message', 'Your video has been added to processing queue and will be available shortly.');
   }
 
   /**
@@ -145,10 +184,15 @@ class VideosController extends \BaseController {
 
     $this->createVideoInstance($user->collections[0]->id, $data);
 
-    return Redirect::route('user.profile')->with('message', 'Fake video added to your list of videos.');
+    return Redirect::route('users.profile')->with('message', 'Fake video added to your list of videos.');
   }
 
-  public function edit()
+  /**
+   * Update Videos resource.
+   *
+   * @return Illuminate\Http\RedirectResponse
+   */
+  public function update()
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
 
@@ -161,15 +205,21 @@ class VideosController extends \BaseController {
       $video->title = Input::get('title', '');
       $saved = $video->save();
       if (!$saved) {
-        return Redirect::route('user.videos.edit', [$video->id])
+        return Redirect::route('video.edit', [$video->id])
           ->with('message', 'Oops... there was an error updating your video. Please try again.');
       }
-      return Redirect::route('user.videos')
+      return Redirect::route('videos.index')
           ->with('message', 'Your video has been updated.');
     }
-    return Redirect::route('user.videos');
+    return Redirect::route('videos.index');
   }
 
+  /**
+   * Destroy Video resource.
+   *
+   * @param  integer $id The ID of the Video to destroy.
+   * @return Illuminate\Http\RedirectResponse
+   */
   public function destroy($id)
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
@@ -180,9 +230,9 @@ class VideosController extends \BaseController {
     $video = Video::findOrFail($id);
     if ($user->hasVideo($video->id)) {
       $video->delete();
-      return Redirect::route('user.videos')->with('message', 'Your video has been deleted.');
+      return Redirect::route('videos.index')->with('message', 'Your video has been deleted.');
     }
-    return Redirect::route('user.videos');
+    return Redirect::route('videos.index');
   }
 
   /**

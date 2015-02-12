@@ -20,8 +20,11 @@
     </div>
 
     <div class="col-sm-12 col-md-12 col-lg-12">
-      <?php $url = URL::secure("/me/videos/{$video->id}/tags/edit") ?>
-      {{ Form::open(array('url' => $url)) }}
+      <?php
+        $actionUrl = URL::secure("/me/videos/{$video->id}/tags/edit");
+        $backUrl = URL::secure('/me/videos');
+      ?>
+      {{ Form::open(array('url' => $actionUrl)) }}
 
         {{ Form::hidden('video', $video->id) }}
         <div class="form-group">
@@ -30,6 +33,7 @@
           {{ Form::textarea('tags', $tags) }}
         </div>
 
+        <a href="{{{ $backUrl }}}" class="btn btn-default" data-dismiss="modal">Cancel</a>
         {{ Form::submit('Update tags', array('class' => 'btn btn-primary')) }}
       {{ Form::close() }}
     </div>

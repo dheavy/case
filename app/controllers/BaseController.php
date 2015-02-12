@@ -14,7 +14,6 @@ class BaseController extends Controller {
    */
   public function __construct()
   {
-    $this->beforeFilter('force.ssl');
     $this->beforeFilter('csrf', array('on' => 'post|patch|delete|put'));
   }
 

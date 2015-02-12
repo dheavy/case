@@ -52,14 +52,14 @@ Route::controller('password', 'RemindersController');
 // Show profile page.
 Route::get('/me', array(
   'uses' => 'ProfileController@getProfile',
-  'as' => 'user.profile',
+  'as' => 'users.profile',
   'before' => 'auth'
 ));
 
 // Edit email.
 Route::get('/me/edit/email', array(
   'uses' => 'ProfileController@getEditEmail',
-  'as' => 'user.edit.email',
+  'as' => 'users.email',
   'before' => 'auth'
 ));
 
@@ -71,7 +71,7 @@ Route::post('/me/edit/email', array(
 // Edit password.
 Route::get('/me/edit/password', array(
   'uses' => 'ProfileController@getEditPassword',
-  'as' => 'user.edit.password',
+  'as' => 'users.password',
   'before' => 'auth'
 ));
 
@@ -83,20 +83,20 @@ Route::post('/me/edit/password', array(
 // Show video page.
 Route::get('/me/videos', array(
   'uses' => 'VideosController@index',
-  'as' => 'user.videos',
+  'as' => 'videos.index',
   'before' => 'auth'
 ));
 
 // Add video.
 Route::get('/me/videos/add', array(
   'uses' => 'ProfileController@getAddVideo',
-  'as' => 'user.videos.add',
+  'as' => 'videos.create',
   'before' => 'auth'
 ));
 
 Route::get('/me/videos/add/debug', array(
   'uses' => 'ProfileController@getAddVideoDebug',
-  'as' => 'user.videos.add.debug',
+  'as' => 'videos.create.debug',
   'before' => 'auth'
 ));
 
@@ -110,22 +110,34 @@ Route::post('/me/videos/add/debug', array(
   'before' => 'auth|csrf'
 ));
 
+// Edit collection
+Route::get('/me/collections/{collectionId}/edit', array(
+  'uses' => 'CollectionsController@getEditCollection',
+  'as' => 'collections.edit',
+  'before' => 'auth'
+))->where(array('collectionId' => '[0-9]+'));
+
+Route::post('/me/collections/{collectionId}/edit', array(
+  'uses' => 'CollectionsController@update',
+  'before' => 'auth|csrf'
+))->where(array('collectionId' => '[0-9]+'));
+
 // Edit videos.
 Route::get('/me/videos/{videoId}/edit', array(
-  'uses' => 'ProfileController@getEditVideo',
-  'as' => 'user.videos.edit',
+  'uses' => 'VideosController@getEditVideo',
+  'as' => 'videos.edit',
   'before' => 'auth'
 ))->where(array('videoId' => '[0-9]+'));
 
 Route::post('/me/videos/{videoId}/edit', array(
-  'uses' => 'VideosController@edit',
+  'uses' => 'VideosController@update',
   'before' => 'auth|csrf'
 ))->where(array('videoId' => '[0-9]+'));
 
 // Edit video tags.
 Route::get('/me/videos/{videoId}/tags/edit', array(
-  'uses' => 'ProfileController@getEditTags',
-  'as' => 'user.tags.edit',
+  'uses' => 'TagsController@getEditTags',
+  'as' => 'tags.edit',
   'before' => 'auth'
 ))->where(array('videoId' => '[0-9]+'));
 
@@ -136,8 +148,8 @@ Route::post('/me/videos/{videoId}/tags/edit', array(
 
 // Delete video.
 Route::get('/me/videos/{videoId}/delete', array(
-  'uses' => 'ProfileController@getDeleteVideo',
-  'as' => 'user.videos.delete',
+  'uses' => 'VideosController@getDeleteVideo',
+  'as' => 'videos.delete',
   'before' => 'auth'
 ))->where(array('videoId' => '[0-9]+'));
 
@@ -149,7 +161,7 @@ Route::post('/me/videos/{videoId}/delete', array(
 // Delete account.
 Route::get('/me/delete', array(
   'uses' => 'ProfileController@getDelete',
-  'as' => 'user.delete',
+  'as' => 'users.delete',
   'before' => 'auth'
 ));
 

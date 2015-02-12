@@ -18,8 +18,11 @@
       @endif
     </div>
 
-    <?php $url = URL::secure("/me/videos/{$video->id}/edit") ?>
-    {{ Form::open(array('url' => $url)) }}
+    <?php
+      $actionUrl = URL::secure("/me/videos/{$video->id}/edit");
+      $backUrl = URL::secure("/me/videos");
+    ?>
+    {{ Form::open(array('url' => $actionUrl)) }}
     {{ Form::hidden('video', $video->id) }}
     <div class="col-sm-12 col-md-6 col-lg-6">
       <div class="form-group">
@@ -27,7 +30,7 @@
         {{ Form::text('title', $video->title, array('class' => 'form-control col-sm-12 col-md-12 col-lg-12')) }}
       </div>
       <div class="form-group" style="padding-top:30px">
-        <a href="{{{ URL::route('user.videos') }}}" class="btn btn-default" data-dismiss="modal">Cancel</a>
+        <a href="{{{ $backUrl }}}" class="btn btn-default" data-dismiss="modal">Cancel</a>
         <input type="submit" class="btn btn-primary" value="Update">
       </div>
     </div>

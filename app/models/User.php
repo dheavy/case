@@ -123,13 +123,32 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
     $this->collections->each(function($collection) use (&$hasVideo, &$id) {
       $collection->videos->each(function($video) use (&$hasVideo, &$id) {
-        if ($video->id === $id) {
+        if ($video->id === (int)($id)) {
           $hasVideo = true;
         }
       });
     });
 
     return $hasVideo;
+  }
+
+  /**
+   * Use given id to find out if user has collection or not.
+   *
+   * @param  integer  $id The ID of collection to check.
+   * @return boolean  True if user has the collection, false otherwise.
+   */
+  public function hasCollection($id)
+  {
+    $hasCollection = false;
+
+    $this->collections->each(function($collection) use (&$hasCollection, &$id) {
+      if ($collection->id === (int)($id)) {
+        $hasCollection = true;
+      }
+    });
+
+    return $hasCollection;
   }
 
   /**

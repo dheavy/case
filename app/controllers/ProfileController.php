@@ -29,7 +29,7 @@ class ProfileController extends \BaseController {
    */
   public function getProfile()
   {
-    return View::make('user.profile')->with('user', $this->user);
+    return View::make('users.profile')->with('user', $this->user);
   }
 
   /**
@@ -39,7 +39,7 @@ class ProfileController extends \BaseController {
    */
   public function getEditEmail()
   {
-    return View::make('user.editemail')->with('user', $this->user);
+    return View::make('users.email')->with('user', $this->user);
   }
 
   /**
@@ -49,7 +49,7 @@ class ProfileController extends \BaseController {
    */
   public function getEditPassword()
   {
-    return View::make('user.editpassword')->with('user', $this->user);
+    return View::make('users.password')->with('user', $this->user);
   }
 
   /**
@@ -59,7 +59,7 @@ class ProfileController extends \BaseController {
    */
   public function getAddVideo()
   {
-    return View::make('user.addvideo')->with('user', $this->user);
+    return View::make('videos.create')->with('user', $this->user);
   }
 
   /**
@@ -79,59 +79,7 @@ class ProfileController extends \BaseController {
    */
   public function getDelete()
   {
-    return View::make('user.delete')->with('user', $this->user);
-  }
-
-  /**
-   * Display the "edit tags" form.
-   *
-   * @param  mixed $videoId The ID of the video to which the tags belong.
-   * @return Illuminate\View\View
-   */
-  public function getEditTags($videoId)
-  {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-
-    // Get user.
-    $user = Auth::user();
-
-    // Get video.
-    $video = Video::findOrFail($videoId);
-
-    // Fetch tags for this video into an array of tag names.
-    $tagsCollection = $video->tags;
-    $tagsArray = array();
-    $tagsCollection->each(function($tag) use (&$tagsArray) {
-      $tagsArray[] = $tag->name;
-    });
-
-    // Format array into a string we'll display to the user.
-    $tags = join(', ', $tagsArray);
-
-    // Return view.
-    return View::make('tags.edit')->with(array('user' => $user, 'video' => $video, 'tags' => $tags));
-  }
-
-  public function getEditVideo($videoId)
-  {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-
-    // Get user and video.
-    $user = Auth::user();
-    $video = Video::findOrFail($videoId);
-
-    return View::make('user.editvideo')->with(array('user' => $user, 'video' => $video));
-  }
-
-  public function getDeleteVideo($videoId)
-  {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-
-    // Get user and video.
-    $user = Auth::user();
-    $video = Video::findOrFail($videoId);
-
-    return View::make('user.deletevideo')->with(array('user' => $user, 'video' => $video));
+    return View::make('users.delete')->with('user', $this->user);
   }
 
 }

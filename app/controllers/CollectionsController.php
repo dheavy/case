@@ -15,6 +15,32 @@ class CollectionsController extends \BaseController {
   }
 
   /**
+   * Update collection resource.
+   *
+   * @return Illuminate\Http\RedirectResponse
+   */
+  public function update()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+
+    $user = Auth::user();
+
+    // TODO: sanitize inputs.
+    $collection = Collection::findOrFail((int)Input::get('collection', 0));
+    $status = (int)Input::get('status', $collection->status);
+    $newName = Input::get('name', 'untitled collection');
+
+    $collection->name = $newName;
+    $collection->status = $status;
+    $collection->slug = $this->slugify($collection->name);
+    $saved = $collection->save();
+
+    if (!$saved) return Redirect::route('videos.index')->with('message', 'Oops... an error has occured. Please try again.');
+
+    return Redirect::route('videos.index')->with('message', 'Collection updated.');
+  }
+
+  /**
    * Create a collection for a User.
    *
    * @param  mixed   $userId         ID of the user.
@@ -35,6 +61,28 @@ class CollectionsController extends \BaseController {
     if (!$saved) return false;
 
     return true;
+  }
+
+  /**
+   * Display the "edit collection" form.
+   *
+   * @param  integer $collectionId The ID of the collection to edit.
+   * @return Illuminate\Http\RedirectResponse
+   */
+  public function getEditCollection($collectionId)
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+
+    // Get user.
+    $user = Auth::user();
+
+    $collection = Collection::findOrFail($collectionId);
+
+    if ($user->hasCollection($collectionId)) {
+      return View::make('collections.edit')->with(array('user' => $user, 'collection' => $collection));
+    }
+
+    return Redirect::route('videos.index');
   }
 
   /**

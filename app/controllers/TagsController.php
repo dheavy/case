@@ -80,7 +80,7 @@ class TagsController extends \BaseController {
       });
     }
 
-    return Redirect::route('user.videos')->with('message', 'Tags updated.');
+    return Redirect::route('videos.index')->with('message', 'Tags updated.');
   }
 
   /**
@@ -95,6 +95,36 @@ class TagsController extends \BaseController {
     $name = $this->slugify(trim($name));
     $tag = $this->tag->fetchOrCreate($name);
     return $tag;
+  }
+
+  /**
+   * Display the "edit tags" form.
+   *
+   * @param  mixed $videoId The ID of the video to which the tags belong.
+   * @return Illuminate\View\View
+   */
+  public function getEditTags($videoId)
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+
+    // Get user.
+    $user = Auth::user();
+
+    // Get video.
+    $video = Video::findOrFail($videoId);
+
+    // Fetch tags for this video into an array of tag names.
+    $tagsCollection = $video->tags;
+    $tagsArray = array();
+    $tagsCollection->each(function($tag) use (&$tagsArray) {
+      $tagsArray[] = $tag->name;
+    });
+
+    // Format array into a string we'll display to the user.
+    $tags = join(', ', $tagsArray);
+
+    // Return view.
+    return View::make('tags.edit')->with(array('user' => $user, 'video' => $video, 'tags' => $tags));
   }
 
 }

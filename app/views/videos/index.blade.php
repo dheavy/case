@@ -13,12 +13,16 @@
   <div class="row">
   @for($i = 0; $i < count($collections); $i++)
     <?php
+      $cid = $collections[$i]->id;
       $name = $collections[$i]->name;
       $videos = $collections[$i]->videos;
     ?>
-    <h4 class="col-sm-12 col-md-12 col-lg-12">Collection "{{ $name }}"</h4>
+    <h4 class="col-sm-12 col-md-12 col-lg-12">Collection "{{ $name }}"
+      [ <a href="<?php echo URL::secure("/me/collections/{$cid}/edit/") ?>">edit</a> | 
+      <a href="<?php echo URL::secure("/me/collections/{$cid}/delete/") ?>">delete</a> ]
+    </h4>
     @foreach($videos as $i => $video)
-    <div class="col-sm-12 col-md-3 col-lg-3 video" data-video="{{ $video->embed_url }}" data-index="<?php echo $i ?>" style="height:330px">
+    <div class="col-sm-12 col-md-3 col-lg-3 video" data-video="{{ $video->embed_url }}" data-index="<?php echo $i ?>" style="height:430px">
       @if ($video->method === '_dummy')
       <div class="col-sm-12 col-md-12 col-lg-12 dummy" style="display:block;width:100%;height:200px;background:#CCC"></div>
       @else
