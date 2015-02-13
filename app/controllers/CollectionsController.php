@@ -70,14 +70,37 @@ class CollectionsController extends \BaseController {
   public function getEditCollection($collectionId)
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
-
-    // Get user.
     $user = Auth::user();
 
     $collection = Collection::findOrFail($collectionId);
 
     if ($user->hasCollection($collectionId)) {
       return View::make('collections.edit')->with(array('user' => $user, 'collection' => $collection));
+    }
+
+    return Redirect::route('videos.index');
+  }
+
+  public function getDeleteCollection($collectionId)
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+    $user = Auth::user();
+
+    $collection = Collection::findOrFail($collectionId);
+
+    if ($user->hasCollection($collectionId)) {
+      $hasVideos = (bool)$collection->videos->count();
+
+      $replaceSelectList = array('' => 'Delete those suckers. BAM!');
+
+      $user->collections->each(function($c) use (&$replaceSelectList, &$collection) {
+        if ($c->id !== $collection->id) {
+          $replaceSelectList[$c->id] = 'Move them to ' . $c->name;
+        }
+      });
+
+      return View::make('collections.delete')
+        ->with(array('user' => $user, 'collection' => $collection, 'hasVideos' => $hasVideos, 'replaceSelectList' => $replaceSelectList));
     }
 
     return Redirect::route('videos.index');

@@ -26,7 +26,7 @@
       {{ Form::hidden('video', $video->id) }}
       <div class="col-sm-12 col-md-6 col-lg-6">
         <h4>Are you sure you want to delete this video?</h4>
-        <a href="{{{ URL::route('user.videos') }}}" class="btn btn-default" data-dismiss="modal">No, cancel</a>
+        <a href="{{{ URL::secure('/me/videos') }}}" class="btn btn-default" data-dismiss="modal">No, cancel</a>
         <input type="submit" class="btn btn-primary" value="Yes, delete">
       </div>
     {{ Form::close() }}
