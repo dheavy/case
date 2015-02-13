@@ -64,6 +64,30 @@ class VideosController extends \BaseController {
   }
 
   /**
+   * Display "add video" form.
+   *
+   * @return Illuminate\View\View
+   */
+  public function getAddVideo()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+    $user = Auth::user();
+    return View::make('videos.create')->with('user', $user);
+  }
+
+  /**
+   * Display "add fake video" page.
+   *
+   * @return Illuminate\View\View
+   */
+  public function getAddVideoDebug()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+    $user = Auth::user();
+    return View::make('debug.addvideo')->with('user', $user);
+  }
+
+  /**
    * Display the "edit video" form.
    *
    * @param  integer $videoId The ID of the Video to edit.

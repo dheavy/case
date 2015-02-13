@@ -51,14 +51,14 @@ Route::controller('password', 'RemindersController');
 
 // Show profile page.
 Route::get('/me', array(
-  'uses' => 'ProfileController@getProfile',
+  'uses' => 'UsersController@getProfile',
   'as' => 'users.profile',
   'before' => 'auth'
 ));
 
 // Edit email.
 Route::get('/me/edit/email', array(
-  'uses' => 'ProfileController@getEditEmail',
+  'uses' => 'UsersController@getEditEmail',
   'as' => 'users.email',
   'before' => 'auth'
 ));
@@ -70,7 +70,7 @@ Route::post('/me/edit/email', array(
 
 // Edit password.
 Route::get('/me/edit/password', array(
-  'uses' => 'ProfileController@getEditPassword',
+  'uses' => 'UsersController@getEditPassword',
   'as' => 'users.password',
   'before' => 'auth'
 ));
@@ -88,24 +88,24 @@ Route::get('/me/videos', array(
 ));
 
 // Add video.
-Route::get('/me/videos/add', array(
-  'uses' => 'ProfileController@getAddVideo',
+Route::get('/me/videos/create', array(
+  'uses' => 'VideosController@getAddVideo',
   'as' => 'videos.create',
   'before' => 'auth'
 ));
 
-Route::get('/me/videos/add/debug', array(
-  'uses' => 'ProfileController@getAddVideoDebug',
+Route::get('/me/videos/create/debug', array(
+  'uses' => 'VideosController@getAddVideoDebug',
   'as' => 'videos.create.debug',
   'before' => 'auth'
 ));
 
-Route::post('/me/videos/add', array(
+Route::post('/me/videos/create', array(
   'uses' => 'VideosController@store',
   'before' => 'auth|csrf'
 ));
 
-Route::post('/me/videos/add/debug', array(
+Route::post('/me/videos/create/debug', array(
   'uses' => 'VideosController@storeDebug',
   'before' => 'auth|csrf'
 ));
@@ -160,7 +160,7 @@ Route::post('/me/videos/{videoId}/delete', array(
 
 // Delete account.
 Route::get('/me/delete', array(
-  'uses' => 'ProfileController@getDelete',
+  'uses' => 'UsersController@getDelete',
   'as' => 'users.delete',
   'before' => 'auth'
 ));

@@ -7,7 +7,7 @@
   @endif
 
   <div class="row">
-    <h3 class="col-sm-12 col-md-12 col-lg-12">{{{ $user->username }}} (videos)</h3>
+    <h3 class="col-sm-12 col-md-12 col-lg-12">{{{ $user->username }}} (all my videos)</h3>
   </div>
 
   <div class="row">
