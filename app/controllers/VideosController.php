@@ -72,7 +72,11 @@ class VideosController extends \BaseController {
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
     $user = Auth::user();
-    return View::make('videos.create')->with('user', $user);
+    $collections = array();
+    $user->collections->each(function($collection) use (&$collections) {
+      $collections[$collection->id] = $collection->name;
+    });
+    return View::make('videos.create')->with(array('user' => $user, 'collections' => $collections));
   }
 
   /**
@@ -140,6 +144,26 @@ class VideosController extends \BaseController {
       return Redirect::route('videos.create')->with('message', 'URL not valid. Please try again.');
     }
 
+    // Get collection to add the Video to.
+    // If input 'collection' is an empty string, create a new collection.
+    $collectionId = trim(Input::get('collection', ''));
+    if ($collectionId === '') {
+      // Create new collection.
+      // TODO: Sanitize input.
+      $collectionName = Input::get('name', '');
+      if (trim($collectionName) === '') {
+        $collectionName = 'untitled collection';
+      }
+
+      $collection = App::make('CollectionsController')->createUserCollection($user->id, $collectionName);
+      $collectionId = $collection->id;
+      if (!$collectionId) {
+        return Redirect::route('videos.create')->with('message', 'Oops... There was an error adding this videos...');
+      }
+    } else {
+      $collectionId = (int)$collectionId;
+    }
+
     // Canonize URL.
     $url = $this->urlSanitizer->canonize($url);
 
@@ -158,7 +182,7 @@ class VideosController extends \BaseController {
     // Otherwise, add to queue in MongoDB.
     $exists = (bool)$video;
     if ($exists) {
-      $created = $this->createVideoInstance($user->collections[0]->id, $video[0]);
+      $created = $this->createVideoInstance($collectionId, $video[0]);
       if (!(bool)$created) {
         return Redirect::route('users.profile')->with('message', 'Oops.. there was an error adding a video.');
       }
@@ -166,7 +190,7 @@ class VideosController extends \BaseController {
       // The ObjectID is based on the hash of the video to look for dups.
       // It is reduced to 24 characters match ObjectID's requirements.
       try {
-        $this->addVideoRequestToQueue($hash, $url, $user->id);
+        $this->addVideoRequestToQueue($hash, $url, $user->id, $collectionId);
       } catch (MongoDuplicateKeyException $error) {
         return Redirect::route('users.profile')->with('message', 'Your video is already being processed and will show up in your collection in a short moment.');
       }
@@ -227,6 +251,9 @@ class VideosController extends \BaseController {
     if ($user->hasVideo($video->id)) {
       // TODO: Sanitize input.
       $video->title = Input::get('title', '');
+      if (trim($video->title) === '') {
+        $video->title = 'untitled video';
+      }
       $saved = $video->save();
       if (!$saved) {
         return Redirect::route('video.edit', [$video->id])
@@ -290,7 +317,7 @@ class VideosController extends \BaseController {
     $user = Auth::user();
 
     $pending = $this->fetchNewAndPending($user->id);
-    $this->fetchNewAndReady($user->id, $user->collections[0]->id);
+    $this->fetchNewAndReady($user->id);
 
     return $pending;
   }
@@ -315,8 +342,12 @@ class VideosController extends \BaseController {
    * @param  mixed $userId  The ID of the user.
    * @return boolean  True if successful, false otherwise.
    */
-  protected function fetchNewAndReady($userId, $collectionId)
+  protected function fetchNewAndReady($userId)
   {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+
+    $user = Auth::user();
+
     // Check if we have videos ready for this user in the 'queue' collection.
     $ready = $this->getReadyVideos($userId);
 
@@ -328,6 +359,8 @@ class VideosController extends \BaseController {
         ->collection('videos')
         ->where('hash', '=', $v['hash'])
         ->first();
+
+      $collectionId = $v['collection'];
 
       $created = $this->createVideoInstance($collectionId, $instance);
       if (!(bool)$created) return false;
@@ -346,7 +379,7 @@ class VideosController extends \BaseController {
   /**
    * Creates an Eloquent Video model from the data fetched from the videostore.
    *
-   * @param  mixed   $collectionId ID of the collection to attach this video to.
+   * @param  integer $collectionId ID of the collection to attach this video to.
    * @param  array   $instance     The data extracted from the video in the MongoDB storage.
    * @return boolean  True if successful, false otherwise.
    */
@@ -440,11 +473,12 @@ class VideosController extends \BaseController {
   /**
    * Add a video request to the queue.
    *
-   * @param string  $hash      The hash of the requested video.
-   * @param string  $url       The URL of the requested video.
-   * @param mixed   $requester The ID of the User making the request.
+   * @param string  $hash         The hash of the requested video.
+   * @param string  $url          The URL of the requested video.
+   * @param mixed   $requester    The ID of the User making the request.
+   * @param mixed   $collectionId The ID of the collection this Video will be added to.
    */
-  protected function addVideoRequestToQueue($hash, $url, $requester)
+  protected function addVideoRequestToQueue($hash, $url, $requester, $collectionId)
   {
     $request = DB::connection('mongodb')
       ->collection('queue')
@@ -452,7 +486,8 @@ class VideosController extends \BaseController {
         '_id' => new MongoId(substr($hash, 0, 24)),
         'hash' => $hash,
         'url' => $url,
-        'requester' => $requester,
+        'requester' => (int)$requester,
+        'collection' => (int)$collectionId,
         'status' => 'pending',
         'created_at' => Carbon::now()->toDateTimeString(),
         'updated_at' => Carbon::now()->toDateTimeString()

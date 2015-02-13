@@ -7,49 +7,48 @@
   @endif
 
   <div class="row">
-    <h3 class="col-sm-12 col-md-12 col-lg-12">{{{ $user->username }}} (all my videos)</h3>
+    <h3 class="col-sm-12 col-md-12 col-lg-12">
+      {{{ $user->username }}}
+       @if ($pending > 0)
+       (all my videos — {{{ $pending }}} pending and available shortly)
+       @else
+       (all my videos)
+       @endif
+    </h3>
   </div>
 
   <div class="row">
-  @for($i = 0; $i < count($collections); $i++)
+  @foreach($collections as $collection)
     <?php
-      $cid = $collections[$i]->id;
-      $name = $collections[$i]->name;
-      $videos = $collections[$i]->videos;
+      $cid = $collection->id;
+      $name = $collection->name;
+      $videos = $collection->videos;
     ?>
-    <h4 class="col-sm-12 col-md-12 col-lg-12">Collection "{{ $name }}"
-      [ <a href="<?php echo URL::secure("/me/collections/{$cid}/edit/") ?>">edit</a> | 
-      <a href="<?php echo URL::secure("/me/collections/{$cid}/delete/") ?>">delete</a> ]
-    </h4>
-    @foreach($videos as $i => $video)
-    <div class="col-sm-12 col-md-3 col-lg-3 video" data-video="{{ $video->embed_url }}" data-index="<?php echo $i ?>" style="top:30px;height:330px">
-      @if ($video->method === '_dummy')
-      <div class="col-sm-12 col-md-12 col-lg-12 dummy" style="display:block;width:100%;height:200px;background:#CCC"></div>
-      @else
-      <img class="col-sm-12 col-md-12 col-lg-12" src="{{ $video->poster }}" width="100%">
-      @endif
+    <div class="col-sm-12 col-md-12 col-lg-12">
+      <h4 class="col-sm-12 col-md-12 col-lg-12">Collection "{{ $name }}"
+        [ <a href="<?php echo URL::secure("/me/collections/{$cid}/edit/") ?>">edit</a> | 
+        <a href="<?php echo URL::secure("/me/collections/{$cid}/delete/") ?>">delete</a> ]
+      </h4>
+      @foreach($videos as $i => $video)
+      <div class="col-sm-12 col-md-3 col-lg-3 video" data-video="{{ $video->embed_url }}" data-index="<?php echo $i ?>" style="top:30px;height:330px">
+        @if ($video->method === '_dummy')
+        <div class="col-sm-12 col-md-12 col-lg-12 dummy" style="display:block;width:100%;height:200px;background:#CCC"></div>
+        @else
+        <img class="col-sm-12 col-md-12 col-lg-12" src="{{ $video->poster }}" width="100%">
+        @endif
 
-      <h5 class="col-sm-12 col-md-12 col-lg-12">{{{ $video->title }}}</h5>
-      <div class="col-sm-12 col-md-12 col-lg-12">{{{ $video->duration }}}</div>
-      <ul class="col-sm-12 col-md-12 col-lg-12">
-        <li><a class="play" data-index="<?php echo $i ?>" href="#">Play video</a></li>
-        <li><a class="edit" href="<?php $url = "/me/videos/{$video->id}/edit"; echo URL::secure($url) ?>">Edit video</a></li>
-        <li><a class="tags" href="<?php $url = "/me/videos/{$video->id}/tags/edit"; echo URL::secure($url) ?>">View/Edit tags</a></li>
-        <li><a class="delete" href="<?php $url = "/me/videos/{$video->id}/delete"; echo URL::secure($url) ?>">Delete video</a></li>
-      </ul>
+        <h5 class="col-sm-12 col-md-12 col-lg-12">{{{ $video->title }}}</h5>
+        <div class="col-sm-12 col-md-12 col-lg-12">{{{ $video->duration }}}</div>
+        <ul class="col-sm-12 col-md-12 col-lg-12">
+          <li><a class="play" data-index="<?php echo $i ?>" href="#">Play video</a></li>
+          <li><a class="edit" href="<?php $url = "/me/videos/{$video->id}/edit"; echo URL::secure($url) ?>">Edit video</a></li>
+          <li><a class="tags" href="<?php $url = "/me/videos/{$video->id}/tags/edit"; echo URL::secure($url) ?>">View/Edit tags</a></li>
+          <li><a class="delete" href="<?php $url = "/me/videos/{$video->id}/delete"; echo URL::secure($url) ?>">Delete video</a></li>
+        </ul>
+      </div>
+      @endforeach
     </div>
-    @endforeach
-
-    @if ($pending > 0)
-      @for ($i = 0; $i < $pending; $i++)
-        <div class="col-sm-12 col-md-3 col-lg-3">
-          <div class="col-sm-12 col-md-12 col-lg-12" style="display:block;width:100%;height:200px;background:#CCC">
-          <h5 class="col-sm-12 col-md-12 col-lg-12">Processing...</h5>
-          <div class="col-sm-12 col-md-12 col-lg-12">(will be available shortly)</div>
-        </div>
-      @endfor
-    @endif
-  @endfor
+  @endforeach
 
   </div>
 

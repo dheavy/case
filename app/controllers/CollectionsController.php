@@ -45,7 +45,7 @@ class CollectionsController extends \BaseController {
    *
    * @param  mixed   $userId         ID of the user.
    * @param  string  $collectionName Name for the new collection.
-   * @return boolean True if succeeded, false otherwise.
+   * @return Collection  The created Collection if successfully created, or null otherwise.
    */
   public function createUserCollection($userId, $collectionName)
   {
@@ -57,10 +57,8 @@ class CollectionsController extends \BaseController {
     // Status is currently set to public by default.
     $collection->status = 1;
 
-    $saved = $collection->save();
-    if (!$saved) return false;
-
-    return true;
+    $collection->save();
+    return $collection;
   }
 
   /**

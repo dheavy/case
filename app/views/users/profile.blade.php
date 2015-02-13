@@ -16,19 +16,26 @@
       @if ($user->role->name === 'admin')
       <li><a href="{{{ URL::secure('admin.users.show') }}}">List users</a></li>
       @elseif ($user->role->name === 'curator')
-      <li><a href="{{{ URL::secure('/me/videos/add') }}}">Add video</a></li>
+      <li><a href="{{{ URL::secure('/me/videos/create') }}}">Add video</a></li>
       @endif
 
       <li><a href="{{{ URL::secure('/me/delete') }}}">Delete my account</a></li>
 
       @if (App::environment() === 'local')
-      <li><hr><a href="{{{ URL::secure('/me/videos/add/debug') }}}">[DEBUG] Add fake video</a></li>
+      <li><hr><a href="{{{ URL::secure('/me/videos/create/debug') }}}">[DEBUG] Add fake video</a></li>
       @endif
     </ul>
   </nav>
 
   <section class="col-sm-12 col-md-12 col-lg-12">
-    You have {{{ $user->collections->count() }}} collection,
+    You have {{{ $user->collections->count() }}}
+
+    @if ($user->collections->count() > 1)
+    collections,
+    @else
+    collection,
+    @endif
+
     and curated {{{ count($user->videos()) }}}
 
     @if (count($user->videos()) > 1)

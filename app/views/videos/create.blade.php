@@ -18,7 +18,7 @@
     </div>
 
     <div class="col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3">
-      {{ Form::open(array('url' => URL::secure('/me/videos/add'))) }}
+      {{ Form::open(array('url' => URL::secure('/me/videos/create'))) }}
 
         <div class="form-group">
           {{ Form::label('url', 'Page URL') }}
@@ -32,8 +32,8 @@
         </div>
 
         <div class="form-group hide" id="new-collection-group">
-          {{ Form::label('newcollection', 'Name your new collection') }}
-          {{ Form::text('newcollection', '', array('class' => 'form-control')) }}
+          {{ Form::label('name', 'Name your new collection') }}
+          {{ Form::text('name', '', array('class' => 'form-control')) }}
         </div>
 
         <div class="form-group">
