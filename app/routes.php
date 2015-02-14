@@ -123,6 +123,7 @@ Route::post('/me/videos/create/debug', array(
 // Collections
 Route::get('/me/collections/', array(
   'uses' => 'CollectionsController@index',
+  'as' => 'collections.index',
   'before' => 'auth'
 ));
 
@@ -134,12 +135,12 @@ Route::get('/me/collections/{id}', array(
 // Create collection
 Route::get('/me/collections/create', array(
   'uses' => 'CollectionsController@getCreateCollection',
-  'as' => 'collections.edit',
+  'as' => 'collections.create',
   'before' => 'auth'
 ));
 
 Route::post('/me/collections/create', array(
-  'uses' => 'CollectionsController@create',
+  'uses' => 'CollectionsController@store',
   'before' => 'auth|csrf'
 ));
 

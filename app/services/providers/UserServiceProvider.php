@@ -19,6 +19,7 @@ use Mypleasure\Services\Validation\User\UserAuthValidator;
 use Mypleasure\Services\Validation\User\UserCreateValidator;
 use Mypleasure\Services\Validation\User\UserDestroyValidator;
 use Mypleasure\Services\Validation\User\UserUpdateEmailValidator;
+use Mypleasure\Services\Validation\Collection\CollectionValidator;
 use Mypleasure\Services\Validation\User\UserUpdatePasswordValidator;
 
 /**
@@ -62,6 +63,10 @@ class UserServiceProvider extends ServiceProvider {
     $this->app->bind('UserUpdatePasswordValidator', function($app) {
       return new UserUpdatePasswordValidator(Validator::getFacadeRoot());
     });
+
+    $this->app->bind('CollectionValidator', function($app) {
+      return new CollectionValidator(Validator::getFacadeRoot());
+    });
   }
 
   /**
@@ -72,7 +77,7 @@ class UserServiceProvider extends ServiceProvider {
   protected function bindControllers()
   {
     $this->app->bind('CollectionsController', function($app) {
-      return new CollectionsController;
+      return new CollectionsController($this->app->make('CollectionValidator'));
     });
 
     $this->app->bind('VideosController', function($app) {

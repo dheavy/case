@@ -26,6 +26,11 @@ class VideosController extends \BaseController {
     $this->urlSanitizer = $urlSanitizer;
   }
 
+  /**
+   * Display The Feed.
+   *
+   * @return Illuminate\View\View
+   */
   public function feed()
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');

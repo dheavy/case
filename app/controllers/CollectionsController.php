@@ -7,13 +7,28 @@
 class CollectionsController extends \BaseController {
 
   /**
-   * Create instance.
+   * An instance of the Collection form creation/update validator.
+   *
+   * @var Mypleasure\Services\Validation\Collection
    */
-  public function __construct()
+  protected $validator;
+
+  /**
+   * Create instance.
+   *
+   * @param Mypleasure\Services\Validation\Collection $validator An instance of the Collection form creation/update validator.
+   */
+  public function __construct($validator)
   {
     parent::__construct();
+    $this->validator = $validator;
   }
 
+  /**
+   * Display a list of all videos belonging to the current user.
+   *
+   * @return Illuminate\View\View
+   */
   public function index()
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
@@ -34,22 +49,34 @@ class CollectionsController extends \BaseController {
     return View::make('collections.index')->with(array('user' => $user, 'collections' => $collections));
   }
 
-  public function create()
+  /**
+   * Store a new instance of Collection based on user inputs.
+   *
+   * @return Illuminate\Http\RedirectResponse
+   */
+  public function store()
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
     $user = Auth::user();
 
-    // TODO: sanitize inputs.
+    // Get inputs.
     $name = Input::get('name', '');
-    if (trim($name) == '') $name = 'untitled collection';
-
     $status = (int)Input::get('status', '');
+
+    // Attempt validation.
+    $passed = $this->validator->with(array('name' => $name, 'status' => $status))->passes();
+    if (!$passed) {
+      return Redirect::route('collections.create')
+        ->withErrors($this->validator->errors())
+        ->withInput();
+    }
+
     if ($status !== 0 && $status !== 1) $status = 1;
 
     $collection = $this->createUserCollection($user->id, $name, $status);
-    if (!$collection) return Redirect::route('videos.index')->with('message', 'Oops... an error has occured. Please try again.');
+    if (!$collection) return Redirect::route('collections.index')->with('message', 'Oops... an error has occured. Please try again.');
 
-    return Redirect::route('videos.index')->with('message', 'Collection created.');
+    return Redirect::route('collections.index')->with('message', 'Collection created.');
   }
 
   /**
@@ -66,16 +93,25 @@ class CollectionsController extends \BaseController {
     $collection = Collection::findOrFail((int)Input::get('collection', 0));
     $status = (int)Input::get('status', $collection->status);
     $newName = Input::get('name', '');
-    if (trim($newName) == '') $newName = 'untitled collection';
+
+    // Attempt validation.
+    $passed = $this->validator->with(array('name' => $newName, 'status' => $status))->passes();
+    if (!$passed) {
+      return Redirect::back()
+        ->withErrors($this->validator->errors())
+        ->withInput();
+    }
+
+    if ($status !== 0 && $status !== 1) $status = 1;
 
     $collection->name = $newName;
     $collection->status = $status;
     $collection->slug = $this->slugify($collection->name);
     $saved = $collection->save();
 
-    if (!$saved) return Redirect::route('videos.index')->with('message', 'Oops... an error has occured. Please try again.');
+    if (!$saved) return Redirect::route('collections.index')->with('message', 'Oops... an error has occured. Please try again.');
 
-    return Redirect::route('videos.index')->with('message', 'Collection updated.');
+    return Redirect::route('collections.index')->with('message', 'Collection updated.');
   }
 
   /**
@@ -148,7 +184,7 @@ class CollectionsController extends \BaseController {
       return View::make('collections.edit')->with(array('user' => $user, 'collection' => $collection));
     }
 
-    return Redirect::route('videos.index');
+    return Redirect::route('collections.index');
   }
 
   /**
@@ -164,7 +200,7 @@ class CollectionsController extends \BaseController {
 
     // Get collection and redirect if user <-> collection don't match.
     $collection = Collection::findOrFail($collectionId);
-    if (!$user->hasCollection($collectionId)) return Redirect::route('videos.index');
+    if (!$user->hasCollection($collectionId)) return Redirect::route('collections.index');
 
     // Set up variables used in view, including vars for select list.
     $hasVideos = (bool)$collection->videos->count();
@@ -195,7 +231,7 @@ class CollectionsController extends \BaseController {
 
     $collection = Collection::findOrFail(Input::get('collection', 0));
 
-    if (!$user->hasCollection($collection->id)) return Redirect::route('videos.index');
+    if (!$user->hasCollection($collection->id)) return Redirect::route('collections.index');
 
     // An empty $replace indicates no replacement collection is provided.
     $replace = Input::get('replace', '');
@@ -213,7 +249,7 @@ class CollectionsController extends \BaseController {
       }
     }
 
-    return Redirect::route('videos.index')->with('message', 'Collection deleted.');
+    return Redirect::route('collections.index')->with('message', 'Collection deleted.');
   }
 
   /**
