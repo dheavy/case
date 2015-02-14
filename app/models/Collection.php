@@ -46,6 +46,21 @@ class Collection extends Eloquent {
   }
 
   /**
+   * Delete all videos attach to this collection, then delete the collection.
+   *
+   * @return boolean True if no error occured.
+   */
+  public function dispose()
+  {
+    $this->videos->each(function($video) {
+      $video->delete();
+    });
+    $this->delete();
+
+    return true;
+  }
+
+  /**
    * Is the collection public?
    *
    * @return boolean True if it is, false otherwise.

@@ -129,6 +129,11 @@ Route::get('/me/collections/{collectionId}/delete', array(
   'before' => 'auth'
 ))->where(array('collectionId' => '[0-9]+'));
 
+Route::post('/me/collections/{collectionId}/delete', array(
+  'uses' => 'CollectionsController@destroy',
+  'before' => 'auth|csrf'
+))->where(array('collectionId' => '[0-9]+'));
+
 // Edit videos.
 Route::get('/me/videos/{videoId}/edit', array(
   'uses' => 'VideosController@getEditVideo',

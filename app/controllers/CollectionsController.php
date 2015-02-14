@@ -81,33 +81,73 @@ class CollectionsController extends \BaseController {
     return Redirect::route('videos.index');
   }
 
+  /**
+   * Display the "delete collection" view.
+   *
+   * @param  integer $collectionId The ID of the collection to delete.
+   * @return Illuminate\View\View|Illuminate\Http\RedirectResponse
+   */
   public function getDeleteCollection($collectionId)
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
     $user = Auth::user();
 
+    // Get collection and redirect if user <-> collection don't match.
     $collection = Collection::findOrFail($collectionId);
+    if (!$user->hasCollection($collectionId)) return Redirect::route('videos.index');
 
-    if ($user->hasCollection($collectionId)) {
-      $hasVideos = (bool)$collection->videos->count();
+    // Set up variables used in view, including vars for select list.
+    $hasVideos = (bool)$collection->videos->count();
+    $replaceSelectList = array('' => 'Delete those suckers. FOREVER. BOOM!');
 
-      $replaceSelectList = array('' => 'Delete those suckers. BAM!');
+    $user->collections->each(function($c) use (&$replaceSelectList, &$collection) {
+      if ($c->id !== $collection->id) {
+        $replaceSelectList[$c->id] = 'Move them to ' . $c->name;
+      }
+    });
 
-      $user->collections->each(function($c) use (&$replaceSelectList, &$collection) {
-        if ($c->id !== $collection->id) {
-          $replaceSelectList[$c->id] = 'Move them to ' . $c->name;
-        }
-      });
+    // Display view.
+    return View::make('collections.delete')
+      ->with(array('user' => $user, 'collection' => $collection, 'hasVideos' => $hasVideos, 'replaceSelectList' => $replaceSelectList));
 
-      return View::make('collections.delete')
-        ->with(array('user' => $user, 'collection' => $collection, 'hasVideos' => $hasVideos, 'replaceSelectList' => $replaceSelectList));
-    }
-
-    return Redirect::route('videos.index');
   }
 
   /**
-   * Batch delete collections from a list.
+   * Destroy collection. Proceed with destroying videos,
+   * or moving them to another collection, depending on user's choice.
+   *
+   * @return Illuminate\Http\RedirectResponse
+   */
+  public function destroy()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+    $user = Auth::user();
+
+    $collection = Collection::findOrFail(Input::get('collection', 0));
+
+    if (!$user->hasCollection($collection->id)) return Redirect::route('videos.index');
+
+    // An empty $replace indicates no replacement collection is provided.
+    $replace = Input::get('replace', '');
+
+    // Destroy videos or move to another collection, accordingly.
+    if (trim($replace) === '') {
+      $collection->dispose();
+    } else {
+      $replaceCollection = Collection::findOrFail((int)$replace);
+      if ($user->hasCollection($replaceCollection->id)) {
+        $updated = DB::table('collection_video')
+          ->where('collection_id', $collection->id)
+          ->update(array('collection_id' => $replaceCollection->id));
+        $collection->dispose();
+      }
+    }
+
+    return Redirect::route('videos.index')->with('message', 'Collection deleted.');
+  }
+
+  /**
+   * Batch delete collections from a list. Deletes videos as well.
    *
    * @param  Illuminate\Database\Eloquent\Collection $collections The list of collections.
    * @return bool True if deleted successfully.
@@ -116,7 +156,7 @@ class CollectionsController extends \BaseController {
   {
     $collections->each(function($c) {
       $collection = Collection::findOrFail($c['id']);
-      $collection->delete();
+      $collection->dispose();
     });
 
     return true;
