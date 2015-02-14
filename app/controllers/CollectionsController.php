@@ -14,6 +14,24 @@ class CollectionsController extends \BaseController {
     parent::__construct();
   }
 
+  public function create()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+    $user = Auth::user();
+
+    // TODO: sanitize inputs.
+    $name = Input::get('name', '');
+    if (trim($name) == '') $name = 'untitled collection';
+
+    $status = (int)Input::get('status', '');
+    if ($status !== 0 && $status !== 1) $status = 1;
+
+    $collection = $this->createUserCollection($user->id, $name, $status);
+    if (!$collection) return Redirect::route('videos.index')->with('message', 'Oops... an error has occured. Please try again.');
+
+    return Redirect::route('videos.index')->with('message', 'Collection created.');
+  }
+
   /**
    * Update collection resource.
    *
@@ -22,13 +40,13 @@ class CollectionsController extends \BaseController {
   public function update()
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
-
     $user = Auth::user();
 
     // TODO: sanitize inputs.
     $collection = Collection::findOrFail((int)Input::get('collection', 0));
     $status = (int)Input::get('status', $collection->status);
-    $newName = Input::get('name', 'untitled collection');
+    $newName = Input::get('name', '');
+    if (trim($newName) == '') $newName = 'untitled collection';
 
     $collection->name = $newName;
     $collection->status = $status;
@@ -45,20 +63,29 @@ class CollectionsController extends \BaseController {
    *
    * @param  mixed   $userId         ID of the user.
    * @param  string  $collectionName Name for the new collection.
+   * @param  integer $status         The visibility status (1 is public, 0 is private). Defaults to 1.
+   *
    * @return Collection  The created Collection if successfully created, or null otherwise.
    */
-  public function createUserCollection($userId, $collectionName)
+  public function createUserCollection($userId, $collectionName, $status = 1)
   {
     $collection = new Collection;
     $collection->name = $collectionName;
     $collection->slug = $this->slugify($collection->name);
     $collection->user_id = $userId;
 
-    // Status is currently set to public by default.
-    $collection->status = 1;
+    $collection->status = $status;
 
     $collection->save();
     return $collection;
+  }
+
+  public function getCreateCollection()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+    $user = Auth::user();
+
+    return View::make('collections.create')->with('user', $user);
   }
 
   /**

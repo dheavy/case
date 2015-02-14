@@ -45,7 +45,7 @@ class VideosController extends \BaseController {
     // Create a multidimensional array containing arrays, each holding
     // a collection id and name, and a sub-array of its videos.
     $collections = array();
-    $collectionsList = $user->collections;
+    $collectionsList = $user->collections->reverse();
     $collectionsList->each(function($collectionModel) use (&$collections) {
       $collection = new stdClass;
       $collection->id = $collectionModel->id;
