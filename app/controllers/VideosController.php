@@ -17,13 +17,19 @@ class VideosController extends \BaseController {
    */
   protected $urlSanitizer;
 
+  protected $createValidator;
+
+  protected $updateValidator;
+
   /**
    * Create instance.
    */
-  public function __construct(UrlSanitizer $urlSanitizer)
+  public function __construct(UrlSanitizer $urlSanitizer, $validators)
   {
     parent::__construct();
     $this->urlSanitizer = $urlSanitizer;
+    $this->createValidator = $validators['create'];
+    $this->updateValidator = $validators['update'];
   }
 
   /**
@@ -63,8 +69,6 @@ class VideosController extends \BaseController {
   public function index()
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
-
-    // Get user.
     $user = Auth::user();
 
     // Get and consolidate videos user might have waiting for herself.
@@ -162,35 +166,41 @@ class VideosController extends \BaseController {
   public function store()
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
-
-    // Get user.
     $user = Auth::user();
+    $input = array();
 
-    // Ensure URL validity and canonize it.
+    // Get URL.
     $url = Input::get('url', '');
-
-    if (!$this->urlSanitizer->validate($url)) {
-      return Redirect::route('videos.create')->with('message', 'URL not valid. Please try again.');
-    }
 
     // Get collection to add the Video to.
     // If input 'collection' is an empty string, create a new collection.
     $collectionId = trim(Input::get('collection', ''));
-    if ($collectionId === '') {
-      // Create new collection.
-      // TODO: Sanitize input.
-      $collectionName = Input::get('name', '');
-      if (trim($collectionName) === '') {
-        $collectionName = 'untitled collection';
-      }
 
+    // Prepare to create new collection or get existing collection's ID.
+    if ($collectionId === '') {
+      $collectionName = Input::get('name', '');
+    } else {
+      $collectionId = (int)$collectionId;
+    }
+
+    // Build final input array and validate.
+    $input['url'] = $url;
+    if (isset($collectionName)) $input['collectionName'] = $collectionName;
+
+    $passed = $this->createValidator->with($input)->passes();
+    if (!$passed) {
+      return Redirect::back()
+        ->withErrors($this->createValidator->errors())
+        ->withInput(Input::except('name'));
+    }
+
+    // Finally create new collection to put video in it, if needed.
+    if (isset($collectionName)) {
       $collection = App::make('CollectionsController')->createUserCollection($user->id, $collectionName);
       $collectionId = $collection->id;
       if (!$collectionId) {
         return Redirect::route('videos.create')->with('message', 'Oops... There was an error adding this videos...');
       }
-    } else {
-      $collectionId = (int)$collectionId;
     }
 
     // Canonize URL.

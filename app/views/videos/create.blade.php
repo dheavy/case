@@ -48,14 +48,18 @@
     var $collectionSelect = $('#collection-select'),
         $newGroup = $('#new-collection-group');
 
-    $collectionSelect.bind('change', function changeHandler(e) {
+    function newCollectionNameToggle(e) {
       var value = $collectionSelect.val();
       if (value.trim() === '') {
         $newGroup.removeClass('hide');
       } else {
         $newGroup.addClass('hide');
       }
-    });
+    }
+
+    $collectionSelect.bind('change', newCollectionNameToggle);
+
+    $(window).bind('load', newCollectionNameToggle);
   });
   </script>
 

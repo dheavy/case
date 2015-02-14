@@ -18,6 +18,8 @@ use Mypleasure\Services\Url\UrlSanitizer;
 use Mypleasure\Services\Validation\User\UserAuthValidator;
 use Mypleasure\Services\Validation\User\UserCreateValidator;
 use Mypleasure\Services\Validation\User\UserDestroyValidator;
+use Mypleasure\Services\Validation\Video\VideoCreateValidator;
+use Mypleasure\Services\Validation\Video\VideoUpdateValidator;
 use Mypleasure\Services\Validation\User\UserUpdateEmailValidator;
 use Mypleasure\Services\Validation\Collection\CollectionValidator;
 use Mypleasure\Services\Validation\User\UserUpdatePasswordValidator;
@@ -67,6 +69,14 @@ class UserServiceProvider extends ServiceProvider {
     $this->app->bind('CollectionValidator', function($app) {
       return new CollectionValidator(Validator::getFacadeRoot());
     });
+
+    $this->app->bind('VideoCreateValidator', function($app) {
+      return new VideoCreateValidator(Validator::getFacadeRoot());
+    });
+
+    $this->app->bind('VideoUpdateValidator', function($app) {
+      return new VideoUpdateValidator(Validator::getFacadeRoot());
+    });
   }
 
   /**
@@ -77,11 +87,17 @@ class UserServiceProvider extends ServiceProvider {
   protected function bindControllers()
   {
     $this->app->bind('CollectionsController', function($app) {
-      return new CollectionsController($this->app->make('CollectionValidator'));
+      return new CollectionsController($app->make('CollectionValidator'));
     });
 
     $this->app->bind('VideosController', function($app) {
-      return new VideosController(new UrlSanitizer);
+      return new VideosController(
+        new UrlSanitizer,
+        array(
+          'create' => $app->make('VideoCreateValidator'),
+          'update' => $app->make('VideoUpdateValidator')
+        )
+      );
     });
 
     $this->app->bind('TagsController', function($app) {
