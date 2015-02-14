@@ -23,7 +23,7 @@
       <?php endif; ?>
 
       <div class="form-group">
-        <a href="{{{ URL::secure('/me/videos') }}}" class="btn btn-default" data-dismiss="modal">No, cancel</a>
+        <a href="{{{ URL::secure('/me/collections') }}}" class="btn btn-default" data-dismiss="modal">No, cancel</a>
         <input type="submit" class="btn btn-primary" value="Yes, delete">
       </div>
     </div>

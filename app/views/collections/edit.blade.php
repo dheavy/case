@@ -28,6 +28,7 @@
           {{ Form::select('status', array('1' => 'public', '0' => 'private'), $status, array('class' => 'form-control')) }}
         </div>
 
+        <a href="{{{ URL::secure('/me/collections') }}}" class="btn btn-default" data-dismiss="modal">Cancel</a>
         {{ Form::submit('Update collection', array('class' => 'btn btn-primary')) }}
       {{ Form::close() }}
     </div>
