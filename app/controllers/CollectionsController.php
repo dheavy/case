@@ -14,6 +14,26 @@ class CollectionsController extends \BaseController {
     parent::__construct();
   }
 
+  public function index()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+    $user = Auth::user();
+
+    $collectionsList = $user->collections;
+    $collections = array();
+
+    $collectionsList->each(function($c) use (&$collections) {
+      $collections[] = array(
+        'id' => $c->id,
+        'name' => $c->name,
+        'status' => (int) $c->status,
+        'numVideos' => $c->videos->count()
+      );
+    });
+
+    return View::make('collections.index')->with(array('user' => $user, 'collections' => $collections));
+  }
+
   public function create()
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');

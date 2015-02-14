@@ -110,6 +110,12 @@ Route::post('/me/videos/create/debug', array(
   'before' => 'auth|csrf'
 ));
 
+// Collections
+Route::get('/me/collections/', array(
+  'uses' => 'CollectionsController@index',
+  'before' => 'auth'
+));
+
 // Create collection
 Route::get('/me/collections/create', array(
   'uses' => 'CollectionsController@getCreateCollection',
