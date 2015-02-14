@@ -52,4 +52,14 @@ class Video extends Eloquent {
     return $this->belongsToMany('Tag', 'tag_video')->withTimestamps();
   }
 
+  /**
+   * Is the video publicly visible (i.e. part of a publicly visible collection)?
+   *
+   * @return boolean True if visible, false, otherwise.
+   */
+  public function isPublic()
+  {
+    return $this->collections->first()->isPublic();
+  }
+
 }

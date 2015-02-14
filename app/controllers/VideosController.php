@@ -26,6 +26,30 @@ class VideosController extends \BaseController {
     $this->urlSanitizer = $urlSanitizer;
   }
 
+  public function feed()
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+
+    $videos = array();
+    $users = User::all()->reverse();
+
+    $users->each(function($user) use (&$videos) {
+      if ($user->videos()->count() > 0) {
+        $videosList = $user->videos()->reverse();
+        $videosList->each(function($video) use (&$videos, &$user) {
+          if ($video->isPublic()) {
+            $v = new stdClass;
+            $v->user = $user;
+            $v->video = $video;
+            $videos[] = $v;
+          }
+        });
+      }
+    });
+
+    return View::make('videos.feed')->with('videos', $videos);
+  }
+
   /**
    * List a User's videos in a dedicated view.
    *

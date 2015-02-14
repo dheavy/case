@@ -46,6 +46,16 @@ Route::controller('password', 'RemindersController');
 
 
 /**
+ * Feed
+ */
+
+Route::get('/feed', array(
+  'uses' => 'VideosController@feed',
+  'as' => 'feed',
+  'before' => 'auth'
+));
+
+/**
  * User account
  */
 
