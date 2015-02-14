@@ -116,17 +116,22 @@ Route::get('/me/collections/', array(
   'before' => 'auth'
 ));
 
+Route::get('/me/collections/{id}', array(
+  'uses' => 'CollectionsController@getCollection',
+  'before' => 'auth'
+))->where(array('id' => '[0-9]+'));
+
 // Create collection
 Route::get('/me/collections/create', array(
   'uses' => 'CollectionsController@getCreateCollection',
   'as' => 'collections.edit',
   'before' => 'auth'
-))->where(array('collectionId' => '[0-9]+'));
+));
 
 Route::post('/me/collections/create', array(
   'uses' => 'CollectionsController@create',
   'before' => 'auth|csrf'
-))->where(array('collectionId' => '[0-9]+'));
+));
 
 // Edit collection
 Route::get('/me/collections/{collectionId}/edit', array(

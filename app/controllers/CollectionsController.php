@@ -100,6 +100,29 @@ class CollectionsController extends \BaseController {
     return $collection;
   }
 
+  /**
+   * Display the view for a single collection.
+   *
+   * @param  integer $collectionId The ID of the collection to view.
+   * @return Illuminate\View\View
+   */
+  public function getCollection($id)
+  {
+    if (!Auth::check()) App::abort(401, 'Unauthorized');
+    $user = Auth::user();
+
+    if (!$user->hasCollection((int)$id)) return Redirect::route('collections.index');
+
+    $collection = Collection::findOrFail($id);
+
+    return View::make('collections.view')->with(array('user' => $user, 'collection' => $collection));
+  }
+
+  /**
+   * Display the "create collection" form.
+   *
+   * @return Illuminate\View\View
+   */
   public function getCreateCollection()
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
