@@ -43,9 +43,7 @@ class ViewsCommand extends Command {
    */
   public function fire()
   {
-
-    foreach ($this->files->files(storage_path().'/views') as $file)
-    {
+    foreach ($this->files->files(storage_path().'/views') as $file) {
       $this->files->delete($file);
     }
 
