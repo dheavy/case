@@ -21,6 +21,8 @@ class VideosController extends \BaseController {
 
   protected $updateValidator;
 
+  protected $user;
+
   /**
    * Create instance.
    */
@@ -30,6 +32,7 @@ class VideosController extends \BaseController {
     $this->urlSanitizer = $urlSanitizer;
     $this->createValidator = $validators['create'];
     $this->updateValidator = $validators['update'];
+    $this->user = Auth::user();
   }
 
   /**
@@ -39,8 +42,6 @@ class VideosController extends \BaseController {
    */
   public function feed()
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-
     $videos = array();
     $users = User::all()->reverse();
 
@@ -68,17 +69,14 @@ class VideosController extends \BaseController {
    */
   public function index()
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-    $user = Auth::user();
-
     // Get and consolidate videos user might have waiting for herself.
     // Retrieve the number of videos possibly still pending while user displays her videos page.
-    $pending = $this->fetchNewlyCurated($user->id);
+    $pending = $this->fetchNewlyCurated($this->user->id);
 
     // Create a multidimensional array containing arrays, each holding
     // a collection id and name, and a sub-array of its videos.
     $collections = array();
-    $collectionsList = $user->collections->reverse();
+    $collectionsList = $this->user->collections->reverse();
     $collectionsList->each(function($collectionModel) use (&$collections) {
       $collection = new stdClass;
       $collection->id = $collectionModel->id;
@@ -93,7 +91,7 @@ class VideosController extends \BaseController {
     });
 
     // Make view.
-    return View::make('videos.index', array('collections' => $collections, 'user' => $user, 'pending' => $pending));
+    return View::make('videos.index', array('collections' => $collections, 'user' => $this->user, 'pending' => $pending));
   }
 
   /**
@@ -103,13 +101,11 @@ class VideosController extends \BaseController {
    */
   public function getAddVideo()
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-    $user = Auth::user();
     $collections = array();
-    $user->collections->each(function($collection) use (&$collections) {
+    $this->user->collections->each(function($collection) use (&$collections) {
       $collections[$collection->id] = $collection->name;
     });
-    return View::make('videos.create')->with(array('user' => $user, 'collections' => $collections));
+    return View::make('videos.create')->with(array('user' => $this->user, 'collections' => $collections));
   }
 
   /**
@@ -119,9 +115,7 @@ class VideosController extends \BaseController {
    */
   public function getAddVideoDebug()
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-    $user = Auth::user();
-    return View::make('debug.addvideo')->with('user', $user);
+    return View::make('debug.addvideo')->with('user', $this->user);
   }
 
   /**
@@ -132,13 +126,8 @@ class VideosController extends \BaseController {
    */
   public function getEditVideo($videoId)
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-
-    // Get user and video.
-    $user = Auth::user();
     $video = Video::findOrFail($videoId);
-
-    return View::make('videos.edit')->with(array('user' => $user, 'video' => $video));
+    return View::make('videos.edit')->with(array('user' => $this->user, 'video' => $video));
   }
 
   /**
@@ -149,13 +138,8 @@ class VideosController extends \BaseController {
    */
   public function getDeleteVideo($videoId)
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-
-    // Get user and video.
-    $user = Auth::user();
     $video = Video::findOrFail($videoId);
-
-    return View::make('videos.delete')->with(array('user' => $user, 'video' => $video));
+    return View::make('videos.delete')->with(array('user' => $this->user, 'video' => $video));
   }
 
   /**
@@ -165,8 +149,6 @@ class VideosController extends \BaseController {
    */
   public function store()
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-    $user = Auth::user();
     $input = array();
 
     // Get URL.
@@ -196,7 +178,7 @@ class VideosController extends \BaseController {
 
     // Finally create new collection to put video in it, if needed.
     if (isset($collectionName)) {
-      $collection = App::make('CollectionsController')->createUserCollection($user->id, $collectionName);
+      $collection = App::make('CollectionsController')->createUserCollection($this->user->id, $collectionName);
       $collectionId = $collection->id;
       if (!$collectionId) {
         return Redirect::route('videos.create')->with('message', 'Oops... There was an error adding this videos...');
@@ -210,7 +192,7 @@ class VideosController extends \BaseController {
     $hash = md5(urlencode(utf8_encode($url)));
 
     // Stop here if user already added this video.
-    if ($user->hasVideoFromHash($hash)) {
+    if ($this->user->hasVideoFromHash($hash)) {
       return Redirect::route('videos.create')->with('message', "Oops... It looks like you've already added this video!");
     }
 
@@ -220,16 +202,17 @@ class VideosController extends \BaseController {
     // If video does exist, create an instance for this user.
     // Otherwise, add to queue in MongoDB.
     $exists = (bool)$video;
+
     if ($exists) {
       $created = $this->createVideoInstance($collectionId, $video[0]);
       if (!(bool)$created) {
         return Redirect::route('users.profile')->with('message', 'Oops.. there was an error adding a video.');
       }
     } else {
-      // The ObjectID is based on the hash of the video to look for dups.
+      // The ObjectID is based on the hash of the video to look for duplicates.
       // It is reduced to 24 characters match ObjectID's requirements.
       try {
-        $this->addVideoRequestToQueue($hash, $url, $user->id, $collectionId);
+        $this->addVideoRequestToQueue($hash, $url, $this->user->id, $collectionId);
       } catch (MongoDuplicateKeyException $error) {
         return Redirect::route('users.profile')->with('message', 'Your video is already being processed and will show up in your collection in a short moment.');
       }
@@ -246,11 +229,6 @@ class VideosController extends \BaseController {
    */
   public function storeDebug()
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-
-    // Get user.
-    $user = Auth::user();
-
     // Create instance from dummy data.
     $now = Carbon::now()->toDateTimeString();
     $faker = Faker\Factory::create();
@@ -269,7 +247,7 @@ class VideosController extends \BaseController {
       'duration' => '00:10:05'
     );
 
-    $this->createVideoInstance($user->collections[0]->id, $data);
+    $this->createVideoInstance($this->user->collections[0]->id, $data);
 
     return Redirect::route('users.profile')->with('message', 'Fake video added to your list of videos.');
   }
@@ -281,9 +259,6 @@ class VideosController extends \BaseController {
    */
   public function update()
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-    $user = Auth::user();
-
     // Get input.
     $id = (int)Input::get('video', 0);
     $title = trim(Input::get('title', ''));
@@ -303,7 +278,7 @@ class VideosController extends \BaseController {
     $video = Video::findOrFail($id);
 
     // If video found, proceed with update.
-    if ($user->hasVideo($video->id)) {
+    if ($this->user->hasVideo($video->id)) {
       $video->title = $title;
       $saved = $video->save();
       if (!$saved) {
@@ -322,13 +297,8 @@ class VideosController extends \BaseController {
    */
   public function destroy($id)
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-
-    // Get user.
-    $user = Auth::user();
-
     $video = Video::findOrFail($id);
-    if ($user->hasVideo($video->id)) {
+    if ($this->user->hasVideo($video->id)) {
       $video->delete();
       return Redirect::route('videos.index')->with('message', 'Your video has been deleted.');
     }
@@ -360,14 +330,8 @@ class VideosController extends \BaseController {
    */
   protected function fetchNewlyCurated($userId)
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-
-    // Get user.
-    $user = Auth::user();
-
-    $pending = $this->fetchNewAndPending($user->id);
-    $this->fetchNewAndReady($user->id);
-
+    $pending = $this->fetchNewAndPending($this->user->id);
+    $this->fetchNewAndReady($this->user->id);
     return $pending;
   }
 
@@ -393,10 +357,6 @@ class VideosController extends \BaseController {
    */
   protected function fetchNewAndReady($userId)
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-
-    $user = Auth::user();
-
     // Check if we have videos ready for this user in the 'queue' collection.
     $ready = $this->getReadyVideos($userId);
 
