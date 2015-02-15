@@ -25,6 +25,7 @@
       </div>
 
         {{ Form::submit('Sign in', array('class' => 'btn btn-primary')) }}
+        <a href="{{URL::action('RemindersController@getRemind')}}" style="margin-left:1em">Forgotten password?</a>
       {{ Form::close() }}
     </div>
   </div>
