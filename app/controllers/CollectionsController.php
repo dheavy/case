@@ -14,6 +14,13 @@ class CollectionsController extends \BaseController {
   protected $validator;
 
   /**
+   * The currenly authenticated user.
+   *
+   * @var User
+   */
+  protected $user;
+
+  /**
    * Create instance.
    *
    * @param Mypleasure\Services\Validation\Collection $validator An instance of the Collection form creation/update validator.
@@ -22,6 +29,7 @@ class CollectionsController extends \BaseController {
   {
     parent::__construct();
     $this->validator = $validator;
+    $this->user = Auth::user();
   }
 
   /**
@@ -31,10 +39,7 @@ class CollectionsController extends \BaseController {
    */
   public function index()
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-    $user = Auth::user();
-
-    $collectionsList = $user->collections;
+    $collectionsList = $this->user->collections;
     $collections = array();
 
     $collectionsList->each(function($c) use (&$collections) {
@@ -46,7 +51,7 @@ class CollectionsController extends \BaseController {
       );
     });
 
-    return View::make('collections.index')->with(array('user' => $user, 'collections' => $collections));
+    return View::make('collections.index')->with(array('user' => $this->user, 'collections' => $collections));
   }
 
   /**
@@ -56,9 +61,6 @@ class CollectionsController extends \BaseController {
    */
   public function store()
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-    $user = Auth::user();
-
     // Get inputs.
     $name = Input::get('name', '');
     $status = (int)Input::get('status', '');
@@ -73,7 +75,7 @@ class CollectionsController extends \BaseController {
 
     if ($status !== 0 && $status !== 1) $status = 1;
 
-    $collection = $this->createUserCollection($user->id, $name, $status);
+    $collection = $this->createUserCollection($this->user->id, $name, $status);
     if (!$collection) return Redirect::route('collections.index')->with('message', 'Oops... an error has occured. Please try again.');
 
     return Redirect::route('collections.index')->with('message', 'Collection created.');
@@ -86,10 +88,6 @@ class CollectionsController extends \BaseController {
    */
   public function update()
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-    $user = Auth::user();
-
-    // TODO: sanitize inputs.
     $collection = Collection::findOrFail((int)Input::get('collection', 0));
     $status = (int)Input::get('status', $collection->status);
     $newName = Input::get('name', '');
@@ -144,14 +142,11 @@ class CollectionsController extends \BaseController {
    */
   public function getCollection($id)
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-    $user = Auth::user();
-
-    if (!$user->hasCollection((int)$id)) return Redirect::route('collections.index');
+    if (!$this->user->hasCollection((int)$id)) return Redirect::route('collections.index');
 
     $collection = Collection::findOrFail($id);
 
-    return View::make('collections.view')->with(array('user' => $user, 'collection' => $collection));
+    return View::make('collections.view')->with(array('user' => $this->user, 'collection' => $collection));
   }
 
   /**
@@ -161,10 +156,7 @@ class CollectionsController extends \BaseController {
    */
   public function getCreateCollection()
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-    $user = Auth::user();
-
-    return View::make('collections.create')->with('user', $user);
+    return View::make('collections.create')->with('user', $this->user);
   }
 
   /**
@@ -175,13 +167,10 @@ class CollectionsController extends \BaseController {
    */
   public function getEditCollection($collectionId)
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-    $user = Auth::user();
-
     $collection = Collection::findOrFail($collectionId);
 
-    if ($user->hasCollection($collectionId)) {
-      return View::make('collections.edit')->with(array('user' => $user, 'collection' => $collection));
+    if ($this->user->hasCollection($collectionId)) {
+      return View::make('collections.edit')->with(array('user' => $this->user, 'collection' => $collection));
     }
 
     return Redirect::route('collections.index');
@@ -195,18 +184,15 @@ class CollectionsController extends \BaseController {
    */
   public function getDeleteCollection($collectionId)
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-    $user = Auth::user();
-
     // Get collection and redirect if user <-> collection don't match.
     $collection = Collection::findOrFail($collectionId);
-    if (!$user->hasCollection($collectionId)) return Redirect::route('collections.index');
+    if (!$this->user->hasCollection($collectionId)) return Redirect::route('collections.index');
 
     // Set up variables used in view, including vars for select list.
     $hasVideos = (bool)$collection->videos->count();
     $replaceSelectList = array('' => 'Delete those suckers. FOREVER. BOOM!');
 
-    $user->collections->each(function($c) use (&$replaceSelectList, &$collection) {
+    $this->user->collections->each(function($c) use (&$replaceSelectList, &$collection) {
       if ($c->id !== $collection->id) {
         $replaceSelectList[$c->id] = 'Move them to ' . $c->name;
       }
@@ -214,7 +200,7 @@ class CollectionsController extends \BaseController {
 
     // Display view.
     return View::make('collections.delete')
-      ->with(array('user' => $user, 'collection' => $collection, 'hasVideos' => $hasVideos, 'replaceSelectList' => $replaceSelectList));
+      ->with(array('user' => $this->user, 'collection' => $collection, 'hasVideos' => $hasVideos, 'replaceSelectList' => $replaceSelectList));
 
   }
 
@@ -225,13 +211,10 @@ class CollectionsController extends \BaseController {
    * @return Illuminate\Http\RedirectResponse
    */
   public function destroy()
-  {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
-    $user = Auth::user();
 
     $collection = Collection::findOrFail(Input::get('collection', 0));
 
-    if (!$user->hasCollection($collection->id)) return Redirect::route('collections.index');
+    if (!$this->user->hasCollection($collection->id)) return Redirect::route('collections.index');
 
     // An empty $replace indicates no replacement collection is provided.
     $replace = Input::get('replace', '');
@@ -241,7 +224,7 @@ class CollectionsController extends \BaseController {
       $collection->dispose();
     } else {
       $replaceCollection = Collection::findOrFail((int)$replace);
-      if ($user->hasCollection($replaceCollection->id)) {
+      if ($this->user->hasCollection($replaceCollection->id)) {
         $updated = DB::table('collection_video')
           ->where('collection_id', $collection->id)
           ->update(array('collection_id' => $replaceCollection->id));
