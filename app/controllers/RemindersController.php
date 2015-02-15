@@ -7,6 +7,31 @@
 class RemindersController extends Controller {
 
 	/**
+	 * An instance of the validator for the reminder form.
+	 *
+	 * @var Mypleasure\Services\Validation\Reminder\RemindPasswordValidator
+	 */
+	protected $remindValidator;
+
+	/**
+	 * An instance of the validator for the reset form.
+	 *
+	 * @var Mypleasure\Services\Validation\Reminder\ResetPasswordValidator
+	 */
+	protected $resetValidator;
+
+	/**
+	 * Create instance of the controller.
+	 *
+	 * @param array $validators An array containing an instance validators for both forms used by this controller.
+	 */
+	public function __construct($validators)
+	{
+		$this->remindValidator = $validators['remind'];
+		$this->resetValidator = $validators['reset'];
+	}
+
+	/**
 	 * Display the password reminder view.
 	 *
 	 * @return Response
@@ -23,6 +48,11 @@ class RemindersController extends Controller {
 	 */
 	public function postRemind()
 	{
+		$valid = $this->remindValidator->with(Input::only('email'))->passes();
+		if (!$valid) {
+			return Redirect::back()->withErrors($this->remindValidator->errors());
+		}
+
 		switch ($response = Password::remind(Input::only('email')))
 		{
 			case Password::INVALID_USER:
@@ -53,6 +83,11 @@ class RemindersController extends Controller {
 	 */
 	public function postReset()
 	{
+		$valid = $this->resetValidator->with(Input::only('email', 'password', 'password_confirmation'))->passes();
+		if (!$valid) {
+			return Redirect::back()->withErrors($this->resetValidator->errors());
+		}
+
 		$credentials = Input::only(
 			'email', 'password', 'password_confirmation', 'token'
 		);

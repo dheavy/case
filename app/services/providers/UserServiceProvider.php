@@ -11,6 +11,7 @@ use TagsController;
 use AuthController;
 use UsersController;
 use VideosController;
+use RemindersController;
 use CollectionsController;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
@@ -22,6 +23,8 @@ use Mypleasure\Services\Validation\Video\VideoCreateValidator;
 use Mypleasure\Services\Validation\Video\VideoUpdateValidator;
 use Mypleasure\Services\Validation\User\UserUpdateEmailValidator;
 use Mypleasure\Services\Validation\Collection\CollectionValidator;
+use Mypleasure\Services\Validation\Reminder\ResetPasswordValidator;
+use Mypleasure\Services\Validation\Reminder\RemindPasswordValidator;
 use Mypleasure\Services\Validation\User\UserUpdatePasswordValidator;
 
 /**
@@ -77,6 +80,14 @@ class UserServiceProvider extends ServiceProvider {
     $this->app->bind('VideoUpdateValidator', function($app) {
       return new VideoUpdateValidator(Validator::getFacadeRoot());
     });
+
+    $this->app->bind('RemindPasswordValidator', function($app) {
+      return new RemindPasswordValidator(Validator::getFacadeRoot());
+    });
+
+    $this->app->bind('ResetPasswordValidator', function($app) {
+      return new ResetPasswordValidator(Validator::getFacadeRoot());
+    });
   }
 
   /**
@@ -127,6 +138,13 @@ class UserServiceProvider extends ServiceProvider {
         Config::get('app.throttling_max_attempts'),
         Config::get('app.throttling_retention_time')
       );
+    });
+
+    $this->app->bind('RemindersController', function($app) {
+      return new RemindersController(array(
+        'remind' => $app->make('RemindPasswordValidator'),
+        'reset' => $app->make('ResetPasswordValidator')
+      ));
     });
   }
 
