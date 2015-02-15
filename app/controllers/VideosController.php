@@ -17,10 +17,25 @@ class VideosController extends \BaseController {
    */
   protected $urlSanitizer;
 
+  /**
+   * An instance of the form validator for Video creation.
+   *
+   * @var Mypleasure\Services\Validation\Video\VideoCreateValidator
+   */
   protected $createValidator;
 
+  /**
+   * An instance of the form validator for Video update.
+   *
+   * @var Mypleasure\Services\Validation\Video\VideoUpdateValidator
+   */
   protected $updateValidator;
 
+  /**
+   * The currently authenticated user.
+   *
+   * @var User
+   */
   protected $user;
 
   /**
