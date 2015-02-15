@@ -23,13 +23,21 @@
           ({{$collection['numVideos']}} videos)
         @endif
         </span>
-        [ <a href="<?php echo URL::secure("/me/collections/{$collection['id']}") ?>">view</a> | <a href="<?php echo URL::secure("/me/collections/{$collection['id']}/edit/") ?>">edit</a> | <a href="<?php echo URL::secure("/me/collections/{$collection['id']}/delete/") ?>">delete</a> ]
+[
+<a href="<?php echo URL::secure("/me/collections/{$collection['id']}") ?>">view</a> |
+<a href="<?php echo URL::secure("/me/collections/{$collection['id']}/edit/") ?>">edit</a>
+
+@if ($collection['isDefault'] === false)
+ | <a href="<?php echo URL::secure("/me/collections/{$collection['id']}/delete/") ?>">delete</a>
+@endif
+]
+
       </h4>
       <p class="col-sm-12 col-md-12 col-lg-12">
         @if ($collection['status'] === 0)
-          This collection is private. Its videos <strong>will not appear</strong> to others in <a href="{{{ URL::secure('/feed') }}}">the feed</a>.
+          This collection is <strong>private</strong>. Its videos <strong>will not appear</strong> to others in <a href="{{{ URL::secure('/feed') }}}">the feed</a>.
         @else
-          This collections is public. Its videos <strong>will appear</strong> to others in <a href="{{{ URL::secure('/feed') }}}">the feed</a>.
+          This collections is <strong>public</strong>. Its videos <strong>will appear</strong> to others in <a href="{{{ URL::secure('/feed') }}}">the feed</a>.
         @endif
       </p>
     </div>

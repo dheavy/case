@@ -96,6 +96,7 @@ class VideosController extends \BaseController {
       $collection = new stdClass;
       $collection->id = $collectionModel->id;
       $collection->name = $collectionModel->name;
+      $collection->isDefault = $collectionModel->isDefault();
       $collection->videos = array();
       $videoList = $collectionModel->videos;
       $videoList->each(function($videoModel) use (&$collection) {

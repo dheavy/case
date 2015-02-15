@@ -32,7 +32,7 @@ class Collection extends Eloquent {
    */
   public function user()
   {
-    return $this->belongsTo('User')->withTimestamps();
+    return $this->belongsTo('User');
   }
 
   /**
@@ -42,7 +42,7 @@ class Collection extends Eloquent {
    */
   public function videos()
   {
-    return $this->belongsToMany('Video', 'collection_video')->withTimestamps();
+    return $this->belongsToMany('Video', 'collection_video');
   }
 
   /**
@@ -68,6 +68,16 @@ class Collection extends Eloquent {
   public function isPublic()
   {
     return $this->status === 1;
+  }
+
+  /**
+   * Is this collection the user's default one.
+   *
+   * @return boolean True if it is, false otherwise.
+   */
+  public function isDefault()
+  {
+    return $this->id === $this->user->collections[0]->id;
   }
 
 }

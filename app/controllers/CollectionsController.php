@@ -44,6 +44,7 @@ class CollectionsController extends \BaseController {
 
     $collectionsList->each(function($c) use (&$collections) {
       $collections[] = array(
+        'isDefault' => $c->isDefault(),
         'id' => $c->id,
         'name' => $c->name,
         'status' => (int) $c->status,
@@ -188,6 +189,9 @@ class CollectionsController extends \BaseController {
     $collection = Collection::findOrFail($collectionId);
     if (!$this->user->hasCollection($collectionId)) return Redirect::route('collections.index');
 
+    // Quit if this is the user's default collection.
+    if ($collection->isDefault()) return Redirect::route('collections.index');
+
     // Set up variables used in view, including vars for select list.
     $hasVideos = (bool)$collection->videos->count();
     $replaceSelectList = array('' => 'Delete those suckers. FOREVER. BOOM!');
@@ -211,7 +215,7 @@ class CollectionsController extends \BaseController {
    * @return Illuminate\Http\RedirectResponse
    */
   public function destroy()
-
+  {
     $collection = Collection::findOrFail(Input::get('collection', 0));
 
     if (!$this->user->hasCollection($collection->id)) return Redirect::route('collections.index');
