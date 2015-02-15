@@ -282,24 +282,34 @@ class VideosController extends \BaseController {
   public function update()
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
-
-    // Get user.
     $user = Auth::user();
 
-    $video = Video::findOrFail((int)Input::get('video', 0));
+    // Get input.
+    $id = (int)Input::get('video', 0);
+    $title = trim(Input::get('title', ''));
+    $input = array('video' => $id, 'title' => $title);
+
+    // Attempt validation.
+    $passed = $this->updateValidator->with($input)->passes();
+
+    // Send back if validation fails.
+    if (!$passed) {
+      return Redirect::back()
+        ->withErrors($this->updateValidator->errors())
+        ->withInput();
+    }
+
+    // Find matching video.
+    $video = Video::findOrFail($id);
+
+    // If video found, proceed with update.
     if ($user->hasVideo($video->id)) {
-      // TODO: Sanitize input.
-      $video->title = Input::get('title', '');
-      if (trim($video->title) === '') {
-        $video->title = 'untitled video';
-      }
+      $video->title = $title;
       $saved = $video->save();
       if (!$saved) {
-        return Redirect::route('video.edit', [$video->id])
-          ->with('message', 'Oops... there was an error updating your video. Please try again.');
+        return Redirect::back()->with('message', 'Oops... there was an error updating your video. Please try again.');
       }
-      return Redirect::route('videos.index')
-          ->with('message', 'Your video has been updated.');
+      return Redirect::route('videos.index')->with('message', 'Your video has been updated.');
     }
     return Redirect::route('videos.index');
   }

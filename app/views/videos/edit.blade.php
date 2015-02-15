@@ -8,6 +8,10 @@
 
   <h3 class="col-sm-12 col-md-12 col-lg-12">{{{ $user->username }}} (edit video)</h3>
 
+  <div class="col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3">
+    {{ HTML::ul($errors->all()) }}
+  </div>
+
   <div class="row">
 
     <div class="col-sm-12 col-md-6 col-lg-6 video">
