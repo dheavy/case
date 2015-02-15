@@ -12,7 +12,7 @@ class UserAuthValidator extends AbstractValidator {
 
   protected $rules = array(
     'username' => 'required|alpha_num|between:2,25',
-    'password' => 'required|alpha_num|between:6,16'
+    'password' => array('required', 'regex:/^[a-zA-Z0-9\s-!]+$/', 'between:6,24')
   );
 
 }

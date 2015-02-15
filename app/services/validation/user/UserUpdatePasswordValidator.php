@@ -11,9 +11,9 @@ use Mypleasure\Services\Validation\AbstractValidator;
 class UserUpdatePasswordValidator extends AbstractValidator {
 
   protected $rules = array(
-    'current_password'      => 'required|alpha_num|between:6,16',
-    'password'              => 'required|alpha_num|between:6,16|confirmed',
-    'password_confirmation' => 'required|alpha_num|between:6,16'
+    'current_password'      => array('required', 'regex:/^[a-zA-Z0-9\s-!]+$/', 'between:6,24'),
+    'password'              => array('required', 'regex:/^[a-zA-Z0-9\s-!]+$/', 'between:6,24', 'confirmed'),
+    'password_confirmation' => array('required', 'regex:/^[a-zA-Z0-9\s-!]+$/', 'between:6,24')
   );
 
 }
