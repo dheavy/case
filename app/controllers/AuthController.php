@@ -158,6 +158,13 @@ class AuthController extends BaseController {
 
     if (Auth::attempt($credentials, true)) {
       $user = Auth::user();
+
+      // Check to see if the passwords needs to be re-hashed (when the hash technique is different than when originally saved)?
+      if (Hash::needsRehash($user->password)) {
+        $user->password = Hash::make(Input::get($credentials['password']));
+        $user->save();
+      }
+
       return Redirect::to('me');
     }
 
