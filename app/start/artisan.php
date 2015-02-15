@@ -12,3 +12,5 @@
 */
 
 Artisan::add(new ViewsCommand);
+Artisan::add(new PromoteUserCommand);
+Artisan::add(new DemoteUserCommand);

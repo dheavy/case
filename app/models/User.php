@@ -173,4 +173,26 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     return $hasVideo;
   }
 
+  public function promote()
+  {
+    $role = Role::where('name', '=', 'admin')->first();
+    if ($this->role_id !== $role->id) {
+      $this->role_id = $role->id;
+      $this->save();
+      return true;
+    }
+    return false;
+  }
+
+  public function demote()
+  {
+    $role = Role::where('name', '=', 'curator')->first();
+    if ($this->role_id !== $role->id) {
+      $this->role_id = $role->id;
+      $this->save();
+      return true;
+    }
+    return false;
+  }
+
 }
