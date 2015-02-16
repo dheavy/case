@@ -216,6 +216,10 @@ Route::post('/me/delete', array(
   'before' => 'auth|csrf'
 ));
 
+/**
+ * Admin
+ */
+
 // Invites
 Route::get('/admin/invites/create', array(
   'uses' => 'InvitesController@getCreateInvite',

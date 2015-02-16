@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Mail\Mailer;
 use Mypleasure\Services\Validation\Invite\InviteValidator;
 
 /**
@@ -68,21 +69,36 @@ class InvitesController extends BaseController {
 
   public function store()
   {
+    // Get admin user and reject if not found.
     $admin = Auth::user();
     if (!$admin->role->name === 'admin') App::abort(401, 'Unauthorized');
 
+    // Get and validate form input.
     $email = trim(strtolower(Input::get('email', '')));
     $valid = $this->validator->with(array('email' => $email))->passes();
-
     if (!$valid) return Redirect::back()->withErrors($this->validator->errors());
 
+    // Ensure recipient is not already a user.
     $existingUser = User::where('email', '=', $email)->first();
     if ($existingUser) return Redirect::back()->with('message', 'User already exists! Invitation not generated.');
 
+    // Generate invite.
     $invite = $this->generate($email, $admin->id);
     if (!$invite) return Redirect::back()->with('message', 'Error generating invite. Please try again.');
 
+    // Send invite to recipient and redirect with short message.
+    $this->sendInvite($invite);
     return Redirect::back()->with('message', 'Invite successfully sent to ' . $email);
+  }
+
+  protected function sendInvite($invite)
+  {
+    $view = 'emails.invites.alpha';
+    $path = "/register?c={$invite->code}";
+
+    Mail::send('emails.invites.alpha', array('url' => $path), function($message) use (&$invite) {
+      $message->to($invite->email)->subject('Welcome to mypleasure (alpha)');
+    });
   }
 
 }

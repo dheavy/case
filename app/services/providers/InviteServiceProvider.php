@@ -23,7 +23,10 @@ class InviteServiceProvider extends ServiceProvider {
     });
 
     $this->app->bind('InvitesController', function($app) {
-      return new InvitesController(new Invite, $app->make('InviteValidator'));
+      return new InvitesController(
+        new Invite,
+        $app->make('InviteValidator')
+      );
     });
   }
 

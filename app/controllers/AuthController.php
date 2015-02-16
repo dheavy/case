@@ -53,6 +53,7 @@ class AuthController extends BaseController {
    */
   public function getRegister()
   {
+    if (Auth::check()) return Redirect::to('me');
     return View::make('auth.register');
   }
 
