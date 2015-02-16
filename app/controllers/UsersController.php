@@ -64,11 +64,18 @@ class UsersController extends \BaseController {
   protected $videosController;
 
   /**
+   * An instance of InvitesController.
+   *
+   * @var InvitesController
+   */
+  protected $invitesController;
+
+  /**
    * Create instance.
    *
    * @param User  $user        An instance of the User model passed via injection, to loosen dependencies and allow easier testing.
    * @param array $validators  An array containing instances of UserCreateValidator, UserUpdateEmailValidator, UserUpdatePasswordValidator, UserDestroyValidator.
-   * @param array $controllers An array containing instances of CollectionsController and VideosController.
+   * @param array $controllers An array containing instances of CollectionsController, VideosController, InvitesController.
    */
   public function __construct(User $user, array $validators, array $controllers)
   {
@@ -80,6 +87,7 @@ class UsersController extends \BaseController {
     $this->destroyValidator = $validators['destroy'];
     $this->collectionsController = $controllers['collection'];
     $this->videosController = $controllers['video'];
+    $this->invitesController = $controllers['invite'];
   }
 
   /**
@@ -138,6 +146,12 @@ class UsersController extends \BaseController {
    */
   public function store()
   {
+    // Check if invite is valid.
+    $code = Input::get('invite', '');
+    $email = trim(strtolower(Input::get('email', '')));
+    $invite = $this->invitesController->getMatchingInvite($code, $email);
+    if (!$invite) return Redirect::back()->with('message', 'Invite code and email don\'t match.');
+
     // Get ID for "curator" role.
     $defaultRole = Role::where('name', '=', 'curator')->first();
 
@@ -176,6 +190,9 @@ class UsersController extends \BaseController {
 
     // Create and link user's default collection.
     $this->collectionsController->createUserCollection($user->id, 'default');
+
+    // Lock invite code so it can't be used again.
+    $invite->claim();
 
     // Redirect the now logged-in user profile page otherwise.
     Auth::attempt(array(

@@ -215,3 +215,10 @@ Route::post('/me/delete', array(
   'uses' => 'UsersController@destroy',
   'before' => 'auth|csrf'
 ));
+
+// Invites
+Route::post('invite', array(
+  'uses' => 'InviteController@store',
+  'as' => 'invite.store',
+  'before' => 'auth|csrf'
+));

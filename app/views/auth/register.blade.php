@@ -4,10 +4,18 @@
   <div class="row">
     <div class="col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3">
       <h2>Register</h2>
+      @if (Session::has('message'))
+      <div class="alert alert-info">{{{ Session::get('message') }}}</div>
+      @endif
 
       {{ HTML::ul($errors->all()) }}
 
       {{ Form::open(array('url' => URL::secure('/register'))) }}
+
+      <div class="form-group">
+        {{ Form::label('invite', 'Invite code') }}
+        {{ Form::text('invite', Input::get('c', ''), array('class' => 'form-control')) }}
+      </div>
 
       <div class="form-group">
         {{ Form::label('username', 'Username') }}

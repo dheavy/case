@@ -142,6 +142,7 @@ return array(
     'Way\Generators\GeneratorsServiceProvider',
     'GrahamCampbell\Throttle\ThrottleServiceProvider',
     'Jenssegers\Mongodb\MongodbServiceProvider',
+    'Mypleasure\Services\Providers\InviteServiceProvider',
     'Mypleasure\Services\Providers\UserServiceProvider'
 
   ),

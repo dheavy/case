@@ -11,6 +11,7 @@ use TagsController;
 use AuthController;
 use UsersController;
 use VideosController;
+use InvitesController;
 use RemindersController;
 use CollectionsController;
 use Illuminate\Support\ServiceProvider;
@@ -127,7 +128,8 @@ class UserServiceProvider extends ServiceProvider {
         array(
           'collection' => $app->make('CollectionsController'),
           'video' => $app->make('VideosController'),
-          'tag' => $app->make('TagsController')
+          'tag' => $app->make('TagsController'),
+          'invite' => $app->make('InvitesController') // Defined in InviteServiceProvider.
         )
       );
     });
