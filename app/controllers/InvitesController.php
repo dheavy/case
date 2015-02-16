@@ -1,5 +1,7 @@
 <?php
 
+use Mypleasure\Services\Validation\Invite\InviteValidator;
+
 /**
  * InvitesController deals with anything related to registration invite codes.
  */
@@ -12,15 +14,23 @@ class InvitesController extends BaseController {
    */
   protected $invite;
 
+  protected $validator;
+
   /**
    * Create instance.
    *
    * @param Invite $invite An instance of the Invite model.
    */
-  public function __construct(Invite $invite)
+  public function __construct(Invite $invite, InviteValidator $validator)
   {
     parent::__construct();
     $this->invite = $invite;
+    $this->validator = $validator;
+  }
+
+  public function getCreateInvite()
+  {
+    return View::make('admin.invites.create')->with('user', Auth::user());
   }
 
   /**
@@ -30,7 +40,7 @@ class InvitesController extends BaseController {
    * @param  string $email The recipient's email address.
    * @return Invite|null
    */
-  public function getMatchingInvite($code, $email)
+  public function fetchMatchingInvite($code, $email)
   {
     return $this->invite->where('code', '=', $code)
                         ->where('email', '=', $email)
@@ -54,6 +64,25 @@ class InvitesController extends BaseController {
     );
 
     return $this->invite->create($data);
+  }
+
+  public function store()
+  {
+    $admin = Auth::user();
+    if (!$admin->role->name === 'admin') App::abort(401, 'Unauthorized');
+
+    $email = trim(strtolower(Input::get('email', '')));
+    $valid = $this->validator->with(array('email' => $email))->passes();
+
+    if (!$valid) return Redirect::back()->withErrors($this->validator->errors());
+
+    $existingUser = User::where('email', '=', $email)->first();
+    if ($existingUser) return Redirect::back()->with('message', 'User already exists! Invitation not generated.');
+
+    $invite = $this->generate($email, $admin->id);
+    if (!$invite) return Redirect::back()->with('message', 'Error generating invite. Please try again.');
+
+    return Redirect::back()->with('message', 'Invite successfully sent to ' . $email);
   }
 
 }

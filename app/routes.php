@@ -217,8 +217,13 @@ Route::post('/me/delete', array(
 ));
 
 // Invites
-Route::post('invite', array(
-  'uses' => 'InviteController@store',
-  'as' => 'invite.store',
-  'before' => 'auth|csrf'
+Route::get('/admin/invites/create', array(
+  'uses' => 'InvitesController@getCreateInvite',
+  'as' => 'invites.create',
+  'before' => 'auth|role:admin'
+));
+
+Route::post('/admin/invites/create', array(
+  'uses' => 'InvitesController@store',
+  'before' => 'auth|csrf|role:admin'
 ));

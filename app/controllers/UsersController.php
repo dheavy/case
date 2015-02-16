@@ -149,7 +149,7 @@ class UsersController extends \BaseController {
     // Check if invite is valid.
     $code = Input::get('invite', '');
     $email = trim(strtolower(Input::get('email', '')));
-    $invite = $this->invitesController->getMatchingInvite($code, $email);
+    $invite = $this->invitesController->fetchMatchingInvite($code, $email);
     if (!$invite) return Redirect::back()->with('message', 'Invite code and email don\'t match.');
 
     // Get ID for "curator" role.
