@@ -91,14 +91,13 @@ Route::filter('csrf', function()
 
 /*
 |--------------------------------------------------------------------------
-| Force SSL
+| Protect Routes By Roles
 |--------------------------------------------------------------------------
-|
-| Enforce SSL for all desired routes.
-|
 */
 
-/*Route::filter('force.ssl', function()
+Route::filter('role', function($route, $request, $roleName)
 {
-	if (!Request::secure()) return Redirect::secure(Request::path());
-});*/
+	if (!(Auth::user()->role->name === $roleName)) {
+		return Response::make('Unauthorized', 401);
+	}
+});
