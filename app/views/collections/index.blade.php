@@ -15,26 +15,11 @@
   <div class="row">
     @foreach($collections as $collection)
     <div class="col-sm-12 col-md-10 col-lg-10 col-md-offset-2 col-lg-offset-2">
-      <h4 class="col-sm-12 col-md-12 col-lg-12">Collection "{{ $collection['name'] }}"
-        <span>
-        @if($collection['numVideos'] <= 1)
-          ({{$collection['numVideos']}} video)
-        @else
-          ({{$collection['numVideos']}} videos)
-        @endif
-        </span>
-[
-<a href="<?php echo URL::secure("/me/collections/{$collection['id']}") ?>">view</a> |
-<a href="<?php echo URL::secure("/me/collections/{$collection['id']}/edit/") ?>">edit</a>
 
-@if ($collection['isDefault'] === false)
- | <a href="<?php echo URL::secure("/me/collections/{$collection['id']}/delete/") ?>">delete</a>
-@endif
-]
+      @include('collections.partials.single', array('id' => $collection['id'], 'name' => $collection['name'], 'isDefault' => $collection['isDefault'], 'count' => $collection['numVideos'], 'isPublic' => $collection['isPublic']))
 
-      </h4>
       <p class="col-sm-12 col-md-12 col-lg-12">
-        @if ($collection['status'] === 0)
+        @if (!$collection['isPublic'])
           This collection is <strong>private</strong>. Its videos <strong>will not appear</strong> to others in <a href="{{{ URL::secure('/feed') }}}">the feed</a>.
         @else
           This collections is <strong>public</strong>. Its videos <strong>will appear</strong> to others in <a href="{{{ URL::secure('/feed') }}}">the feed</a>.

@@ -47,7 +47,7 @@ class CollectionsController extends \BaseController {
         'isDefault' => $c->isDefault(),
         'id' => $c->id,
         'name' => $c->name,
-        'status' => (int) $c->status,
+        'isPublic' => $c->isPublic(),
         'numVideos' => $c->videos->count()
       );
     });
