@@ -23,10 +23,10 @@
         @if ($user->role->name === 'admin')
         <li><hr><a href="{{{ URL::secure('/admin/invites/create') }}}">Generate and send invite</a></li>
         <li><a href="{{{ URL::secure('') }}}">List users</a></li>
-        @endif
 
-        @if (App::environment() === 'local')
-        <li><hr><a href="{{{ URL::secure('/me/videos/create/debug') }}}">[DEBUG] Add fake video</a></li>
+          @if (App::environment() === 'local')
+          <li><hr><a href="{{{ URL::secure('/me/videos/create/debug') }}}">[DEBUG] Add fake video</a></li>
+          @endif
         @endif
       </ul>
     </nav>
