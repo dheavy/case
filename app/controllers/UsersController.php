@@ -157,10 +157,10 @@ class UsersController extends \BaseController {
 
     // Get input (with default values, if needed).
     $input = array(
-      'username' => Input::get('username', ''),
-      'email' => Input::get('email', ''),
-      'password' => Input::get('password', ''),
-      'password_confirmation' => Input::get('password_confirmation', ''),
+      'username' => trim(strtolower(Input::get('username', ''))),
+      'email' => trim(strtolower(Input::get('email', ''))),
+      'password' => trim(strtolower(Input::get('password', ''))),
+      'password_confirmation' => trim(strtolower(Input::get('password_confirmation', ''))),
       'status' => 0
     );
 

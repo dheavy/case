@@ -140,8 +140,8 @@ class AuthController extends BaseController {
     }
 
     return array(
-      'username' => $input['username'],
-      'password' => $input['password']
+      'username' => trim(strtolower($input['username'])),
+      'password' => trim(strtolower($input['password']))
     );
   }
 
