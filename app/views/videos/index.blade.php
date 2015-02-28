@@ -9,11 +9,7 @@
   <div class="row">
     <h3 class="col-sm-12 col-md-12 col-lg-12">
       {{{ $user->username }}}
-       @if ($pending > 0)
-       (all my videos — {{{ $pending }}} pending and available shortly)
-       @else
-       (all my videos)
-       @endif
+      {{ Lang::choice('videos.index.pending', $pending, array('count' => (int)$pending)) }}
     </h3>
   </div>
 

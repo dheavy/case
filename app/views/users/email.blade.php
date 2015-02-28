@@ -7,22 +7,21 @@
       <div class="alert alert-info">{{{ Session::get('message') }}}</div>
     @endif
 
-    <h3 class="col-sm-12 col-md-12 col-lg-12">{{{ $user->username }}} (edit email)</h3>
+    <h3 class="col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3">{{{ $user->username }}} {{ Lang::get('users.email.title') }}</h3>
 
-    <div class="col-sm-12 col-md-12 col-lg-12">
+    <div class="col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3">
       {{ HTML::ul($errors->all()) }}
     </div>
 
-    <div class="col-sm-12 col-md-12 col-lg-12">
-      <h5>Email address is not mandatory, but without it you can not retrieve your forgotten password.</h5>
-      <p>Your privacy is our top priority. We are paranoid about it. <a href="#">Read our privacy policy</a>.</p>
+    <div class="col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3">
+      {{ Lang::get('users.email.message') }}
     </div>
 
-    <div class="col-sm-12 col-md-12 col-lg-12">
+    <div class="col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3">
       {{ Form::open(array('url' => URL::secure('/me/edit/email'))) }}
 
         <div class="form-group">
-          {{ Form::label('email', 'Email') }}
+          {{ Form::label('email', Lang::get('users.email.form.email')) }}
 
           @if ($user->hasPlaceholderEmail())
           {{ Form::email('email', '', array('class' => 'form-control')) }}
@@ -31,7 +30,7 @@
           @endif
         </div>
 
-        {{ Form::submit('Update email address', array('class' => 'btn btn-primary')) }}
+        {{ Form::submit(Lang::get('users.email.form.update'), array('class' => 'btn btn-primary')) }}
       {{ Form::close() }}
     </div>
   </div>

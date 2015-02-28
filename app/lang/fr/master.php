@@ -13,7 +13,7 @@ return array(
     "myvideos" => "mes vidéos",
     "allmyvideos" => "toutes mes vidéos",
     "seemycollections" => "voir mes collections",
-    "createnewcollections" => "créer collection",
+    "createnewcollections" => "créer une collection",
     "profile" => "mon profil",
     "changeemail" => "modifier/retirer email",
     "changepassword" => "modifier mot de passe",

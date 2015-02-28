@@ -8,14 +8,14 @@
   <h5 class="col-sm-12 col-md-12 col-lg-12">{{{ $title }}}</h5>
   <div class="col-sm-12 col-md-12 col-lg-12">{{{ $duration }}}</div>
   <ul class="col-sm-12 col-md-12 col-lg-12">
-    <li><a class="play" data-index="<?php echo $index ?>" href="#">Play video</a></li>
+    <li><a class="play" data-index="<?php echo $index ?>" href="#">{{ Lang::get('videos.single.play') }}</a></li>
 
     @if (isset($username))
-      <div class="col-sm-12 col-md-12 col-lg-12">curated by {{{ $username }}}</div>
+      <div class="col-sm-12 col-md-12 col-lg-12">{{ Lang::get('videos.single.curatedby') }} {{{ $username }}}</div>
     @else
-      <li><a class="edit" href="<?php $url = "/me/videos/{$id}/edit"; echo URL::secure($url) ?>">Edit video</a></li>
-      <li><a class="tags" href="<?php $url = "/me/videos/{$id}/tags/edit"; echo URL::secure($url) ?>">View/Edit tags</a></li>
-      <li><a class="delete" href="<?php $url = "/me/videos/{$id}/delete"; echo URL::secure($url) ?>">Delete video</a></li>
+      <li><a class="edit" href="<?php $url = "/me/videos/{$id}/edit"; echo URL::secure($url) ?>">{{ Lang::get('videos.single.editvideo') }}</a></li>
+      <li><a class="tags" href="<?php $url = "/me/videos/{$id}/tags/edit"; echo URL::secure($url) ?>">{{ Lang::get('videos.single.edittags') }}</a></li>
+      <li><a class="delete" href="<?php $url = "/me/videos/{$id}/delete"; echo URL::secure($url) ?>">{{ Lang::get('videos.single.deletevideo') }}</a></li>
     @endif
   </ul>
 </div>

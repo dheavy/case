@@ -3,14 +3,14 @@
       <div class="modal-content">
         <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="player-label">Video Player</h4>
+        <h4 class="modal-title" id="player-label">{{ Lang::get('videos.player.title') }}</h4>
         </div>
         <div class="modal-body">
             <div id="embed-body"></div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-primary prev-btn"><<</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">{{ Lang::get('videos.player.close') }}</button>
             <button type="button" class="btn btn-primary next-btn">>></button>
         </div>
     </div>

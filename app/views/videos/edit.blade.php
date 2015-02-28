@@ -6,7 +6,7 @@
   <div class="alert alert-info">{{{ Session::get('message') }}}</div>
   @endif
 
-  <h3 class="col-sm-12 col-md-12 col-lg-12">{{{ $user->username }}} (edit video)</h3>
+  <h3 class="col-sm-12 col-md-12 col-lg-12">{{{ $user->username }}} {{ Lang::get('videos.edit.title') }}</h3>
 
   <div class="col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3">
     {{ HTML::ul($errors->all()) }}
@@ -30,12 +30,12 @@
     {{ Form::hidden('video', $video->id) }}
     <div class="col-sm-12 col-md-6 col-lg-6">
       <div class="form-group">
-        {{ Form::label('title', 'Edit title', array('class' => 'control-label')) }}
+        {{ Form::label('title', Lang::get("videos.edit.form.edittitle"), array('class' => 'control-label')) }}
         {{ Form::text('title', $video->title, array('class' => 'form-control col-sm-12 col-md-12 col-lg-12')) }}
       </div>
       <div class="form-group" style="padding-top:30px">
-        <a href="{{{ $backUrl }}}" class="btn btn-default" data-dismiss="modal">Cancel</a>
-        <input type="submit" class="btn btn-primary" value="Update">
+        <a href="{{{ $backUrl }}}" class="btn btn-default" data-dismiss="modal">{{ Lang::get('videos.edit.form.cancel') }}</a>
+        <input type="submit" class="btn btn-primary" value="{{ Lang::get('videos.edit.form.update') }}">
       </div>
     </div>
     {{ Form::close() }}

@@ -7,7 +7,7 @@
   @endif
 
   <div class="row">
-    <a class="col-sm-12 col-md-12 col-lg-12" href="{{{ URL::secure('/me/collections') }}}"><< Back to collections</a>
+    <a class="col-sm-12 col-md-12 col-lg-12" href="{{{ URL::secure('/me/collections') }}}"><< {{ Lang::get('collections.view.back') }}</a>
   </div>
 
   <div class="row">

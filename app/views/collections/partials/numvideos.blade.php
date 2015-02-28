@@ -1,7 +1,3 @@
 <span>
-@if($numVideos <= 1)
-  ({{$numVideos}} video)
-@else
-  ({{$numVideos}} videos)
-@endif
+{{ Lang::choice('collections.numvideos', $numVideos, array('count' => $numVideos)) }}
 </span>

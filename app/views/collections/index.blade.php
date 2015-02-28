@@ -8,7 +8,7 @@
 
   <div class="row">
     <h3 class="col-sm-12 col-md-10 col-lg-10 col-md-offset-2 col-lg-offset-2">
-      {{{ $user->username }}} (collections)
+      {{{ $user->username }}} {{ Lang::get('collections.index.title') }}
     </h3>
   </div>
 
@@ -20,9 +20,9 @@
 
       <p class="col-sm-12 col-md-12 col-lg-12">
         @if (!$collection['isPublic'])
-          This collection is <strong>private</strong>. Its videos <strong>will not appear</strong> to others in <a href="{{{ URL::secure('/feed') }}}">the feed</a>.
+          {{ Lang::get('collections.index.public', array('url' => URL::secure('/feed'))) }}
         @else
-          This collections is <strong>public</strong>. Its videos <strong>will appear</strong> to others in <a href="{{{ URL::secure('/feed') }}}">the feed</a>.
+          {{ Lang::get('collections.index.private', array('url' => URL::secure('/feed'))) }}
         @endif
       </p>
     </div>

@@ -7,8 +7,8 @@
   @endif
 
   <div class="row">
-    <h3 class="col-sm-12 col-md-12 col-lg-12">Feed</h3>
-    <span class="col-sm-12 col-md-12 col-lg-12">All public videos from all users</span>
+    <h3 class="col-sm-12 col-md-12 col-lg-12">{{ Lang::get('videos.feed.title') }}</h3>
+    <span class="col-sm-12 col-md-12 col-lg-12">{{ Lang::get('videos.feed.subtitle') }}</span>
   </div>
 
   <div class="row">
