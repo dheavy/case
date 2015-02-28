@@ -28,7 +28,7 @@ return array(
   |
   */
 
-  'host' => 'smtp.gmail.com',
+  'host' => 'smtp.mandrillapp.com',
 
   /*
   |--------------------------------------------------------------------------
@@ -80,7 +80,7 @@ return array(
   |
   */
 
-  'username' => $_ENV['EMAIL_USERNAME'],
+  'username' => $_ENV['MANDRILL_USERNAME'],
 
   /*
   |--------------------------------------------------------------------------
@@ -93,7 +93,7 @@ return array(
   |
   */
 
-  'password' => $_ENV['EMAIL_PASSWORD'],
+  'password' => $_ENV['MANDRILL_APIKEY'],
 
   /*
   |--------------------------------------------------------------------------
