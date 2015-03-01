@@ -10,25 +10,25 @@
         <div class="alert alert-info">{{{ Session::get('error') }}}</div>
       @endif
 
-      <h3 class="col-sm-12 col-md-12 col-lg-12">Password reminder</h3>
+      <h3 class="col-sm-12 col-md-12 col-lg-12">{{ Lang::get('reminders.page.title') }}</h3>
 
       <div class="col-sm-12 col-md-12 col-lg-12">
         {{ HTML::ul($errors->all()) }}
       </div>
 
       <div class="col-sm-12 col-md-12 col-lg-12">
-        <h5>If saved your email in your account, you may use the following form to reset your forgotten password.</h5>
+        <p>{{ Lang::get('reminders.page.message') }}</p>
       </div>
 
       <div class="col-sm-12 col-md-12 col-lg-12">
         {{ Form::open(array('action' => 'RemindersController@postRemind')) }}
 
           <div class="form-group">
-            {{ Form::label('email', 'Email') }}
+            {{ Form::label('email', Lang::get('reminders.page.form.email')) }}
             {{ Form::email('email', '', array('class' => 'form-control')) }}
           </div>
 
-        {{ Form::submit('Send reminder', array('class' => 'btn btn-primary')) }}
+        {{ Form::submit(Lang::get('reminders.page.form.send'), array('class' => 'btn btn-primary')) }}
       </div>
     </div>
   </div>
