@@ -97,7 +97,7 @@ class AuthController extends BaseController {
     $credentials = $this->retrieveCredentials($input);
 
     if (!$credentials) {
-      return Redirect::to('login')->with('message', 'Username or password missing.');
+      return Redirect::to('login')->with('message', Lang::get('auth.controller.postLogin.error'));
     }
 
     return $this->authenticate($credentials);
@@ -120,7 +120,7 @@ class AuthController extends BaseController {
     if ($throttler->check()) return;
 
     // Otherwise, block attemtps for some time and return error message.
-    $message = "Authentication failed. Please retry in " . $this->throttleRetentionTime . " minutes.";
+    $message = Lang::get('auth.controller.throttle.error', array('time' => $this->throttleRetentionTime));
     return Redirect::to('login')->with('message', $message);
   }
 
@@ -169,7 +169,7 @@ class AuthController extends BaseController {
       return Redirect::to('me');
     }
 
-    return Redirect::to('login')->with('message', 'Username or password incorrect');
+    return Redirect::to('login')->with('message', Lang::get('auth.controller.authenticate.error'));
   }
 
 }

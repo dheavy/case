@@ -22,6 +22,18 @@ return array(
       "passwordconfirmation" => "Confirm password",
       "register" => "Register"
     )
+  ),
+
+  "controller" => array(
+    "postLogin" => array(
+      "error" => "Username or password missing."
+    ),
+    "throttle" => array(
+      "error" => "Authentication failed. Please retry in :time minutes."
+    ),
+    "authenticate" => array(
+      "error" => "Username or password missing."
+    )
   )
 
 );

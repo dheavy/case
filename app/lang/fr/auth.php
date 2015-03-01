@@ -22,6 +22,18 @@ return array(
       "passwordconfirmation" => "Confirmer le mot de passe",
       "register" => "S'inscrire"
     )
+  ),
+
+  "controller" => array(
+    "postLogin" => array(
+      "error" => "Identifiant ou mot de passe incorrect."
+    ),
+    "throttle" => array(
+      "error" => "L'authentification a échoué. Merci de réessayer dans :time minutes."
+    ),
+    "authenticate" => array(
+      "error" => "Identifiant ou mot de passe manquant."
+    )
   )
 
 );
