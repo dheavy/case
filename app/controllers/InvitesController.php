@@ -71,7 +71,7 @@ class InvitesController extends BaseController {
   {
     // Get admin user and reject if not found.
     $admin = Auth::user();
-    if (!$admin->role->name === 'admin') App::abort(401, 'Unauthorized');
+    if (!$admin->role->name === 'admin') App::abort(401, Lang::get('invites.controller.store.unauthorized'));
 
     // Get and validate form input.
     $email = trim(strtolower(Input::get('email', '')));
@@ -80,15 +80,15 @@ class InvitesController extends BaseController {
 
     // Ensure recipient is not already a user.
     $existingUser = User::where('email', '=', $email)->first();
-    if ($existingUser) return Redirect::back()->with('message', 'User already exists! Invitation not generated.');
+    if ($existingUser) return Redirect::back()->with('message', Lang::get('invites.controller.store.userexists'));
 
     // Generate invite.
     $invite = $this->generate($email, $admin->id);
-    if (!$invite) return Redirect::back()->with('message', 'Error generating invite. Please try again.');
+    if (!$invite) return Redirect::back()->with('message', Lang::get('invites.controller.store.error'));
 
     // Send invite to recipient and redirect with short message.
     $this->sendInvite($invite);
-    return Redirect::back()->with('message', 'Invite successfully sent to ' . $email);
+    return Redirect::back()->with('message', Lang::get('invites.controller.store.success', array('email' => $email)));
   }
 
   protected function sendInvite($invite)
@@ -97,7 +97,7 @@ class InvitesController extends BaseController {
     $path = "/register?c={$invite->code}&e={$invite->email}";
 
     Mail::send('emails.invites.alpha', array('url' => $path), function($message) use (&$invite) {
-      $message->to($invite->email)->subject('Welcome to mypleasure (alpha)');
+      $message->to($invite->email)->subject(Lang::get('invites.email.subject'));
     });
   }
 

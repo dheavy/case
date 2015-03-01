@@ -17,11 +17,11 @@
       {{ Form::open(array('url' => URL::secure('/admin/invites/create'))) }}
 
         <div class="form-group">
-          {{ Form::label('email', "Recipient's email") }}
+          {{ Form::label('email', Lang::get('admin.create.form.email')) }}
           {{ Form::email('email', '', array('class' => 'form-control')) }}
         </div>
 
-        {{ Form::submit('Send invite', array('class' => 'btn btn-primary')) }}
+        {{ Form::submit(Lang::get('admin.create.form.send'), array('class' => 'btn btn-primary')) }}
       {{ Form::close() }}
     </div>
   </div>
