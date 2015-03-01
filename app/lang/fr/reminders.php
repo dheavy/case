@@ -23,4 +23,13 @@ return array(
 
   "reset" => "Mot de passe recréé !",
 
+  "page" => array(
+    "title" => "Mot de passe oublié",
+    "message" => "Si vous avez enregistré votre email sur votre compte, vous pouvez utiliser le formulaire ci-dessous pour redéfinir votre mot de passe.",
+    "form" => array(
+      "email" => "Email",
+      "send" => "Envoyer"
+    )
+  )
+
 );

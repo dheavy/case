@@ -23,4 +23,13 @@ return array(
 
 	"reset" => "Password has been reset!",
 
+	"page" => array(
+		"title" => "Password reminder",
+		"message" => "If saved your email in your account, you may use the following form to reset your forgotten password.",
+		"form" => array(
+			"email" => "Email",
+			"send" => "Send reminder"
+		)
+	)
+
 );

@@ -17,9 +17,9 @@ return array(
     "profile" => "mon profil",
     "changeemail" => "modifier/retirer email",
     "changepassword" => "modifier mot de passe",
-    "logout" => "déconnexion",
-    "register" => "inscription",
-    "login" => "connexion"
+    "logout" => "se déconnecter",
+    "register" => "s'inscrire",
+    "login" => "se connecter"
   )
 
 );
