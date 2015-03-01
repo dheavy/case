@@ -55,6 +55,24 @@ return array(
     "view" => "voir",
     "edit" => "modifier",
     "delete" => "effacer"
+  ),
+
+  "controller" => array(
+    "store" => array(
+      "error" => "Oups... c'est une erreur. Veuillez réessayer.",
+      "success" => "Collection crée."
+    ),
+    "update" => array(
+      "error" => "Oups... c'est une erreur. Veuillez réessayer.",
+      "success" => "Collection mise à jour."
+    ),
+    "getDeleteCollection" => array(
+      "replaceSelectList" => "Détruisez-les. POUR TOUJOURS ! ET BIM !",
+      "moveThemTo" => "Transférer vers :name"
+    ),
+    "destroy" => array(
+      "success" => "Collection effacée."
+    )
   )
 
 );

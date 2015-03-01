@@ -55,6 +55,24 @@ return array(
     "view" => "view",
     "edit" => "edit",
     "delete" => "delete"
+  ),
+
+  "controller" => array(
+    "store" => array(
+      "error" => "Oops... an error has occured. Please try again.",
+      "success" => "Collection created."
+    ),
+    "update" => array(
+      "error" => "Oops... an error has occured. Please try again.",
+      "success" => "Collection updated."
+    ),
+    "getDeleteCollection" => array(
+      "replaceSelectList" => "Delete those suckers. FOREVER. BOOM!",
+      "moveThemTo" => "Move them to :name"
+    ),
+    "destroy" => array(
+      "success" => "Collection deleted."
+    )
   )
 
 );

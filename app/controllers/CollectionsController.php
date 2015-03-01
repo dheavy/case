@@ -77,9 +77,9 @@ class CollectionsController extends \BaseController {
     if ($status !== 0 && $status !== 1) $status = 1;
 
     $collection = $this->createUserCollection($this->user->id, $name, $status);
-    if (!$collection) return Redirect::route('collections.index')->with('message', 'Oops... an error has occured. Please try again.');
+    if (!$collection) return Redirect::route('collections.index')->with('message', Lang::get('collections.controller.store.error'));
 
-    return Redirect::route('collections.index')->with('message', 'Collection created.');
+    return Redirect::route('collections.index')->with('message', Lang::get('collections.controller.store.success'));
   }
 
   /**
@@ -108,9 +108,9 @@ class CollectionsController extends \BaseController {
     $collection->slug = $this->slugify($collection->name);
     $saved = $collection->save();
 
-    if (!$saved) return Redirect::route('collections.index')->with('message', 'Oops... an error has occured. Please try again.');
+    if (!$saved) return Redirect::route('collections.index')->with('message', Lang::get('collections.controller.update.error'));
 
-    return Redirect::route('collections.index')->with('message', 'Collection updated.');
+    return Redirect::route('collections.index')->with('message', Lang::get('collections.controller.update.success'));
   }
 
   /**
@@ -194,11 +194,11 @@ class CollectionsController extends \BaseController {
 
     // Set up variables used in view, including vars for select list.
     $hasVideos = (bool)$collection->videos->count();
-    $replaceSelectList = array('' => 'Delete those suckers. FOREVER. BOOM!');
+    $replaceSelectList = array('' => Lang::get('collections.controller.getDeleteCollection.replaceSelectList'));
 
     $this->user->collections->each(function($c) use (&$replaceSelectList, &$collection) {
       if ($c->id !== $collection->id) {
-        $replaceSelectList[$c->id] = 'Move them to ' . $c->name;
+        $replaceSelectList[$c->id] = Lang::get('collections.controller.getDeleteCollection.moveThemTo', array('name' => $c->name));
       }
     });
 
@@ -236,7 +236,7 @@ class CollectionsController extends \BaseController {
       }
     }
 
-    return Redirect::route('collections.index')->with('message', 'Collection deleted.');
+    return Redirect::route('collections.index')->with('message', Lang::get('collections.controller.destroy.success'));
   }
 
   /**
