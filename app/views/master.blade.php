@@ -26,14 +26,17 @@
     {{ HTML::script('js/lodash.min.js', [], true) }}
 
     <style>
-    p, a {
-      font-size: 14.5px;
+    html, body {
+      font-family: "p22-underground",sans-serif;
+    }
+
+    body {
+      background-color: #ececea;
     }
 
     h1, h2, h3, h4, h5, h6 {
-      font-family: "futura-pt",sans-serif;
       font-style: normal;
-      font-weight: 700;
+      font-weight: 400;
     }
     </style>
 
