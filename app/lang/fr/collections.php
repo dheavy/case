@@ -48,7 +48,7 @@ return array(
   "numvideos" => "{0} Aucune vidéo pour l'instant|{1} (:count vidéo)|[2,Inf] (:count vidéos)",
 
   "single" => array(
-    "title" => "Collection <em>:name</em>",
+    "title" => 'Collection ":name"',
     "public" => "publique",
     "private" => "privée",
     "info" => "{0} (:status, sans vidéo pour l'instant)|{1} (:status avec :count vidéo)|[2,Inf] (:status avec :count vidéos)",

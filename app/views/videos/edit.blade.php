@@ -18,7 +18,7 @@
       @if ($video->method === '_dummy')
       <div class="col-sm-12 col-md-12 col-lg-12 dummy" style="display:block;width:100%;height:200px;background:#CCC"></div>
       @else
-      <img class="col-sm-12 col-md-12 col-lg-12" src="{{ $video->poster }}" width="100%">
+      <img class="col-sm-12 col-md-12 col-lg-12 img-rounded" src="{{ $video->poster }}" width="100%">
       @endif
     </div>
 

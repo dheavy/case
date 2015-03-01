@@ -4,7 +4,7 @@
   if (isset($count) && isset($isPublic)):
     $status = $isPublic ? Lang::get('collections.single.public') : Lang::get('collections.single.private');
 ?>
-<span>{{ Lang::choice('collections.single.info', $count, array('count' => $count, 'status' => $status)) }}</span>
+<small>{{ Lang::choice('collections.single.info', $count, array('count' => $count, 'status' => $status)) }}</small>
 <?php endif; ?>
 
 [
