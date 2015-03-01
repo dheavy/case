@@ -94,7 +94,7 @@ class InvitesController extends BaseController {
   protected function sendInvite($invite)
   {
     $view = 'emails.invites.alpha';
-    $path = "/register?c={$invite->code}";
+    $path = "/register?c={$invite->code}&e={$invite->email}";
 
     Mail::send('emails.invites.alpha', array('url' => $path), function($message) use (&$invite) {
       $message->to($invite->email)->subject('Welcome to mypleasure (alpha)');
