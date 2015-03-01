@@ -8,7 +8,7 @@ return array(
   ),
 
   "cover" => array(
-    "lead" => "Version alpha.",
+    "lead" => "Archiver les vidéos que vous aimez. Découvrez-en de nouvelles.",
     "form" => array(
       "username" => "identifiant",
       "password" => "mot de passe",

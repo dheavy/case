@@ -8,7 +8,7 @@ return array(
   ),
 
   "cover" => array(
-    "lead" => "Alpha version.",
+    "lead" => "Store videos your love. Discover new ones.",
     "form" => array(
       "username" => "username",
       "password" => "password",

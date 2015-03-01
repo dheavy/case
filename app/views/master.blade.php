@@ -9,11 +9,33 @@
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 
+    <script>
+      (function(d) {
+        var config = {
+          kitId: 'awk3asl',
+          scriptTimeout: 3000
+        },
+        h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='//use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+      })(document);
+    </script>
+
     {{ HTML::style('css/bootstrap.min.css', [], true) }}
     {{ HTML::style('css/bootstrap-theme.min.css', [], true) }}
     {{ HTML::script('js/jquery.min.js', [], true) }}
     {{ HTML::script('js/bootstrap.min.js', [], true) }}
     {{ HTML::script('js/lodash.min.js', [], true) }}
+
+    <style>
+    p, a {
+      font-size: 14.5px;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: "futura-pt",sans-serif;
+      font-style: normal;
+      font-weight: 700;
+    }
+    </style>
 
     <!--[if lt IE 9]>
       <script src="//oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
