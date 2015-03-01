@@ -16,11 +16,11 @@ return array(
     "body" => '
       Hey!
       <br><br>
-      Thanks for helping test our first prototype of MyPleasure.
+      Thanks for helping test our first prototype of <strong>MyPleasure</strong>.
       <br><br>
-      A quick reminder — MyPleasure is a platform that allows you to store all the videos you like from the internets in one single place.
+      A quick reminder — <strong>MyPleasure</strong> is a platform that allows you to store all the videos you like from the internets in one single place.
       <br><br>
-      For now, you may use it on the following websites:
+      For now, you may use it on the following websites:<br>
       - Youtube<br>
       - Vimeo<br>
       - Youporn<br>

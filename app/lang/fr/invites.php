@@ -16,11 +16,11 @@ return array(
     "body" => '
       Salut !
       <br><br>
-      Merci d\'avoir accepté de nous aider à tester notre premier prototype de MyPleasure.
+      Merci d\'avoir accepté de nous aider à tester notre premier prototype de <strong>MyPleasure</strong>.
       <br><br>
-      Juste pour rappel, MyPleasure est une plateforme qui vous permet d\'archiver au même endroit toutes les vidéos qui vous plaisent sur Internet.
+      Juste pour rappel, <strong>MyPleasure</strong> est une plateforme qui vous permet d\'archiver au même endroit toutes les vidéos qui vous plaisent sur Internet.
       <br><br>
-      Pour l\'instant, vous pouvez piocher des vidéos sur ces sites-là :
+      Pour l\'instant, vous pouvez piocher des vidéos sur ces sites-là :<br>
       - Youtube<br>
       - Vimeo<br>
       - Youporn<br>

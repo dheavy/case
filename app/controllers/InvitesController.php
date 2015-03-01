@@ -15,12 +15,18 @@ class InvitesController extends BaseController {
    */
   protected $invite;
 
+  /**
+   * An instance of the invites form validator.
+   *
+   * @var Mypleasure\Services\Validation\Invite\InviteValidator
+   */
   protected $validator;
 
   /**
    * Create instance.
    *
-   * @param Invite $invite An instance of the Invite model.
+   * @param Invite                                                $invite An instance of the Invite model.
+   * @param Mypleasure\Services\Validation\Invite\InviteValidator $validator An invite form validator.
    */
   public function __construct(Invite $invite, InviteValidator $validator)
   {
@@ -94,7 +100,7 @@ class InvitesController extends BaseController {
   protected function sendInvite($invite)
   {
     $view = 'emails.invites.alpha';
-    $path = "/register?c={$invite->code}&e={$invite->email}";
+    $path = "/?c={$invite->code}&e={$invite->email}";
 
     Mail::send('emails.invites.alpha', array('url' => $path), function($message) use (&$invite) {
       $message->to($invite->email)->subject(Lang::get('invites.email.subject'));
