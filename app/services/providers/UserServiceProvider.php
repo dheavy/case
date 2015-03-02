@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Validator;
 use Mypleasure\Services\Url\UrlSanitizer;
 use Mypleasure\Services\Validation\User\UserAuthValidator;
 use Mypleasure\Services\Validation\User\UserCreateValidator;
+use Mypleasure\Services\Validation\User\UserLandingPageValidator;
 use Mypleasure\Services\Validation\User\UserDestroyValidator;
 use Mypleasure\Services\Validation\Video\VideoCreateValidator;
 use Mypleasure\Services\Validation\Video\VideoUpdateValidator;
@@ -56,6 +57,10 @@ class UserServiceProvider extends ServiceProvider {
 
     $this->app->bind('UserCreateValidator', function($app) {
       return new UserCreateValidator(Validator::getFacadeRoot());
+    });
+
+    $this->app->bind('UserLandingPageValidator', function($app) {
+      return new UserLandingPageValidator(Validator::getFacadeRoot());
     });
 
     $this->app->bind('UserDestroyValidator', function($app) {
@@ -121,6 +126,7 @@ class UserServiceProvider extends ServiceProvider {
         new User,
         array(
           'create' => $app->make('UserCreateValidator'),
+          'landing' => $app->make('UserLandingPageValidator'),
           'destroy' => $app->make('UserDestroyValidator'),
           'updateEmail' => $app->make('UserUpdateEmailValidator'),
           'updatePassword' => $app->make('UserUpdatePasswordValidator')

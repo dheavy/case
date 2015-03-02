@@ -14,7 +14,7 @@
 
       <div class="form-group">
         {{ Form::label('invite', Lang::get('auth.register.form.invite')) }}
-        {{ Form::text('invite', Input::get('c', ''), array('class' => 'form-control')) }}
+        {{ Form::text('invite', Input::old('invite'), array('class' => 'form-control')) }}
       </div>
 
       <div class="form-group">
@@ -24,7 +24,7 @@
 
       <div class="form-group">
         {{ Form::label('email', Lang::get('auth.register.form.email')) }}
-        {{ Form::email('email', Input::get('e', ''), array('class' => 'form-control')) }}
+        {{ Form::email('email', Input::old('email'), array('class' => 'form-control')) }}
       </div>
 
       <div class="form-group">

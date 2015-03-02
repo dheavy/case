@@ -29,6 +29,13 @@ class UsersController extends \BaseController {
   protected $createValidator;
 
   /**
+   * An instance of the form validator for user creation via the landing page.
+   *
+   * @var Mypleasure\Services\Validation\User\UserLandingPageValidator
+   */
+  protected $landingValidator;
+
+  /**
    * An instance of the form validator for user's email update.
    *
    * @var Mypleasure\Services\Validation\User\UserUpdateEmailValidator
@@ -74,7 +81,7 @@ class UsersController extends \BaseController {
    * Create instance.
    *
    * @param User  $user        An instance of the User model passed via injection, to loosen dependencies and allow easier testing.
-   * @param array $validators  An array containing instances of UserCreateValidator, UserUpdateEmailValidator, UserUpdatePasswordValidator, UserDestroyValidator.
+   * @param array $validators  An array containing instances of UserCreateValidator, UserLandingPageValidator, UserUpdateEmailValidator, UserUpdatePasswordValidator, UserDestroyValidator.
    * @param array $controllers An array containing instances of CollectionsController, VideosController, InvitesController.
    */
   public function __construct(User $user, array $validators, array $controllers)
@@ -82,6 +89,7 @@ class UsersController extends \BaseController {
     parent::__construct();
     $this->user = $user;
     $this->createValidator = $validators['create'];
+    $this->landingValidator = $validators['landing'];
     $this->updateEmailValidator = $validators['updateEmail'];
     $this->updatePasswordValidator = $validators['updatePassword'];
     $this->destroyValidator = $validators['destroy'];
@@ -170,12 +178,13 @@ class UsersController extends \BaseController {
     }
 
     // Validate inputs.
-    $user = $this->createValidator->with($input)->passes();
+    $validator = $invite ? $this->landingValidator : $this->createValidator;
+    $user = $validator->with($input)->passes();
 
     // Redirect with errors messages, if validation is unsuccessful.
     if (!$user) {
-      return Redirect::route('auth.register')
-        ->withErrors($this->createValidator->errors())
+      return Redirect::back()
+        ->withErrors($validator->errors())
         ->withInput(Input::except('password', 'password_confirmation'));
     }
 
@@ -184,7 +193,7 @@ class UsersController extends \BaseController {
 
     // Redirect with error message, if save is unsuccessful.
     if (!$user) {
-      return Redirect::to('register')
+      return Redirect::back()
         ->with('message', Lang::get('users.controller.store.error'));
     }
 

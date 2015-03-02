@@ -255,6 +255,7 @@
             {{ Form::open(array('url' => URL::secure('/register'), 'class' => 'col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3 form-group-lg')) }}
               {{ Form::hidden('invite', Input::get('c', ''), array('class' => 'form-control')) }}
               {{ Form::hidden('email', Input::get('e', ''), array('class' => 'form-control')) }}
+              {{ Form::hidden('referrer', 'landing', array('class' => 'form-control')) }}
               {{ Form::text('username', Input::old('username'), array('placeholder' => Lang::get('index.cover.form.username'), 'class' => 'form-control', 'style' => 'border-radius: 6px 6px 0 0;')) }}
               {{ Form::password('password', array('placeholder' => Lang::get('index.cover.form.password'), 'class' => 'form-control', 'style' => 'border-radius: 0 0 6px 6px;')) }}
               {{ Form::submit(Lang::get('index.cover.form.register'), array('class' => 'btn btn-lg btn-info col-sm-12 col-md-12 col-lg-12', 'style' => 'margin-top: 1em')) }}
