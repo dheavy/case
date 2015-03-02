@@ -16,13 +16,13 @@
 
   <div class="row">
     @if (Session::has('message'))
-    <div class="alert alert-info">{{{ Session::get('message') }}}</div>
+      <div class="alert alert-info">{{{ Session::get('message') }}}</div>
     @endif
 
     @if ($user->role->name === 'admin')
-    <h3 class="col-sm-12 col-md-12 col-lg-12">ADMIN — {{{ $user->username }}}</h3>
+      <h3 class="col-sm-12 col-md-12 col-lg-12">ADMIN — {{{ $user->username }}}</h3>
     @elseif ($user->role->name === 'curator')
-    <h3 class="col-sm-12 col-md-12 col-lg-12">Hi, {{{ $user->username }}}</h3>
+      <h3 class="col-sm-12 col-md-12 col-lg-12">Hi, {{{ $user->username }}}</h3>
     @endif
 
     <nav class="col-sm-12 col-md-4 col-lg-4">

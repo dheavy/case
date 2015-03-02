@@ -3,14 +3,15 @@
 @section('content')
 
   <div class="container">
-    @if (Session::has('message'))
-      <div class="alert alert-info">{{{ Session::get('message') }}}</div>
-    @endif
 
     <h3 class="col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3">{{{ $user->username }}} {{ Lang::get('collections.edit.title', array('name' => $collection->name)) }}</h3>
 
     <div class="col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3">
       {{ HTML::ul($errors->all()) }}
+
+      @if (Session::has('message'))
+        <div class="alert alert-info">{{{ Session::get('message') }}}</div>
+      @endif
     </div>
 
     <div class="col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3">

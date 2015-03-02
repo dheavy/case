@@ -2,12 +2,13 @@
 
 @section('content')
 
-  @if (Session::has('message'))
-  <div class="alert alert-info">{{{ Session::get('message') }}}</div>
-  @endif
-
   <div class="row">
     <h3 class="col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3">{{{ $user->username }}} {{ Lang::get('collections.delete.title') }}</h3>
+
+    @if (Session::has('message'))
+      <div class="alert alert-info">{{{ Session::get('message') }}}</div>
+    @endif
+
     <?php $url = URL::secure("/me/collections/{$collection->id}/delete"); ?>
 
     {{ Form::open(array('url' => $url)) }}
