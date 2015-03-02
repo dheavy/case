@@ -198,7 +198,7 @@ class VideosController extends \BaseController {
       $collection = App::make('CollectionsController')->createUserCollection($this->user->id, $collectionName);
       $collectionId = $collection->id;
       if (!$collectionId) {
-        return Redirect::route('videos.create')->with('message', 'Oops... There was an error adding this videos...');
+        return Redirect::route('videos.create')->with('message', Lang::get('videos.controller.store.error'));
       }
     }
 
@@ -210,7 +210,7 @@ class VideosController extends \BaseController {
 
     // Stop here if user already added this video.
     if ($this->user->hasVideoFromHash($hash)) {
-      return Redirect::route('videos.create')->with('message', "Oops... It looks like you've already added this video!");
+      return Redirect::route('videos.create')->with('message', Lang::get('videos.controller.store.alreadyadded'));
     }
 
     // Check if video already exist in videostore.
@@ -223,7 +223,7 @@ class VideosController extends \BaseController {
     if ($exists) {
       $created = $this->createVideoInstance($collectionId, $video[0]);
       if (!(bool)$created) {
-        return Redirect::route('users.profile')->with('message', 'Oops.. there was an error adding a video.');
+        return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.error'));
       }
     } else {
       // The ObjectID is based on the hash of the video to look for duplicates.
@@ -231,12 +231,12 @@ class VideosController extends \BaseController {
       try {
         $this->addVideoRequestToQueue($hash, $url, $this->user->id, $collectionId);
       } catch (MongoDuplicateKeyException $error) {
-        return Redirect::route('users.profile')->with('message', 'Your video is already being processed and will show up in your collection in a short moment.');
+        return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.alreadyprocessing'));
       }
     }
 
     // Redirect user with a short message.
-    return Redirect::route('users.profile')->with('message', 'Your video has been added to processing queue and will be available shortly.');
+    return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.success'));
   }
 
   /**
@@ -299,9 +299,9 @@ class VideosController extends \BaseController {
       $video->title = $title;
       $saved = $video->save();
       if (!$saved) {
-        return Redirect::back()->with('message', 'Oops... there was an error updating your video. Please try again.');
+        return Redirect::back()->with('message', Lang::get('videos.controller.update.error'));
       }
-      return Redirect::route('videos.index')->with('message', 'Your video has been updated.');
+      return Redirect::route('videos.index')->with('message', Lang::get('videos.controller.update.success'));
     }
     return Redirect::route('videos.index');
   }
@@ -317,7 +317,7 @@ class VideosController extends \BaseController {
     $video = Video::findOrFail($id);
     if ($this->user->hasVideo($video->id)) {
       $video->delete();
-      return Redirect::route('videos.index')->with('message', 'Your video has been deleted.');
+      return Redirect::route('videos.index')->with('message', Lang::get('videos.controller.destroy.success'));
     }
     return Redirect::route('videos.index');
   }

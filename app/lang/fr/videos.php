@@ -52,6 +52,22 @@ return array(
     "editvideo" => "Modifier la vidéo",
     "edittags" => "Voir/modifier les tags",
     "deletevideo" => "Effacer la vidéo"
+  ),
+
+  "controller" => array(
+    "store" => array(
+      "error" => "Oups... Une erreur est survenue lors de l'ajout...",
+      "alreadyadded" => "Oups... Cette vidéo a déjà été ajoutée, on dirait !",
+      "alreadyprocessing" => "Votre vidéo est déjà en cours d'ajout et apparaîtra dans votre collection dans un instant.",
+      "success" => "Votre vidéo apparaîtra dans votre collection dans un instant."
+    ),
+    "update" => array(
+      "error" => "Oups... Une erreur est survenue lors de la mise à jour. Veuillez réessayer.",
+      "success" => "Votre vidéo a été mise à jour."
+    ),
+    "destroy" => array(
+      "success" => "Votre vidéo a été effacée."
+    )
   )
 
 );

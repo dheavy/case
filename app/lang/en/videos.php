@@ -52,6 +52,22 @@ return array(
     "editvideo" => "Edit video",
     "edittags" => "View/Edit tags",
     "deletevideo" => "Delete video"
+  ),
+
+  "controller" => array(
+    "store" => array(
+      "error" => "Oops... There was an error adding this videos...",
+      "alreadyadded" => "Oops... It looks like you've already added this video!",
+      "alreadyprocessing" => "Your video is already being processed and will show up in your collection in a short moment.",
+      "success" => "Your video has been added to processing queue and will be available shortly."
+    ),
+    "update" => array(
+      "error" => "Oops... there was an error updating your video. Please try again.",
+      "success" => "Your video has been updated."
+    ),
+    "destroy" => array(
+      "success" => "Your video has been deleted."
+    )
   )
 
 );
