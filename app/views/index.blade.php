@@ -11,6 +11,7 @@
 
     {{ HTML::style('css/bootstrap.min.css', [], true) }}
     {{ HTML::style('css/bootstrap-theme.min.css', [], true) }}
+    {{ HTML::style('css/bigvideo.css', [], true) }}
 
     <script>
       (function(d) {
@@ -60,10 +61,10 @@
       html,
       body {
         height: 100%;
-        background-color: #333;
       }
       body {
         color: #fff;
+        background: #333;
         text-align: center;
         text-shadow: 0 1px 3px rgba(0,0,0,.5);
       }
@@ -89,6 +90,27 @@
       /* Padding for spacing */
       .inner {
         padding: 30px;
+      }
+
+      .okplayer-mask {
+        z-index: 0;
+      }
+
+      #okplayer {
+        opacity: 0.3;
+      }
+
+      .overlay {
+        background-repeat: repeat;
+        background-size: 5px;
+        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyhpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDE0IDc5LjE1Njc5NywgMjAxNC8wOC8yMC0wOTo1MzowMiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTQgKE1hY2ludG9zaCkiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MDZEOTA3MDNCODQ4MTFFNEJFQjhERkRCRDMxODAwMDciIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MDZEOTA3MDRCODQ4MTFFNEJFQjhERkRCRDMxODAwMDciPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDowNkQ5MDcwMUI4NDgxMUU0QkVCOERGREJEMzE4MDAwNyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDowNkQ5MDcwMkI4NDgxMUU0QkVCOERGREJEMzE4MDAwNyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Pko6UpUAAAA7SURBVHja7NSxCQAgFEPBKC7u5DqAjcUHEe4tcJAiLcnKXTOF9TwKDAb/D4/qRzI1GAwGg8Fg8NEWYAC4VwI/oadqaQAAAABJRU5ErkJggg==);
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0.7;
+        z-index: -1;
       }
 
 
@@ -213,6 +235,7 @@
   </head>
 
   <body>
+    <div class="overlay"></div>
     <div class="site-wrapper">
       <div class="site-wrapper-inner">
         <div class="cover-container">
@@ -244,4 +267,14 @@
     {{ HTML::script('js/jquery.min.js', [], true) }}
     {{ HTML::script('js/bootstrap.min.js', [], true) }}
     {{ HTML::script('js/ie10-viewport-bug-workaround.js', [], true) }}
+    {{ HTML::script('js/okvideo.min.js', [], true) }}
+
+    <script>
+      $(function(){
+        $.okvideo({
+          source: 'https://vimeo.com/120972519',
+          loop: true
+        });
+      });
+    </script>
   </body>
