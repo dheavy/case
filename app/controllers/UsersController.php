@@ -150,7 +150,7 @@ class UsersController extends \BaseController {
     $code = Input::get('invite', '');
     $email = trim(strtolower(Input::get('email', '')));
     $invite = $this->invitesController->fetchMatchingInvite($code, $email);
-    if (!$invite) return Redirect::back()->with('message', 'Invite code and email don\'t match.');
+    if (!$invite) return Redirect::back()->with('message', Lang::get('users.controller.store.dontmatch'));
 
     // Get ID for "curator" role.
     $defaultRole = Role::where('name', '=', 'curator')->first();
@@ -185,7 +185,7 @@ class UsersController extends \BaseController {
     // Redirect with error message, if save is unsuccessful.
     if (!$user) {
       return Redirect::to('register')
-        ->with('message', 'There was an error while creating your account. Please try again.');
+        ->with('message', Lang::get('users.controller.store.error'));
     }
 
     // Create and link user's default collection.
@@ -228,7 +228,7 @@ class UsersController extends \BaseController {
     $match = Hash::check($password, $user->getAuthPassword());
     if (!$match) {
       return Redirect::route('users.delete')
-        ->with('message', 'Password does not match, please try again.');
+        ->with('message', Lang::get('users.controller.destroy.dontmatch'));
     }
 
     // Manually destroy related collections and videos.
@@ -276,7 +276,7 @@ class UsersController extends \BaseController {
     // Stop if current password is invalid.
     if (!Hash::check($currentPassword, $user->getAuthPassword())) {
       return Redirect::route('users.password')
-        ->with('message', 'Your current password is invalid. Please try again.');
+        ->with('message', Lang::get('users.controller.updatePassword.invalid'));
     }
 
     // Update, save, leave.
@@ -285,10 +285,10 @@ class UsersController extends \BaseController {
 
     if (!$saved) {
       return Redirect::route('users.password')
-        ->with('message', 'An error occured. Please try again.');
+        ->with('message', Lang::get('users.controller.updatePassword.error'));
     }
 
-    return Redirect::route('users.profile')->with('message', 'Password updated.');
+    return Redirect::route('users.profile')->with('message', Lang::get('users.controller.updatePassword.success'));
   }
 
   /**
@@ -307,13 +307,13 @@ class UsersController extends \BaseController {
     // Case 1 of 4: input is similar to stored email. No changes.
     if ($newEmail === $user->email) {
       return Redirect::route('users.email')
-        ->with('message', 'No changes were made to your email.');
+        ->with('message', Lang::get('users.controller.updateEmail.similar'));
     }
 
     // Case 2 of 4: input is empty, and user who didn't give an email before.
     if ($newEmail === '' && $user->hasPlaceholderEmail()) {
       return Redirect::route('users.email')
-        ->with('message', 'No changes were made. Remember you can not to reset a forgotten password without an email.');
+        ->with('message', Lang::get('users.controller.updateEmail.empty'));
     }
 
     // Case 3 of 4: user removes stored email.
@@ -321,10 +321,10 @@ class UsersController extends \BaseController {
       $user->email = $this->generateDefaultEmail($user->username);
       $saved = $user->save();
 
-      if (!$saved) App::abort(500, 'Oops... something went wrong! Please try again later.');
+      if (!$saved) App::abort(500, Lang::get('users.controller.updateEmail.error'));
 
       return Redirect::route('users.email')
-        ->with('message', 'Your email is permanently removed from our database. But remember, you can not to reset a forgotten password without an email.');
+        ->with('message', Lang::get('users.controller.updateEmail.removed'));
     }
 
     // Case 4 of 4: email was not stored, and now user stores it.
@@ -334,9 +334,9 @@ class UsersController extends \BaseController {
     $user->email = $newEmail;
     $saved = $user->save();
 
-    if (!$saved) if (!$saved) App::abort(500, 'Oops... something went wrong! Please try again later.');
+    if (!$saved) if (!$saved) App::abort(500, Lang::get('users.controller.updateEmail.error'));
 
-    return Redirect::route('users.profile')->with('message', 'Email updated.');
+    return Redirect::route('users.profile')->with('message', Lang::get('users.controller.updateEmail.success'));
   }
 
   /**
