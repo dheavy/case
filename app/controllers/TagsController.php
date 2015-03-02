@@ -80,7 +80,7 @@ class TagsController extends \BaseController {
       });
     }
 
-    return Redirect::route('videos.index')->with('message', 'Tags updated.');
+    return Redirect::route('videos.index')->with('message', Lang::get('tags.controller.update.success'));
   }
 
   /**
@@ -105,7 +105,7 @@ class TagsController extends \BaseController {
    */
   public function getEditTags($videoId)
   {
-    if (!Auth::check()) App::abort(401, 'Unauthorized');
+    if (!Auth::check()) App::abort(401, Lang::get('tags.controller.getEditTags.unauthorized'));
 
     // Get user.
     $user = Auth::user();
