@@ -22,6 +22,7 @@
         $label = $('#player-label'),
         $body = $('#embed-body'),
         $playBtns = $('.play'),
+        $thumbnails = $('.thumbnail'),
         $prevBtn = $('.prev-btn'),
         $nextBtn = $('.next-btn'),
         embeds = [];
@@ -36,6 +37,7 @@
       });
 
       $playBtns.bind('click', openModal);
+      $thumbnails.bind('click', openModal);
       $prevBtn.bind('click', prevVideo);
       $nextBtn.bind('click', nextVideo);
       $modal.bind('hide.bs.modal', closeModal);
