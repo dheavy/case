@@ -8,7 +8,9 @@ class UrlSanitizer {
     'youtube' => 'Youtube',
     'youporn' => 'Generic',
     'xhmaster' => 'Generic',
-    'xvideos' => 'Generic'
+    'xvideos' => 'Generic',
+    'dailymotion' => 'Youtube',
+    'vimeo' => 'Youtube'
   );
 
   public function canonize($url)
