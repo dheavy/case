@@ -34,7 +34,6 @@ return array(
     "delete" => "delete my account",
     "invite" => "generate and send invite",
     "listusers" => "list users",
-    "fakevideo" => "[debug] add fake video",
     "infos" => "Informations<small><br>(small changes on the website during alpha test are listed here)</small>",
     "stats" => "Statistics",
     "numcollection" => "{1} You have :count collection, |[2,Inf] You have :count collections, ",

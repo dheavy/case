@@ -13,11 +13,7 @@
 
     <div class="col-sm-12 col-md-4 col-lg-4 video">
       <h5 class="col-sm-12 col-md-12 col-lg-12">{{{ $video->title }}}</h5>
-      @if ($video->method === '_dummy')
-      <div class="col-sm-12 col-md-12 col-lg-12 dummy" style="display:block;width:100%;height:200px;background:#CCC"></div>
-      @else
       <img class="col-sm-12 col-md-12 col-lg-12" src="{{ $video->poster }}" width="100%">
-      @endif
     </div>
 
     <div class="col-sm-12 col-md-8 col-lg-8">

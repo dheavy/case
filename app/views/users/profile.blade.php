@@ -36,10 +36,6 @@
         @if ($user->role->name === 'admin')
         <li><a href="{{{ URL::secure('/admin/invites/create') }}}">{{Lang::get('users.profile.invite') }}</a></li>
         <li><a href="{{{ URL::secure('') }}}">{{ Lang::get('users.profile.listusers') }}</a></li>
-
-          @if (App::environment() === 'local')
-          <li><a href="{{{ URL::secure('/me/videos/create/debug') }}}">{{ Lang::get('users.profile.fakevideo') }}</a></li>
-          @endif
         @endif
       </ul>
     </nav>

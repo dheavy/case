@@ -126,16 +126,6 @@ class VideosController extends \BaseController {
   }
 
   /**
-   * Display "add fake video" page.
-   *
-   * @return Illuminate\View\View
-   */
-  public function getAddVideoDebug()
-  {
-    return View::make('debug.addvideo')->with('user', $this->user);
-  }
-
-  /**
    * Display the "edit video" form.
    *
    * @param  integer $videoId The ID of the Video to edit.
@@ -237,36 +227,6 @@ class VideosController extends \BaseController {
 
     // Redirect user with a short message.
     return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.success'));
-  }
-
-  /**
-   * Store a dummy video for user. Use it for development and test purpose.
-   *
-   * @return Illuminate\Http\RedirectResponse
-   */
-  public function storeDebug()
-  {
-    // Create instance from dummy data.
-    $now = Carbon::now()->toDateTimeString();
-    $faker = Faker\Factory::create();
-    $seed = $faker->word . (string)rand(1, 10000);
-    $originalUrl = 'http://example.com/' . $seed;
-    $hash = md5(urlencode(utf8_encode($originalUrl)));
-    $title = $faker->word;
-
-    $data = array(
-      'hash' => $hash,
-      'title' => $title,
-      'poster' => $originalUrl . '/poster.jpg',
-      'method' => '_dummy',
-      'original_url' => $originalUrl,
-      'embed_url' => $originalUrl . '/embed',
-      'duration' => '00:10:05'
-    );
-
-    $this->createVideoInstance($this->user->collections[0]->id, $data);
-
-    return Redirect::route('users.profile')->with('message', 'Fake video added to your list of videos.');
   }
 
   /**
