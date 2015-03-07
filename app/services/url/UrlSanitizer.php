@@ -7,7 +7,7 @@ class UrlSanitizer {
   protected $sites = array(
     'youtube' => 'Youtube',
     'youporn' => 'Generic',
-    'xhmaster' => 'Generic',
+    'xhamster' => 'Generic',
     'xvideos' => 'Generic',
     'dailymotion' => 'Youtube',
     'vimeo' => 'Youtube'
