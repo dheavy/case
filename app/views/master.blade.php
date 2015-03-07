@@ -21,8 +21,10 @@
 
     {{ HTML::style('css/bootstrap.min.css', [], true) }}
     {{ HTML::style('css/bootstrap-theme.min.css', [], true) }}
+    {{ HTML::style('css/bootstrap-switch.min.css', [], true) }}
     {{ HTML::script('js/jquery.min.js', [], true) }}
     {{ HTML::script('js/bootstrap.min.js', [], true) }}
+    {{ HTML::script('js/bootstrap-switch.min.js', [], true) }}
     {{ HTML::script('js/lodash.min.js', [], true) }}
 
     <style>
@@ -75,6 +77,7 @@
               </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
+              <li style="margin-top:10px"><input type="checkbox" name="toggle-naughty"></li>
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-user" aria-hidden="true" style="margin-right:10px"></span>{{ $username }}<span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
@@ -100,6 +103,19 @@
     <section class="container">
       @yield('content', 'mypleasu.re')
     </section>
+
+    <script>
+    $('[name="toggle-naughty"]').bootstrapSwitch({
+      size: 'small',
+      labelWidth: '100px',
+      handleWidth: '70px',
+      offColor: 'default',
+      offText: 'normal',
+      onColor: 'danger',
+      onText: '♥ naughty',
+      labelText: 'mode switch'
+    });
+    </script>
   </body>
 
 </html>

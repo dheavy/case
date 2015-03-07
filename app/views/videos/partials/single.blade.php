@@ -3,6 +3,9 @@
 
   <h5 class="col-sm-12 col-md-12 col-lg-12">{{{ $title }}}</h5>
   <div class="col-sm-12 col-md-12 col-lg-12">{{{ $duration }}}</div>
+  @if (isset($isNsfw) && $isNsfw === true)
+  <div class="col-sm-12 col-md-12 col-lg-12"><strong>* SEKUSHI *</strong></div>
+  @endif
   <ul class="col-sm-12 col-md-12 col-lg-12" style="list-style:none">
     <li><a class="play" data-index="<?php echo $index ?>" href="#">{{ Lang::get('videos.single.play') }}</a></li>
     @if (isset($username))

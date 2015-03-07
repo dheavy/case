@@ -17,7 +17,7 @@ class GenericStrategy implements StrategeableInterface {
    */
   public function canonize($url)
   {
-    $url = trim($host, '!"#$%&\'()*+,-./@:;<=>[\\]^_`{|}~');
+    $url = trim($url, '!"#$%&\'()*+,-./@:;<=>[\\]^_`{|}~');
     $url = strtok($url, '?');
     return $url;
   }

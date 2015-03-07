@@ -385,6 +385,7 @@ class VideosController extends \BaseController {
     $video->embed_url = $instance['embed_url'];
     $video->duration = $instance['duration'];
     $video->slug = $this->slugify($video->title);
+    $video->nsfw = (bool)$instance['nsfw'];
     $video->created_at = $now;
     $video->updated_at = $now;
 

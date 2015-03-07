@@ -30,7 +30,7 @@ class Video extends Eloquent {
    *
    * @var array
    */
-  protected $fillable = array('hash', 'title', 'slug', 'poster', 'method', 'original_url', 'embed_url', 'active', 'duration');
+  protected $fillable = array('hash', 'title', 'slug', 'poster', 'method', 'original_url', 'embed_url', 'active', 'duration', 'nsfw');
 
   /**
    * Relation with Collection model.
@@ -60,6 +60,16 @@ class Video extends Eloquent {
   public function isPublic()
   {
     return $this->collections->first()->isPublic();
+  }
+
+  /**
+   * Is video marked as NSFW?
+   *
+   * @return boolean [description]
+   */
+  public function isNsfw()
+  {
+    return $this->nsfw === true;
   }
 
 }

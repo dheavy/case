@@ -13,7 +13,7 @@
 
   <div class="row videos">
     @foreach($videos as $i => $v)
-      @include('videos.partials.single', array('id' => $v->video->id, 'poster' => $v->video->poster, 'embed_url' => $v->video->embed_url, 'method' => $v->video->method, 'title' => $v->video->title, 'duration' => $v->video->duration, 'index' => $i))
+      @include('videos.partials.single', array('id' => $v->video->id, 'poster' => $v->video->poster, 'embed_url' => $v->video->embed_url, 'method' => $v->video->method, 'title' => $v->video->title, 'duration' => $v->video->duration, 'isNsfw' => $v->video->isNsfw(), 'index' => $i))
     @endforeach
   </div>
 
