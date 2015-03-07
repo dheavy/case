@@ -374,10 +374,7 @@ class VideosController extends \BaseController {
     $now = Carbon::now()->toDateTimeString();
 
     // Populate video instance with data from the videostore.
-    // Strip poster's url from protocol to adapt to HTTP/HTTPS on the fly.
     $poster = $instance['poster'];
-    if (strpos($poster, 'http://') !== false) $poster = str_replace('http://', '//', $poster);
-    if (strpos($poster, 'https://') !== false) $poster = str_replace('https://', '//', $poster);
 
     $video = new Video;
     $video->hash = $instance['hash'];
