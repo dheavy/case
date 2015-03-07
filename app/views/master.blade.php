@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="_token" content="{{ csrf_token() }}" />
     <title>{{ Lang::get('master.title') }}</title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
@@ -48,7 +49,14 @@
     <![endif]-->
   </head>
 
-  <body style="padding-top:70px">
+  <body style="padding-top:70px"
+  <?php
+    if (Auth::check()) {
+      $isNsfw = Session::get('nsfw');
+      echo " data-naughty=\"{$isNsfw}\"";
+    }
+  ?>
+  >
     <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -105,7 +113,40 @@
     </section>
 
     <script>
-    $('[name="toggle-naughty"]').bootstrapSwitch({
+    var $toggle = $('[name="toggle-naughty"]'),
+        $body = $('body');
+
+    function updateDisplay(state) {
+      if (!state) {
+        $('.naughty').hide().addClass('hide');
+      } else {
+        $('.naughty').show().removeClass('hide');
+      }
+    }
+
+    function onSwitchChange(e, state) {
+      $.ajaxSetup({
+        headers: {
+          'X-CSRF-Token': $('meta[name="_token"]').attr('content')
+        }
+      });
+
+      $.post("{{{ URL::secure('/me/mode') }}}", { nsfw: state }, function success(data) {
+        if (data.nsfw) {
+          $body.attr('data-naughty', data.nsfw);
+        }
+
+        updateDisplay(state);
+
+        return data;
+      });
+    }
+
+    $toggle.attr('checked', $body.attr('data-naughty') === 'true');
+
+    updateDisplay($body.attr('data-naughty') === 'true');
+
+    $toggle.bootstrapSwitch({
       size: 'small',
       labelWidth: '100px',
       handleWidth: '70px',
@@ -113,7 +154,8 @@
       offText: 'normal',
       onColor: 'danger',
       onText: '♥ naughty',
-      labelText: 'mode switch'
+      labelText: 'mode switch',
+      onSwitchChange: onSwitchChange
     });
     </script>
   </body>

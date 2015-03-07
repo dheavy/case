@@ -349,6 +349,19 @@ class UsersController extends \BaseController {
   }
 
   /**
+   * Update view mode (normal/naughty)
+   * POST /me/mode
+   *
+   * @return Illuminate\Http\Response
+   */
+  public function changeViewMode()
+  {
+    $nsfw = Input::get('nsfw', false);
+    Auth::user()->setViewMode($nsfw);
+    return Response::json(array('nsfw' => $nsfw));
+  }
+
+  /**
    * Generate default and fake email address based on provided seed.
    *
    * @param string  $seed   The seed value provided to build fake email upon.

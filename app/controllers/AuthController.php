@@ -166,6 +166,11 @@ class AuthController extends BaseController {
         $user->save();
       }
 
+      // Set session variable to store the view mode for the user.
+      if (!Session::has('nsfw')) {
+        $user->setViewMode(false);
+      }
+
       return Redirect::to('me');
     }
 

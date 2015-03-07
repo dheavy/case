@@ -173,6 +173,26 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     return $hasVideo;
   }
 
+  /**
+   * Change session variable for view mode (normal/naughty)
+   *
+   * @param boolean $nsfw  True if naughty mode, false if normal.
+   */
+  public function setViewMode($nsfw)
+  {
+    Session::put('nsfw', $nsfw);
+  }
+
+  /**
+   * Get the current view mode.
+   *
+   * @return boolean True if naughty mode, false if normal.
+   */
+  public function getViewMode()
+  {
+    return Session::get('nsfw', 'false');
+  }
+
   public function promote()
   {
     $role = Role::where('name', '=', 'admin')->first();

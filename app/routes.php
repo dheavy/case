@@ -97,6 +97,13 @@ Route::get('/me/videos', array(
   'before' => 'auth'
 ));
 
+// Switch view mode.
+Route::post('/me/mode', array(
+  'uses' => 'UsersController@changeViewMode',
+  'as' => 'users.viewmode',
+  'before' => 'auth'
+));
+
 // Add video.
 Route::get('/me/videos/create', array(
   'uses' => 'VideosController@getAddVideo',
@@ -104,19 +111,8 @@ Route::get('/me/videos/create', array(
   'before' => 'auth'
 ));
 
-Route::get('/me/videos/create/debug', array(
-  'uses' => 'VideosController@getAddVideoDebug',
-  'as' => 'videos.create.debug',
-  'before' => 'auth'
-));
-
 Route::post('/me/videos/create', array(
   'uses' => 'VideosController@store',
-  'before' => 'auth|csrf'
-));
-
-Route::post('/me/videos/create/debug', array(
-  'uses' => 'VideosController@storeDebug',
   'before' => 'auth|csrf'
 ));
 
