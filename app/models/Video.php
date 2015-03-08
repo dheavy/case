@@ -14,6 +14,7 @@
  * user_id       {integer}
  * created_at    {timestamp}
  * updated_at    {timestamp}
+ * nsfw          {integer}
  */
 
 class Video extends Eloquent {
@@ -65,11 +66,11 @@ class Video extends Eloquent {
   /**
    * Is video marked as NSFW?
    *
-   * @return boolean [description]
+   * @return integer 1 if NSFW, 0 otherwise.
    */
   public function isNsfw()
   {
-    return $this->nsfw === true;
+    return $this->nsfw === 1;
   }
 
 }

@@ -143,6 +143,7 @@ return array(
     'GrahamCampbell\Throttle\ThrottleServiceProvider',
     'Jenssegers\Mongodb\MongodbServiceProvider',
     'Mypleasure\Services\Providers\InviteServiceProvider',
+    'Mypleasure\Services\Providers\UrlServiceProvider',
     'Mypleasure\Services\Providers\UserServiceProvider'
 
   ),

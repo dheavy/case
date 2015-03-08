@@ -16,7 +16,6 @@ use RemindersController;
 use CollectionsController;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
-use Mypleasure\Services\Url\UrlSanitizer;
 use Mypleasure\Services\Validation\User\UserAuthValidator;
 use Mypleasure\Services\Validation\User\UserCreateValidator;
 use Mypleasure\Services\Validation\User\UserLandingPageValidator;
@@ -109,7 +108,7 @@ class UserServiceProvider extends ServiceProvider {
 
     $this->app->bind('VideosController', function($app) {
       return new VideosController(
-        new UrlSanitizer,
+        $this->app->make('UrlSanitizer'),
         array(
           'create' => $app->make('VideoCreateValidator'),
           'update' => $app->make('VideoUpdateValidator')

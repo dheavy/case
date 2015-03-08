@@ -14,7 +14,7 @@ class AddNsfwToVideos extends Migration {
 	{
 		if (Schema::hasTable('videos')) {
 			Schema::table('videos', function (Blueprint $table) {
-				$table->boolean('nsfw')->nullable();
+				$table->integer('nsfw')->nullable();
 			});
 		}
 	}

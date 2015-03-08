@@ -23,6 +23,16 @@ class UrlSanitizer {
     return $strategy->canonize($url);
   }
 
+  public function getDomain($url)
+  {
+    $parsed = parse_url($url);
+    $host = $parsed['host'];
+    $stem = str_replace('www.', '', $host);
+    $stem = stristr($stem, '.',true);
+
+    return $stem;
+  }
+
   /**
    * Check whether URL is valid or not.
    *
