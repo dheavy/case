@@ -193,6 +193,11 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     return Session::get('nsfw', 'false');
   }
 
+  /**
+   * Promote user to admin role.
+   *
+   * @return boolean True if successly done, false if failed.
+   */
   public function promote()
   {
     $role = Role::where('name', '=', 'admin')->first();
@@ -204,6 +209,11 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     return false;
   }
 
+  /**
+   * Demote user to curator role.
+   *
+   * @return boolean True if successly done, false if failed.
+   */
   public function demote()
   {
     $role = Role::where('name', '=', 'curator')->first();
