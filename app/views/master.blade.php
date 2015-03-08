@@ -35,6 +35,7 @@
 
     body {
       background-color: #ececea;
+      transition: 1s background-color;
     }
 
     h1, h2, h3, h4, h5, h6 {
@@ -119,8 +120,12 @@
     function updateDisplay(state) {
       if (!state) {
         $('.naughty').hide().addClass('hide');
+        $('.normal').show().removeClass('hide');
+        $body.css('background-color', '#ececea');
       } else {
         $('.naughty').show().removeClass('hide');
+        $('.normal').hide().addClass('hide');
+        $body.css('background-color', '#A99EA6');
       }
     }
 
