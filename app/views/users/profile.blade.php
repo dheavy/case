@@ -41,6 +41,15 @@
     </nav>
 
     <section class="col-sm-12 col-md-5 col-lg-5">
+      <h4>Bookmarklet</h4>
+      <div class="info">
+        <p>Faites glisser le bouton ci-dessous dans la barre de favoris de votre navigateur.<br>
+        Utilisez-le pour collectionner vos vidéos.</p>
+        <p>
+          <a href="javascript:(function(){var s=document.createElement('script');var r=window.location.href.indexOf('localhost')!=-1?'http://localhost:9999':'https://still-mountain-6425.herokuapp.com';s.src=r+'/kipp/bookmarklet.js';document.body.appendChild(s);})()" class="btn btn-default" style="padding-top:10px;padding-left:30px;padding-right:30px">   ❤   </a>
+        </p>
+      </div>
+
       <h4>{{ Lang::get('users.profile.infos') }}</h4>
       <div class="info">
         <h5>01/03/2015 - Mise à jour</h5>
