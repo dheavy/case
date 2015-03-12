@@ -1,6 +1,6 @@
 (function () {
 
-  var v = '1.3.2',
+  var v = '1.9.1',
       root = window.location.href.indexOf('localhost') != -1 ? 'mypleasure.local' : 'still-mountain-6425.herokuapp.com';
 
   if (window.jQuery === undefined || window.jQuery.fn.jQuery < v) {
