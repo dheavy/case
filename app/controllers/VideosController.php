@@ -118,11 +118,19 @@ class VideosController extends \BaseController {
    */
   public function getAddVideo()
   {
+    $input = Input::get('u', null);
+
     $collections = array();
     $this->user->collections->each(function($collection) use (&$collections) {
       $collections[$collection->id] = $collection->name;
     });
-    return View::make('videos.create')->with(array('user' => $this->user, 'collections' => $collections));
+
+    $data = array('user' => $this->user, 'collections' => $collections);
+    if ($input) {
+      $data['u'] = $input;
+    }
+
+    return View::make('videos.create')->with($data);
   }
 
   /**
@@ -160,6 +168,9 @@ class VideosController extends \BaseController {
 
     // Get URL.
     $url = Input::get('url', '');
+
+    // Received from bookmarklet?
+    $bookmarklet = Input::get('_bookmarklet', null);
 
     // Get collection to add the Video to.
     // If input 'collection' is an empty string, create a new collection.
@@ -225,8 +236,12 @@ class VideosController extends \BaseController {
       }
     }
 
-    // Redirect user with a short message.
-    return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.success'));
+    // Redirect user with a short message, depending on whether we used the bookmarklet or not.
+    if ($bookmarklet) {
+      return Redirect::route('bookmarklet.close')->with('message', Lang::get('bookmarklet.store.success'));
+    } else {
+      return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.success'));
+    }
   }
 
   /**

@@ -31,4 +31,9 @@ class StaticPagesController extends \BaseController {
     return View::make('static.home');
   }
 
+  public function getBookmarkletClose()
+  {
+    return View::make('bookmarklet.close');
+  }
+
 }

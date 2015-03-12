@@ -22,7 +22,13 @@
 
         <div class="form-group">
           {{ Form::label('url', Lang::get('videos.create.form.pageurl')) }}
-          {{ Form::text('url', '', array('class' => 'form-control')) }}
+
+          @if (isset($u))
+            {{ Form::hidden('_bookmarklet', true) }}
+            {{ Form::text('url', $u, array('class' => 'form-control')) }}
+          @else
+            {{ Form::text('url', '', array('class' => 'form-control')) }}
+          @endif
         </div>
 
         <div class="form-group">
@@ -57,9 +63,17 @@
       }
     }
 
+    function adaptUserInterface() {
+      if (window.location.href.indexOf('?u=') != -1) {
+        $('.navbar').hide(0);
+      }
+    }
+
     $collectionSelect.bind('change', newCollectionNameToggle);
 
-    $(window).bind('load', newCollectionNameToggle);
+    var $window = $(window);
+    $window.bind('load', newCollectionNameToggle);
+    $window.bind('load', adaptUserInterface);
   });
   </script>
 

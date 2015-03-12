@@ -116,6 +116,13 @@ Route::post('/me/videos/create', array(
   'before' => 'auth|csrf'
 ));
 
+// Add video via bookmarklet
+Route::get('/bookmarklet', array(
+  'uses' => 'StaticPagesController@getBookmarkletClose',
+  'as' => 'bookmarklet.close',
+  'before' => 'auth'
+));
+
 // Collections
 Route::get('/me/collections/', array(
   'uses' => 'CollectionsController@index',
