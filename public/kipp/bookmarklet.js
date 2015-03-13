@@ -60,8 +60,7 @@
        .done(function done() {
           getScripts(files.slice(1));
        })
-       .fail(function fail(a,b,c) {
-        console.log(a,b,c)
+       .fail(function fail() {
           console.log("[mypleasu.re KIPP] Error loading one of the script files. I give up.");
           return false;
        });
