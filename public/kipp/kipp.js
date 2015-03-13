@@ -55,6 +55,11 @@
 
     var overlay = document.createElement('div');
     overlay.className += overlay.className ? ' mp-kipp-overlay' : 'mp-kipp-overlay';
+    var maxZ = Math.max.apply(null,$.map($('body > *'), function(e,n){
+    if($(e).css('position') == 'absolute')
+      return parseInt($(e).css('z-index')) || 1 ;
+    }));
+    overlay.style = 'z-index:' + maxZ;
     kipp.appendChild(overlay);
 
     var elementContainer = document.createElement('div');
@@ -90,6 +95,13 @@
     if (!KIPP.patterns) return;
 
     $.each(KIPP.patterns, function iter(i, pattern) {
+      // Check URL.
+      if (window.location.href.indexOf(pattern.urlPattern) != -1) {
+        openSite(window.location.href);
+        return;
+      }
+
+      // Check DOM.
       var $search = $(pattern.tag),
           index = 0;
       if ($search.length > 0) {
@@ -124,6 +136,7 @@
   KIPP.patterns = [
     {
       name: 'youtube',
+      urlPattern: 'www.youtube.com/watch?v=',
       tag: "iframe[src*='youtube.com/embed']",
       generator: function (embedUrl) {
         var id = embedUrl.substring(embedUrl.lastIndexOf('/') + 1);

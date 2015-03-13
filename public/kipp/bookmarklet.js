@@ -26,6 +26,7 @@
     var css = ['https://' + root + '/kipp/kipp.css'],
         js = ['https://' + root + '/kipp/kipp.js'];
 
+
     if (KIPP.true) {
       sendOnMission();
       return false;
@@ -59,7 +60,8 @@
        .done(function done() {
           getScripts(files.slice(1));
        })
-       .fail(function fail() {
+       .fail(function fail(a,b,c) {
+        console.log(a,b,c)
           console.log("[mypleasu.re KIPP] Error loading one of the script files. I give up.");
           return false;
        });
