@@ -33,6 +33,7 @@
 
   KIPP.ready = true;
   KIPP.hasBuiltUI = false;
+  KIPP.hasFoundSomething = false;
 
   KIPP.open = function () {
     if (KIPP.active) {
@@ -54,18 +55,23 @@
   KIPP.close = function () {
     console.log("[mypleasu.re KIPP] I'm out. See you next time!");
     KIPP.active = false;
-    $kipp.fadeOut(function out() {
-      $kipp.remove();
-      $kipp = null;
-      $kippElementContainer = null;
-      $body.css('overflow', oldOverflowValue);
-      $body = null;
-      KIPP.hasBuiltUI = false;
-    });
+
+    if ($kipp) {
+      $kipp.fadeOut(function out() {
+        $kipp.remove();
+        $kipp = null;
+        $kippElementContainer = null;
+        $body.css('overflow', oldOverflowValue);
+        $body = null;
+        KIPP.hasBuiltUI = false;
+      });
+    }
   };
 
   KIPP.findPatterns = function () {
     if (!KIPP.patterns) return;
+
+    var index = 0;
 
     $.each(KIPP.patterns, function iter(i, pattern) {
       // Check URL.
@@ -75,8 +81,8 @@
       }
 
       // Check DOM.
-      var $search = $(pattern.tag),
-          index = 0;
+      var $search = $(pattern.tag);
+
       if ($search.length > 0) {
         $.each($search, function iter(i, elm) {
           KIPP.addElement(elm, pattern.generator, index);
@@ -84,6 +90,11 @@
         });
       }
     });
+
+    if (!KIPP.hasFoundSomething) {
+      alert("mypleasu.re — je n'arrive pas à trouver de vidéo sur cette page.");
+      KIPP.close();
+    }
   };
 
   KIPP.buildUI = function () {
@@ -95,10 +106,12 @@
 
     var overlay = document.createElement('div');
     overlay.className += overlay.className ? ' mp-kipp-overlay' : 'mp-kipp-overlay';
+
     var maxZ = Math.max.apply(null,$.map($('body > *'), function(e,n){
     if($(e).css('position') == 'absolute')
       return parseInt($(e).css('z-index')) || 1 ;
     }));
+
     overlay.style = 'z-index:' + maxZ;
     kipp.appendChild(overlay);
 
@@ -121,6 +134,8 @@
 
   KIPP.addElement = function(elm, generator, i) {
     if (!KIPP.hasBuiltUI) KIPP.buildUI();
+
+    if (!KIPP.hasFoundSomething) KIPP.hasFoundSomething = true;
 
     var elmContainer = document.createElement('div');
     elmContainer.className += elmContainer.className ? ' mp-kipp-elm' : 'mp-kipp-elm';
@@ -149,6 +164,18 @@
       generator: function (embedUrl) {
         var id = embedUrl.substring(embedUrl.lastIndexOf('/') + 1);
         return 'https://www.youtube.com/watch?v=' + id;
+      }
+    },
+    {
+      name: 'vimeo',
+      urlPattern: 'vimeo.com/',
+      tag: "iframe[src*='player.vimeo.com/video']",
+      generator: function (embedUrl) {
+        var matches = /(\/)(\d+)/.exec(embedUrl), id;
+        if (matches[2]) {
+          id = matches[2];
+          return 'https://vimeo.com/' + id;
+        }
       }
     }
   ]
