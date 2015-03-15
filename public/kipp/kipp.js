@@ -185,19 +185,10 @@
     $addBtn.bind('click', { generator: generator }, addBtnHandler);
   };
 
-  KIPP.getPatternsByName = function (name) {
-    $.each(KIPP.patterns, function iter(i, p) {
-      if (p.name == name) {
-        return p;
-      }
-    });
-    return null;
-  };
-
   KIPP.patterns = [
     {
       name: 'youtube',
-      urlPattern: /www.youtube.com\/watch?v=/,
+      urlPattern: /www\.youtube\.com\/watch\?v=/,
       isTricky: false,
       trickyUrlPattern: null,
       selector: "iframe[src*='youtube.com/embed']",
@@ -209,9 +200,9 @@
     },
     {
       name: 'vimeo',
-      urlPattern: /vimeo.com\/(\d+)/,
+      urlPattern: /vimeo\.com\/(\d+)/,
       isTricky: true,
-      trickyUrlPattern: /vimeo.com(\/){0}(?! \d+)/gi,
+      trickyUrlPattern: /vimeo\.com(\/){0}(?! \d+)/gi,
       selector: "iframe[src*='player.vimeo.com/video/']",
       generator: function (embedUrl) {
         var matches = /(\/)(\d+)/.exec(embedUrl), id;
