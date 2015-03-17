@@ -66,6 +66,7 @@
     function adaptUserInterface() {
       if (window.location.href.indexOf('?u=') != -1) {
         $('.navbar').hide(0);
+        $('body').css('overflow', 'hidden');
       }
     }
 

@@ -23,6 +23,28 @@
   overflow: auto;
 }
 
+.mp-kipp-finalize-container {
+  position: absolute;
+  width: 640px;
+  height: 340px;
+  overflow: hidden;
+  display: none;
+  left: 50%;
+  top: 50%;
+  margin-left: -320px;
+  margin-top: -170px;
+  background: rgb(236, 236, 234);
+  overflow: hidden;
+  -webkit-border-radius: 8px;
+     -moz-border-radius: 8px;
+      -ms-border-radius: 8px;
+          border-radius: 8px;
+}
+
+.mp-kipp-finalize-container iframe {
+  margin-top: -50px;
+}
+
 .mp-kipp-elm {
   position: relative;
   overflow: hidden;

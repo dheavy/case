@@ -15,7 +15,9 @@
       $('.navbar').hide(0);
     });
 
-    _.delay(window.close, 4000);
+    _.delay(function m() {
+      window.top.postMessage({'event':'done'}, '*');
+    }, {{{ Session::get('countdown') }}});
   </script>
 
 @stop

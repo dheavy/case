@@ -211,7 +211,11 @@ class VideosController extends \BaseController {
 
     // Stop here if user already added this video.
     if ($this->user->hasVideoFromHash($hash)) {
-      return Redirect::route('videos.create')->with('message', Lang::get('videos.controller.store.alreadyadded'));
+      if ($bookmarklet) {
+        return Redirect::route('bookmarklet.close')->with(array('message' => Lang::get('bookmarklet.store.alreadyadded'), 'countdown' => 3000));
+      } else {
+        return Redirect::route('videos.create')->with('message', Lang::get('videos.controller.store.alreadyadded'));
+      }
     }
 
     // Check if video already exist in videostore.
@@ -224,7 +228,11 @@ class VideosController extends \BaseController {
     if ($exists) {
       $created = $this->createVideoInstance($collectionId, $video[0]);
       if (!(bool)$created) {
-        return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.error'));
+        if ($bookmarklet) {
+          return Redirect::route('bookmarklet.close')->with(array('message' => Lang::get('bookmarklet.store.error'), 'countdown' => 3000));
+        } else {
+          return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.error'));
+        }
       }
     } else {
       // The ObjectID is based on the hash of the video to look for duplicates.
@@ -232,13 +240,17 @@ class VideosController extends \BaseController {
       try {
         $this->addVideoRequestToQueue($hash, $url, $this->user->id, $collectionId);
       } catch (MongoDuplicateKeyException $error) {
-        return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.alreadyprocessing'));
+        if ($bookmarklet) {
+          return Redirect::route('bookmarklet.close')->with(array('message' => Lang::get('bookmarklet.store.alreadyprocessing'), 'countdown' => 3000));
+        } else {
+          return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.alreadyprocessing'));
+        }
       }
     }
 
     // Redirect user with a short message, depending on whether we used the bookmarklet or not.
     if ($bookmarklet) {
-      return Redirect::route('bookmarklet.close')->with('message', Lang::get('bookmarklet.store.success'));
+      return Redirect::route('bookmarklet.close')->with(array('message' => Lang::get('bookmarklet.store.success'), 'countdown' => 3000));
     } else {
       return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.success'));
     }
