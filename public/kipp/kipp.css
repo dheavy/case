@@ -7,6 +7,13 @@
   left: 0;
 }
 
+#mp-kipp a,
+#mp-kipp a:visited,
+#mp-kipp a:active,
+#mp-kipp a:hover {
+  font-weight: normal;
+}
+
 .mp-kipp-overlay {
   position: absolute;
   width: 100%;
@@ -16,11 +23,37 @@
   background-color: black;
 }
 
-.mp-kipp-elm-container {
+.mp-kipp-tn-container {
   position: absolute;
   width: 100%;
   height: 100%;
   overflow: auto;
+}
+
+.mp-kipp-loader{
+  text-align: center;
+  display: block;
+  top: 50%;
+  left: 50%;
+  width: 42px;
+  height: 42px;
+  margin-left: -20px;
+  margin-right: -20px;
+  position: absolute;
+  background: black;
+  border: 1px solid white;
+  -webkit-border-radius: 30px;
+     -moz-border-radius: 30px;
+      -ms-border-radius: 30px;
+          border-radius: 30px;
+}
+
+/*
+  Set the color of the icon
+*/
+svg path,
+svg rect{
+  fill: #FFFFFF;
 }
 
 .mp-kipp-finalize-container {
@@ -59,30 +92,47 @@
           border-radius: 8px;
 }
 
-.mp-kipp-close-btn {
+.mp-kipp-close-btn,
+.mp-kipp-close-btn:visited
+.mp-kipp-close-btn:active {
   color: white;
   font-size: 32px;
   text-decoration: none;
   display: block;
-  width: 30px;
-  height: 20px;
+  width: 28px;
+  height: 28px;
   position: absolute;
-  right: 10px;
+  right: 40px;
   top: 20px;
+  background: black;
+  text-align: center;
+  border: 3px solid white;
+  transition: all 250ms;
+  -webkit-border-radius: 30px;
+     -moz-border-radius: 30px;
+      -ms-border-radius: 30px;
 }
 
-.mp-kipp-add-btn {
+.mp-kipp-close-btn:hover {
+  border: 3px solid #CCC;
+  color: #CCC;
+}
+
+.mp-kipp-add-btn,
+.mp-kipp-add-btn:visited,
+.mp-kipp-add-btn:active {
   display: block;
   font-family: "Helvetica Neue", helvetica, arial, sans-serif;
   color: #999999;
   text-decoration: none;
-  padding: 10px;
+  padding: 10px 0 12px 0;
   margin-top: 5px;
   margin-left: -84px;
   left: 50%;
   position: relative;
   border: 2px solid #ADADAD;
-  width: 140px;
+  width: 150px;
+  height: 10px;
   text-align: center;
   font-size: 12px;
   text-transform: uppercase;
@@ -90,6 +140,7 @@
   -moz-border-radius: 5px;
   -ms-border-radius: 5px;
   border-radius: 5px;
+  line-height: 1.2px;
   transition: all 250ms;
 }
 
