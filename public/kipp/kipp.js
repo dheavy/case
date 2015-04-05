@@ -240,10 +240,10 @@
       console.log("[KIPP] -- search DOM for " + name + " with selector '" + searchCase.selector + "'.");
 
       var $search = $(searchCase.selector),
-          self = this;
+          self = kipp;
 
       if ($search.length > 0) {
-        this.hasFoundSomething = true;
+        kipp.hasFoundSomething = true;
         $.each($search, function iter(i, elm) {
           self.scrapeElement(elm, searchCase.urlGenerator, searchCase.thumbsStrategy, kipp.uiIndex);
           kipp.uiIndex++;
