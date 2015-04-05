@@ -93,21 +93,21 @@
     KIPP.prototype.close = function () {
       console.log('[KIPP] Close.');
 
-      if (this.$container) this.$container.remove();
+      if (kipp.$container) kipp.$container.remove();
 
       // Reset flags.
-      this.hasBuiltUI = false;
-      this.isActive = false;
-      this.hasFoundSomething = false;
+      kipp.hasBuiltUI = false;
+      kipp.isActive = false;
+      kipp.hasFoundSomething = false;
       window.mypleasure.isOpen = false;
 
       // Free jQuery objects from memory.
       $body = null;
-      this.$overlay = null;
-      this.$container = null;
-      this.$thumbnails = null;
-      this.$collector = null;
-      this.$closeBtn = null;
+      kipp.$overlay = null;
+      kipp.$container = null;
+      kipp.$thumbnails = null;
+      kipp.$collector = null;
+      kipp.$closeBtn = null;
 
       return kipp;
     };
@@ -342,6 +342,9 @@
 
       // Build UI, minus thumbnails container.
       kipp.buildUI(false);
+      if (kipp.$thumbnails) {
+        kipp.$thumbnails.remove();
+      }
 
       // Create final view with iFrame from CASE.
       var $iframe = $('<iframe src="' + this.CASE + '/me/videos/create?u=' + url + '" width="100%" height="100%" frameborder="0"></iframe>');
