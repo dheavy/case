@@ -6,6 +6,7 @@
 
   if (window.jQuery === undefined || window.jQuery.fn.jQuery < v) {
     var done = false,
+        $ = window.jQuery,
         script = document.createElement('script');
 
     script.async = true;
