@@ -17,7 +17,7 @@
 
     _.delay(function m() {
       window.top.postMessage({'event':'done'}, '*');
-    }, {{{ Session::get('countdown') }}});
+    }, {{{ Session::get('countdown') or 1000 }}});
   </script>
 
 @stop
