@@ -94,6 +94,7 @@ svg rect{
 
 .mp-kipp-close-btn:hover {
   color: #CCC;
+   text-decoration: none;
 }
 
 .mp-kipp-add-btn,
