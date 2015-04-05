@@ -28,9 +28,8 @@
     window.mypleasure = window.mypleasure ? window.mypleasure : {};
     window.mypleasure.isOpen = false;
 
-    var $ = window.jQuery;
-
-    var css = ['https://' + root + '/kipp/kipp.css'],
+    var $ = window.jQuery,
+        css = ['https://' + root + '/kipp/kipp.css'],
         js = ['https://' + root + '/kipp/kipp.js'],
         $spinner = null;
 
