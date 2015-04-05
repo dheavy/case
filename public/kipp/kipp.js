@@ -211,7 +211,6 @@
         $.each(cases, function iter(i, c) {
 
           // If current location matches a pattern, it's a go.
-          console.log(c, c.urlPattern)
           if (c.urlPattern.test(location) && c.direct) {
             console.log('[KIPP] --- found!');
             self.hasFoundSomething = true;
@@ -460,21 +459,41 @@
             }
           }
         ]
-      }/*,
+      },
       {
         name: 'dailymotion',
         cases: [
+
+          // Dailymotion: based on URL.
           {
-            urlPattern: '',
+            urlPattern: /dailymotion\.com\/video/,
+            direct: true,
+            selector: '#content',
+            thumbsStrategy: function ($target, $container) {
+              var link = $('link[itemprop="embedURL"]', $target).attr('href');
+                  id = link.substring(link.lastIndexOf('/') + 1),
+                  $iframe = $('<iframe frameborder="0" width="400" height="auto" src="//www.dailymotion.com/embed/video/' + id + '" allowfullscreen></iframe>');
+
+              return $iframe.appendTo($container);
+            },
+            urlGenerator: function (embedURL) {
+              return 'https://www.dailymotion.com/video/' + embedURL.substring(embedURL.lastIndexOf('/') + 1);
+            }
+          },
+
+          {
+            urlPattern: /dailymotion\.com/,
             direct: false,
-            selector: '',
+            selector: 'iframe[src*="//www.dailymotion.com/embed/video"]',
             thumbsStrategy: function ($target, $container) {
               return $target.clone().appendTo($container);
             },
-            urlGenerator: function (embedURL) {}
+            urlGenerator: function (embedURL) {
+              return 'https://www.dailymotion.com/video/' + embedURL.substring(embedURL.lastIndexOf('/') + 1);
+            }
           }
         ]
-      }*/
+      }
     ];
 
     /**
