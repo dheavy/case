@@ -221,7 +221,6 @@
           // Otherwise, try looking for it in the DOM.
           if (!self.hasFoundSomething) {
             self.searchDOM(pattern.name, c);
-            return false;
           }
         });
       });
