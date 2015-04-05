@@ -134,17 +134,17 @@
       addTnContainer = addTnContainer ? addTnContainer : true;
 
       // Singleton.
-      if (this.hasBuiltUI) return;
-      this.hasBuiltUI = true;
+      if (kipp.hasBuiltUI) return;
+      kipp.hasBuiltUI = true;
 
       // Endow body with version number.
       // Store body's original value for 'overflow' and apply a new one.
       $body = $('body');
       $body.attr('data-mypleasure-bookmarklet-installed', kipp.version);
-      this.oldBodyOverflowValue = $body.css('overflow');
-      this.oldBodyPosition = $body.css('position');
-      this.oldBodyWidth = $body.css('width');
-      this.oldBodyHeight = $body.css('height');
+      kipp.oldBodyOverflowValue = $body.css('overflow');
+      kipp.oldBodyPosition = $body.css('position');
+      kipp.oldBodyWidth = $body.css('width');
+      kipp.oldBodyHeight = $body.css('height');
       $body.css({
         'overflow': 'hidden',
         'position': 'fixed',
@@ -153,8 +153,8 @@
       });
 
       // Build main container.
-      this.$container = $('<div id="mp-kipp"></div>');
-      $body.append(this.$container);
+      kipp.$container = $('<div id="mp-kipp"></div>');
+      $body.append(kipp.$container);
 
       // Determine maximum z-index to apply it to the container.
       var maxZ = Math.max.apply(null, $.map($('body > *'), function apply(e) {
@@ -163,27 +163,27 @@
               return parseInt($e.css('z-index')) || 1;
             }
           }));
-      this.$container.css('z-index', maxZ);
+      kipp.$container.css('z-index', maxZ);
 
       // Add overlay. Ensure it fits and remains so.
-      this.$overlay = $('<div class="mp-kipp-overlay"></div>');
-      this.$container.append(this.$overlay);
-      $window.on('resize', this.resizeOverlay);
+      kipp.$overlay = $('<div class="mp-kipp-overlay"></div>');
+      kipp.$container.append(kipp.$overlay);
+      $window.on('resize', kipp.resizeOverlay);
 
       // Thumbnails container.
       if (addTnContainer) {
-        this.$thumbnails = $('<div class="mp-kipp-tn-container"></div>');
-        this.$container.append(this.$thumbnails);
+        kipp.$thumbnails = $('<div class="mp-kipp-tn-container"></div>');
+        kipp.$container.append(kipp.$thumbnails);
       }
 
       // Container for final input, where user effectively connects a video.
-      this.$collector = $('<div class="mp-kipp-finalize-container"></div>');
-      this.$container.append(this.$collector);
+      kipp.$collector = $('<div class="mp-kipp-finalize-container"></div>');
+      kipp.$container.append(kipp.$collector);
 
       // Close button.
-      this.$closeBtn = $('<a href="#" class="mp-kipp-close-btn">&times;</a>');
-      this.$closeBtn.on('touchstart click', this.stop);
-      this.$container.append(this.$closeBtn);
+      kipp.$closeBtn = $('<a href="#" class="mp-kipp-close-btn">&times;</a>');
+      kipp.$closeBtn.on('touchstart click', kipp.stop);
+      kipp.$container.append(kipp.$closeBtn);
 
       // Remove loader anim, if visible.
       window.mypleasure.hideLoader();
@@ -268,7 +268,7 @@
 
       // Build UI, if needed.
       if (!this.hasBuiltUI) {
-        this.buildUI();
+        kipp.buildUI();
       }
 
       // Create UI for the element.
@@ -276,10 +276,10 @@
           $element = $(element),
           $elementContainer = $('<div class="mp-kipp-elm" id="' + id + '"></div>'),
           $addBtn = $('<a href="#" class="mp-kipp-add-btn" rel="' + id + '">Ajouter cette vidéo</a>'),
-          self = this;
+          self = kipp;
 
       // Append to the view container.
-      this.$thumbnails.append($elementContainer);
+      kipp.$thumbnails.append($elementContainer);
       thumbsStrategy($element, $elementContainer);
       $elementContainer.append($addBtn);
 
@@ -320,9 +320,9 @@
      * @return {KIPP}
      */
     KIPP.prototype.resizeOverlay = function () {
-      if ($window && this.$overlay) {
-        this.$overlay.width($window.width());
-        this.$overlay.height($window.height());
+      if ($window && kipp.$overlay) {
+        kipp.$overlay.width($window.width());
+        kipp.$overlay.height($window.height());
       }
 
       return kipp;
@@ -345,7 +345,7 @@
 
       // Create final view with iFrame from CASE.
       var $iframe = $('<iframe src="' + this.CASE + '/me/videos/create?u=' + url + '" width="100%" height="100%" frameborder="0"></iframe>');
-      this.$collector.append($iframe).css('display', 'block');
+      kipp.$collector.append($iframe).css('display', 'block');
 
       return kipp;
     };
