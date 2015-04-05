@@ -93,8 +93,6 @@
     KIPP.prototype.close = function () {
       console.log('[KIPP] Close.');
 
-      if (kipp.$container) kipp.$container.remove();
-
       // Reset flags.
       kipp.hasBuiltUI = false;
       kipp.isActive = false;
@@ -103,11 +101,31 @@
 
       // Free jQuery objects from memory.
       $body = null;
-      kipp.$overlay = null;
-      kipp.$container = null;
-      kipp.$thumbnails = null;
-      kipp.$collector = null;
-      kipp.$closeBtn = null;
+
+      if (kipp.$closeBtn) {
+        kipp.$closeBtn.remove();
+        kipp.$closeBtn = null;
+      }
+
+      if (kipp.$collector) {
+        kipp.$collector.remove();
+        kipp.$collector = null;
+      }
+
+      if (kipp.$thumbnails) {
+        kipp.$thumbnails.remove();
+        kipp.$thumbnails = null;
+      }
+
+      if (kipp.$overlay) {
+        kipp.$overlay.remove();
+        kipp.$overlay = null;
+      }
+
+      if (kipp.$container) {
+        kipp.$container.remove();
+        kipp.$container = null
+      }
 
       return kipp;
     };
