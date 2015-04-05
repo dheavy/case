@@ -84,6 +84,12 @@
       return kipp;
     };
 
+    /**
+     * Close KIPP.
+     * Reset state variables.
+     *
+     * @return {KIPP}
+     */
     KIPP.prototype.close = function () {
       console.log('[KIPP] Close.');
 
@@ -106,14 +112,26 @@
       return kipp;
     };
 
+    /**
+     * Inform that no video has been found on the page, and close KIPP.
+     *
+     * @return {KIPP}
+     */
     KIPP.prototype.fail = function () {
       alert("[mypleasu.re] Je n'arrive pas à trouver de vidéo sur cette page ! Désolé !");
       window.mypleasure.hideLoader();
       kipp.close();
     };
 
-    KIPP.prototype.buildUI = function () {
+    /**
+     * Construct the UI.
+     *
+     * @return {KIPP}
+     */
+    KIPP.prototype.buildUI = function (addTnContainer) {
       console.log('[KIPP] Build UI.');
+
+      addTnContainer = addTnContainer ? addTnContainer : true;
 
       // Singleton.
       if (this.hasBuiltUI) return;
@@ -153,8 +171,10 @@
       $window.on('resize', this.resizeOverlay);
 
       // Thumbnails container.
-      this.$thumbnails = $('<div class="mp-kipp-tn-container"></div>');
-      this.$container.append(this.$thumbnails);
+      if (addTnContainer) {
+        this.$thumbnails = $('<div class="mp-kipp-tn-container"></div>');
+        this.$container.append(this.$thumbnails);
+      }
 
       // Container for final input, where user effectively connects a video.
       this.$collector = $('<div class="mp-kipp-finalize-container"></div>');
@@ -171,6 +191,12 @@
       return kipp;
     };
 
+    /**
+     * Cycles through the list to find code pattern and possibly curate the matching videos.
+     *
+     * @param  {Array} sites  The list of sites with relevant data on code formatting.
+     * @return {KIPP}
+     */
     KIPP.prototype.findPatterns = function (sites) {
       console.log('[KIPP] Find patterns.');
 
@@ -185,11 +211,12 @@
         $.each(cases, function iter(i, c) {
 
           // If current location matches a pattern, it's a go.
+          console.log(c, c.urlPattern)
           if (c.urlPattern.test(location) && c.direct) {
             console.log('[KIPP] --- found!');
             self.hasFoundSomething = true;
             self.finalize(location);
-            return;
+            return kipp;
           }
 
           // Otherwise, try looking for it in the DOM.
@@ -202,6 +229,13 @@
       return kipp;
     };
 
+    /**
+     * Traverse the DOM to find code patterns.
+     *
+     * @param  {string} name       The site name.
+     * @param  {Object} searchCase Contains regex and other data to base DOM analysis on.
+     * @return {KIPP}
+     */
     KIPP.prototype.searchDOM = function (name, searchCase) {
       console.log("[KIPP] -- search DOM for " + name + " with selector '" + searchCase.selector + "'.");
 
@@ -219,6 +253,15 @@
       return kipp;
     };
 
+    /**
+     * Scrape a found video element to display it to the user.
+     *
+     * @param  {string}   element        The DOM element to scrape.
+     * @param  {Function} urlGenerator   Generates the actual video URL from its embed code.
+     * @param  {Function} thumbsStrategy Generates, from its embed code, the video thumbnails presented to the user.
+     * @param  {integer}  index          A UID used when adding thumbnails in the DOM for retrieval purposes.
+     * @return {KIPP}
+     */
     KIPP.prototype.scrapeElement = function (element, urlGenerator, thumbsStrategy, index) {
       console.log('[KIPP] Add element.');
 
@@ -236,7 +279,6 @@
 
       // Append to the view container.
       this.$thumbnails.append($elementContainer);
-      //$element.clone().appendTo($elementContainer);
       thumbsStrategy($element, $elementContainer);
       $elementContainer.append($addBtn);
 
@@ -253,6 +295,13 @@
       return kipp;
     };
 
+    /**
+     * Event handler invoked when "add" button is clicked.
+     * Finalizes acquisition of the related video.
+     *
+     * @param  {jQuery.Event} e  The event object passed during the process.
+     * @return {KIPP}
+     */
     KIPP.prototype.onAdd = function (e) {
       var embedURL = $('iframe', $('#' + e.target.rel)).attr('src'),
           urlGenerator = e.data.urlGenerator,
@@ -264,21 +313,34 @@
       return kipp;
     };
 
+    /**
+     * Resize the background overlay to fit the window.
+     *
+     * @return {KIPP}
+     */
     KIPP.prototype.resizeOverlay = function () {
       if ($window && this.$overlay) {
         this.$overlay.width($window.width());
         this.$overlay.height($window.height());
       }
+
+      return kipp;
     };
 
+    /**
+     * Finalize the acquisition of the video by invoking the relevant page from CASE in an iframe.
+     *
+     * @param  {string} url  The video URL to passed to CASE.
+     * @return {KIPP}
+     */
     KIPP.prototype.finalize = function (url) {
       // Unbind obsolete event listeners.
       $.each(kipp.eventListeningButtons, function iter(i, b) {
         $(b).unbind();
       });
 
-      // Remove thumbnails container.
-      this.$thumbnails.remove();
+      // Build UI, minus thumbnails container.
+      kipp.buildUI(false);
 
       // Create final view with iFrame from CASE.
       var $iframe = $('<iframe src="' + this.CASE + '/me/videos/create?u=' + url + '" width="100%" height="100%" frameborder="0"></iframe>');
@@ -298,6 +360,8 @@
     var sites = [
       {
         name: 'youtube',
+
+        // Youtube: all cases.
         cases: [
           {
             urlPattern: /www\.youtube\.com\/watch\?v=/,
@@ -313,8 +377,11 @@
           }
         ]
       },
+
       {
         name: 'vimeo',
+
+        // Vimeo: based on url.
         cases: [
           {
             urlPattern: /vimeo\.com\/(\d+)/,
@@ -331,6 +398,8 @@
               }
             }
           },
+
+          // Vimeo: listings of video (e.g. homepage).
           {
             urlPattern: /vimeo\.com(\/){0}(?! \d+)/gi,
             direct: false,
@@ -342,6 +411,47 @@
               return $iframe.appendTo($container);
             },
             urlGenerator: function (embedURL) {
+              var matches = /(\/)(\d+)/.exec(embedURL), id;
+              if (matches[2]) {
+                id = matches[2];
+                return 'https://vimeo.com/' + id;
+              }
+            }
+          },
+
+          // Vimeo: hero video display.
+          {
+            urlPattern: /vimeo\.com/,
+            direct: false,
+            selector: '#video',
+            thumbsStrategy: function($target, $container) {
+              var id = $('.player_container', $target).attr('id').substr(5),
+                  $iframe = $('<iframe src="https://player.vimeo.com/video/' + id + '?title=0&amp;byline=0&amp;portrait=0" width="400" height="auto" frameborder="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen="" kwframeid="1"></iframe>');
+
+              return $iframe.appendTo($container);
+            },
+            urlGenerator: function(embedURL) {
+              var matches = /(\/)(\d+)/.exec(embedURL), id;
+              if (matches[2]) {
+                id = matches[2];
+                return 'https://vimeo.com/' + id;
+              }
+            }
+          },
+
+          // Vimeo: couchmode.
+          {
+            urlPattern: /vimeo\.com/,
+            direct: false,
+            selector: '#big_screen',
+            thumbsStrategy: function($target, $container) {
+              var videoSrc = $('video', $target).attr('src'),
+                  id = videoSrc.substring(videoSrc.indexOf('=') + 1, videoSrc.indexOf('_')),
+                  $iframe = $('<iframe src="https://player.vimeo.com/video/' + id + '?title=0&amp;byline=0&amp;portrait=0" width="400" height="auto" frameborder="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen="" kwframeid="1"></iframe>');
+
+              return $iframe.appendTo($container);
+            },
+            urlGenerator: function(embedURL) {
               var matches = /(\/)(\d+)/.exec(embedURL), id;
               if (matches[2]) {
                 id = matches[2];
