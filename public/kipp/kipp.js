@@ -488,6 +488,7 @@
             direct: false,
             selector: 'iframe[src*="//www.dailymotion.com/embed/video"]',
             thumbsStrategy: function ($target, $container) {
+              var $iframe = $('<iframe frameborder="0" width="400" height="auto" src="//www.dailymotion.com/embed/video/' + $target.attr('src') + '" allowfullscreen></iframe>');
               return $target.clone().appendTo($container);
             },
             urlGenerator: function (embedURL) {
