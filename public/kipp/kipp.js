@@ -221,8 +221,8 @@
           // Otherwise, try looking for it in the DOM.
           if (!self.hasFoundSomething) {
             self.searchDOM(pattern.name, c);
+            return false;
           }
-          return false;
         });
       });
 
@@ -235,7 +235,7 @@
      *
      * @param  {string} name       The site name.
      * @param  {Object} searchCase Contains regex and other data to base DOM analysis on.
-     * @return {KIPP}
+     * @return {KIPP|boolean} Returns false to break out of $.each loop when something is found.
      */
     KIPP.prototype.searchDOM = function (name, searchCase) {
       console.log("[KIPP] -- search DOM for " + name + " with selector '" + searchCase.selector + "'.");
@@ -248,6 +248,7 @@
         $.each($search, function iter(i, elm) {
           self.scrapeElement(elm, searchCase.urlGenerator, searchCase.thumbsStrategy, kipp.uiIndex);
           kipp.uiIndex++;
+          return false;
         });
       }
 
@@ -470,7 +471,7 @@
           {
             urlPattern: /dailymotion\.com\/video/,
             direct: true,
-            selector: '#content',
+            selector: '#content.fluid[itemtype="http://schema.org/VideoObject"]',
             thumbsStrategy: function ($target, $container) {
               var link = $('link[itemprop="embedURL"]', $target).attr('href');
                   id = link.substring(link.lastIndexOf('/') + 1),
