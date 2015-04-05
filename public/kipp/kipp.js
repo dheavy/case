@@ -195,7 +195,7 @@
      * Cycles through the list to find code pattern and possibly curate the matching videos.
      *
      * @param  {Array} sites  The list of sites with relevant data on code formatting.
-     * @return {KIPP}
+     * @return {KIPP|boolean} Returns false to break out of $.each loop when something is found.
      */
     KIPP.prototype.findPatterns = function (sites) {
       console.log('[KIPP] Find patterns.');
@@ -215,12 +215,14 @@
             console.log('[KIPP] --- found!');
             self.hasFoundSomething = true;
             self.finalize(location);
-            return kipp;
+            return false;
           }
 
           // Otherwise, try looking for it in the DOM.
-          self.searchDOM(pattern.name, c);
-          return kipp;
+          if (!self.hasFoundSomething) {
+            self.searchDOM(pattern.name, c);
+          }
+          return false;
         });
       });
 
