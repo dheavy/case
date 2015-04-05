@@ -14,6 +14,7 @@
 #mp-kipp a:active,
 #mp-kipp a:hover {
   font-weight: normal;
+  text-decoration: none;
 }
 
 .mp-kipp-overlay {
@@ -90,6 +91,7 @@ svg rect{
   right: 40px;
   top: 20px;
   text-align: center;
+  transition: 500ms all;
 }
 
 .mp-kipp-close-btn:hover {
@@ -105,7 +107,6 @@ svg rect{
   color: #999999;
   text-decoration: none;
   padding: 10px 0 12px 0;
-  margin-top: 5px;
   margin-left: -84px;
   left: 50%;
   position: relative;
@@ -115,15 +116,10 @@ svg rect{
   text-align: center;
   font-size: 12px;
   text-transform: uppercase;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  -ms-border-radius: 5px;
-  border-radius: 5px;
-  line-height: 12px;
   transition: all 250ms;
 }
 
 .mp-kipp-add-btn:hover {
-  border: 2px solid #333;
   color: #333;
+  text-decoration: none;
 }
