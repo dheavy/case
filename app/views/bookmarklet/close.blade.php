@@ -14,10 +14,6 @@
     $(window).bind('load', function adaptUserInterface() {
       $('.navbar').hide(0);
     });
-
-    _.delay(function m() {
-      window.top.postMessage({'event':'done'}, '*');
-    }, {{{ Session::get('countdown') or 3000 }}});
   </script>
 
 @stop
