@@ -214,7 +214,7 @@ class VideosController extends \BaseController {
       if ($bookmarklet) {
         return Redirect::route('bookmarklet.close')->with(array('message' => Lang::get('bookmarklet.store.alreadyadded')));
       } else {
-        Session::put('message1', 'toto');
+        Session::flash('message1', 'TOTOTOTOTOTO');
         return Redirect::route('videos.create')->with('message', Lang::get('videos.controller.store.alreadyadded'));
       }
     }
@@ -232,6 +232,7 @@ class VideosController extends \BaseController {
         if ($bookmarklet) {
           return Redirect::route('bookmarklet.close')->with(array('message' => Lang::get('bookmarklet.store.error')));
         } else {
+          Session::flash('message1', 'TOTOTOTOTOTO');
           return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.error'));
         }
       }
@@ -244,6 +245,7 @@ class VideosController extends \BaseController {
         if ($bookmarklet) {
           return Redirect::route('bookmarklet.close')->with(array('message' => Lang::get('bookmarklet.store.alreadyprocessing')));
         } else {
+          Session::flash('message1', 'TOTOTOTOTOTO');
           return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.alreadyprocessing'));
         }
       }
@@ -253,7 +255,7 @@ class VideosController extends \BaseController {
     if ($bookmarklet) {
       return Redirect::route('bookmarklet.close')->with(array('message' => Lang::get('bookmarklet.store.success')));
     } else {
-      Session::put('message1', 'toto');
+      Session::flash('message1', 'TOTOTOTOTOTO');
       return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.success'));
     }
   }
