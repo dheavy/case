@@ -32,17 +32,26 @@ $config['MEMCACHEDCLOUD_SERVERS_HOST'] = (array_key_exists('MEMCACHEDCLOUD_SERVE
 $config['MEMCACHEDCLOUD_SERVERS_PORT'] = (array_key_exists('MEMCACHEDCLOUD_SERVERS', $_ENV) && is_array($_ENV["MEMCACHEDCLOUD_SERVERS"]) && getenv("MEMCACHEDCLOUD_SERVERS") && array_key_exists('port', $_ENV["MEMCACHEDCLOUD_SERVERS"])) ? (int)getenv("MEMCACHEDCLOUD_SERVERS")['port'] : 0;
 $config['MEMCACHEDCLOUD_USERNAME'] = getenv("MEMCACHEDCLOUD_USERNAME") ? getenv("MEMCACHEDCLOUD_USERNAME") : '';
 $config['MEMCACHEDCLOUD_PASSWORD'] = getenv("MEMCACHEDCLOUD_PASSWORD") ? getenv("MEMCACHEDCLOUD_PASSWORD") : '';
+
 $config['PSQL_HOST'] = getenv("PSQL_HOST") ? getenv("PSQL_HOST") : '';
 $config['PSQL_DATABASE'] = getenv("PSQL_DATABASE") ? getenv("PSQL_DATABASE") : '';
 $config['PSQL_USERNAME'] = getenv("PSQL_USERNAME") ? getenv("PSQL_USERNAME") : '';
 $config['PSQL_PASSWORD'] = getenv("PSQL_PASSWORD") ? getenv("PSQL_PASSWORD") : '';
 $config['PSQL_PORT'] = getenv("PSQL_PORT") ? (int)getenv("PSQL_PORT") : '';
+
 $config['MONGODB_HOST'] = getenv("MONGODB_HOST") ? getenv("MONGODB_HOST") : '';
 $config['MONGODB_PORT'] = getenv("MONGODB_PORT") ? (int)getenv("MONGODB_PORT") : '';
 $config['MONGODB_DATABASE'] = getenv("MONGODB_DATABASE") ? getenv("MONGODB_DATABASE") : '';
 $config['MONGODB_USERNAME'] = getenv("MONGODB_USERNAME") ? getenv("MONGODB_USERNAME") : '';
 $config['MONGODB_PASSWORD'] = getenv("MONGODB_PASSWORD") ? getenv("MONGODB_PASSWORD") : '';
 $config['MONGODB_RS'] = getenv("MONGODB_RS") ? getenv("MONGODB_RS") : '';
+
+$config['REDISTOGO_URL'] = getenv("REDISTOGO_URL") ? getenv("REDISTOGO_URL") : '';
+$redisUrl = parse_url(getenv('REDISTOGO_URL'));
+$config['REDISTOGO_URL_HOST'] = isset($redisUrl['host']) ? $redisUrl['host'] : '';
+$config['REDISTOGO_URL_PORT'] = isset($redisUrl['port']) ? $redisUrl['port'] : '';
+$config['REDISTOGO_URL_PASS'] = isset($redisUrl['pass']) ? $redisUrl['pass'] : '';
+
 $app['_config'] = $config;
 
 /*
