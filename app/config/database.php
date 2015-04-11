@@ -98,10 +98,9 @@ return array(
     'cluster' => false,
 
     'default' => array(
-      'host'     => App::getFacadeRoot()->_config['REDISTOGO_URL_HOST'],
-      'port'     => App::getFacadeRoot()->_config['REDISTOGO_URL_PORT'],
+      'host'     => '127.0.0.1',
+      'port'     => 6379,
       'database' => 0,
-      'password' => App::getFacadeRoot()->_config['REDISTOGO_URL_PASS']
     ),
 
   ),
