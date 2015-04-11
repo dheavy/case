@@ -14,6 +14,8 @@
     }
   </style>
 
+  <?php var_dump(Session::all()); ?>
+
   <div class="row">
     @if (Session::has('message'))
       <div class="alert alert-info">{{{ Session::get('message') }}}</div>
