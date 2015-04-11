@@ -3,7 +3,10 @@
 @section('content')
 
   @if (Session::has('message'))
-  <div class="alert alert-info">{{{ Session::get('message') }}}</div>
+    <div class="alert alert-info">{{{ Session::get('message') }}}</div>
+  @elsif (Session::has('message_fallback')
+    <div class="alert alert-info">{{{ Session::get('message_fallback') }}}</div>
+    <?php Session::forget('message_fallback'); ?>
   @endif
 
   <h3 class="col-sm-12 col-md-12 col-lg-12">{{{ $user->username }}} {{ Lang::get('videos.delete.title') }}</h3>
