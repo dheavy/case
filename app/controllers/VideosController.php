@@ -252,8 +252,7 @@ class VideosController extends \BaseController {
     if ($bookmarklet) {
       return Redirect::route('bookmarklet.close')->with(array('message' => Lang::get('bookmarklet.store.success')));
     } else {
-      Session::flash('message', 'HELLO WORLD');
-      return Redirect::route('users.profile');
+      return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.success'));
     }
   }
 

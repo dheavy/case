@@ -14,7 +14,7 @@
     }
   </style>
 
-  <?php dd(Session::all()); ?>
+  <?php dd($message); ?>
 
   <div class="row">
     @if (Session::has('message'))
