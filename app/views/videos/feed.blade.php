@@ -2,12 +2,12 @@
 
 @section('content')
 
-  @if (Session::has('message'))
-    <div class="alert alert-info">{{{ Session::get('message') }}}</div>
-  @elsif (Session::has('message_fallback')
-    <div class="alert alert-info">{{{ Session::get('message_fallback') }}}</div>
-    <?php Session::forget('message_fallback'); ?>
-  @endif
+  <?php if (Session::has('message')): ?>
+      <div class="alert alert-info">{{{ Session::get('message') }}}</div>
+    <?php elseif (Session::has('message_fallback')): ?>
+      <div class="alert alert-info">{{{ Session::get('message_fallback') }}}</div>
+      <?php Session::forget('message_fallback'); ?>
+    <?php endif; ?>
 
   <div class="row">
     <h3 class="col-sm-12 col-md-12 col-lg-12">{{ Lang::get('videos.feed.title') }}</h3>
