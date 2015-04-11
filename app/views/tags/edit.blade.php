@@ -5,9 +5,12 @@
   {{ HTML::style('css/bootstrap-tagsinput.css', [], true) }}
 
   <div class="container">
-    @if (Session::has('message'))
+    <?php if (Session::has('message')): ?>
       <div class="alert alert-info">{{{ Session::get('message') }}}</div>
-    @endif
+    <?php elseif (Session::has('message_fallback')): ?>
+      <div class="alert alert-info">{{{ Session::get('message_fallback') }}}</div>
+      <?php Session::forget('message_fallback'); ?>
+    <?php endif; ?>
 
     <h3 class="col-sm-12 col-md-12 col-lg-12">{{{ $user->username }}} {{ Lang::get('tags.title') }}</h3>
 

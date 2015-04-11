@@ -5,9 +5,12 @@
   <div class="row">
     <h3 class="col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3">{{{ $user->username }}} {{ Lang::get('collections.delete.title') }}</h3>
 
-    @if (Session::has('message'))
+    <?php if (Session::has('message')): ?>
       <div class="alert alert-info">{{{ Session::get('message') }}}</div>
-    @endif
+    <?php elseif (Session::has('message_fallback')): ?>
+      <div class="alert alert-info">{{{ Session::get('message_fallback') }}}</div>
+      <?php Session::forget('message_fallback'); ?>
+    <?php endif; ?>
 
     <?php $url = URL::secure("/me/collections/{$collection->id}/delete"); ?>
 

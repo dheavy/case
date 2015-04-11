@@ -2,9 +2,12 @@
 
 @section('content')
 
-  @if (Session::has('message'))
-  <div class="alert alert-info col-sm-12 col-md-12 col-lg-12">{{{ Session::get('message') }}}</div>
-  @endif
+  <?php if (Session::has('message')): ?>
+    <div class="alert alert-info col-sm-12 col-md-10 col-lg-10 col-md-offset-2 col-lg-offset-2">{{{ Session::get('message') }}}</div>
+  <?php elseif (Session::has('message_fallback')): ?>
+    <div class="alert alert-info col-sm-12 col-md-10 col-lg-10 col-md-offset-2 col-lg-offset-2">{{{ Session::get('message_fallback') }}}</div>
+    <?php Session::forget('message_fallback'); ?>
+  <?php endif; ?>
 
   <div class="row">
     <a class="col-sm-12 col-md-12 col-lg-12" href="{{{ URL::secure('/me/collections') }}}"><< {{ Lang::get('collections.view.back') }}</a>

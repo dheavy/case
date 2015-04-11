@@ -7,9 +7,12 @@
       {{{ $user->username }}} {{ Lang::get('collections.index.title') }}
     </h3>
 
-    @if (Session::has('message'))
+    <?php if (Session::has('message')): ?>
       <div class="alert alert-info col-sm-12 col-md-10 col-lg-10 col-md-offset-2 col-lg-offset-2">{{{ Session::get('message') }}}</div>
-    @endif
+    <?php elseif (Session::has('message_fallback')): ?>
+      <div class="alert alert-info col-sm-12 col-md-10 col-lg-10 col-md-offset-2 col-lg-offset-2">{{{ Session::get('message_fallback') }}}</div>
+      <?php Session::forget('message_fallback'); ?>
+    <?php endif; ?>
   </div>
 
   <div class="row">
