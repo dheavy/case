@@ -2,6 +2,8 @@
 
 @section('content')
 
+  <?php dd(Session::all()); ?>
+
   <div class="container">
     <?php if (Session::has('message')): ?>
       <div class="alert alert-info">{{{ Session::get('message') }}}</div>
