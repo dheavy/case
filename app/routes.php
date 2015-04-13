@@ -117,9 +117,9 @@ Route::post('/me/videos/create', array(
 ));
 
 // Add video via bookmarklet
-Route::get('/bookmarklet', array(
-  'uses' => 'StaticPagesController@getBookmarkletClose',
-  'as' => 'bookmarklet.close',
+Route::get('/extension', array(
+  'uses' => 'StaticPagesController@getExtensionClose',
+  'as' => 'extension.close',
   'before' => 'auth'
 ));
 
