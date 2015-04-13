@@ -107,6 +107,8 @@ class UsersController extends \BaseController {
   {
     if (!Auth::check()) App::abort(401, 'Unauthorized');
     $user = Auth::user();
+    Session::flash('message', 'hello world');
+    dd(Session::all());
     return View::make('users.profile')->with('user', $user);
   }
 
