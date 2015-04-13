@@ -24,7 +24,7 @@
 
       <div class="col-sm-12 col-md-12 col-lg-12">
       @foreach($collection->videos as $video)
-        @include('videos.partials.single', array('id' => $video->id, 'poster' => $video->poster, 'embed_url' => $video->embed_url, 'method' => $video->method, 'title' => $video->title, 'duration' => $video->duration, 'isNsfw' => $video->isNsfw(), 'index' => $index))
+        @include('videos.partials.single', array('id' => $video->id, 'poster' => $video->poster, 'embedUrl' => $video->embed_url, 'method' => $video->method, 'title' => $video->title, 'duration' => $video->duration, 'isNsfw' => $video->isNsfw(), 'index' => $index))
         <?php $index++; ?>
       @endforeach
       </div>

@@ -18,7 +18,7 @@
       @include('collections.partials.single', array('id' => $collection->id, 'name' => $collection->name, 'isDefault' => $collection->isDefault(), 'count' => $collection->videos->count(), 'isPublic' => $collection->isPublic()))
 
       @foreach($collection->videos as $i => $video)
-        @include('videos.partials.single', array('id' => $video->id, 'poster' => $video->poster, 'embed_url' => $video->embed_url, 'method' => $video->method, 'title' => $video->title, 'duration' => $video->duration, 'index' => $i, 'isNsfw' => $video->isNsfw()))
+        @include('videos.partials.single', array('id' => $video->id, 'poster' => $video->poster, 'embedUrl' => $video->embed_url, 'method' => $video->method, 'title' => $video->title, 'duration' => $video->duration, 'index' => $i, 'isNsfw' => $video->isNsfw()))
       @endforeach
 
     </div>
