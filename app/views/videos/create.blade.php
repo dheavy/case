@@ -2,7 +2,7 @@
 
 @section('content')
 
-  <?php dd(Session::all()); ?>
+  <?php var_dump(Session::all()); ?>
 
   <div class="container">
     <?php if (Session::has('message')): ?>
