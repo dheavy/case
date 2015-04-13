@@ -8,7 +8,8 @@ return array(
 
   "feed" => array(
     "title" => "Feed",
-    "subtitle" => "All public videos from all users"
+    "subtitle" => "All public videos from all users",
+    "addvideo" => "Add to my collections"
   ),
 
   "edit" => array(

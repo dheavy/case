@@ -8,7 +8,8 @@ return array(
 
   "feed" => array(
     "title" => "Flux",
-    "subtitle" => "Toutes les vidéos publiques des utilisateurs"
+    "subtitle" => "Toutes les vidéos publiques des utilisateurs",
+    "addvideo" => "Ajouter à mes collections"
   ),
 
   "edit" => array(

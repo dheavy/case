@@ -27,8 +27,11 @@
           {{ Form::label('url', Lang::get('videos.create.form.pageurl')) }}
 
           @if (isset($u))
-            {{ Form::hidden('_bookmarklet', true) }}
+            {{ Form::hidden('_extension', true) }}
             {{ Form::text('url', $u, array('class' => 'form-control')) }}
+          @elseif (isset($f))
+            {{ Form::hidden('_feed', true) }}
+            {{ Form::text('url', $f, array('class' => 'form-control')) }}
           @else
             {{ Form::text('url', '', array('class' => 'form-control')) }}
           @endif

@@ -118,7 +118,10 @@ class VideosController extends \BaseController {
    */
   public function getAddVideo()
   {
-    $input = Input::get('u', null);
+    // Get video URL from GET variables (extensions).
+    $inputExtensions = Input::get('u', null);
+
+    $inputFeed = Input::get('f', null);
 
     $collections = array();
     $this->user->collections->each(function($collection) use (&$collections) {
@@ -126,8 +129,11 @@ class VideosController extends \BaseController {
     });
 
     $data = array('user' => $this->user, 'collections' => $collections);
-    if ($input) {
-      $data['u'] = $input;
+
+    if ($inputExtensions) {
+      $data['u'] = $inputExtensions;
+    } elseif ($inputFeed) {
+      $data['f'] = $inputFeed;
     }
 
     return View::make('videos.create')->with($data);
@@ -169,8 +175,8 @@ class VideosController extends \BaseController {
     // Get URL.
     $url = Input::get('url', '');
 
-    // Received from bookmarklet?
-    $bookmarklet = Input::get('_bookmarklet', null);
+    // Received from extension?
+    $extension = Input::get('_extension', null);
 
     // Get collection to add the Video to.
     // If input 'collection' is an empty string, create a new collection.
@@ -212,9 +218,9 @@ class VideosController extends \BaseController {
 
     // Stop here if user already added this video.
     if ($this->user->hasVideoFromHash($hash)) {
-      if ($bookmarklet) {
-        Session::put('message_fallback', Lang::get('bookmarklet.store.alreadyadded'));
-        return Redirect::route('bookmarklet.close')->with(array('message' => Lang::get('bookmarklet.store.alreadyadded')));
+      if ($extension) {
+        Session::put('message_fallback', Lang::get('extension.store.alreadyadded'));
+        return Redirect::route('extension.close')->with(array('message' => Lang::get('extension.store.alreadyadded')));
       } else {
         Session::put('message_fallback', Lang::get('videos.controller.store.alreadyadded'));
         return Redirect::route('videos.create')->with('message', Lang::get('videos.controller.store.alreadyadded'));
@@ -231,9 +237,9 @@ class VideosController extends \BaseController {
     if ($exists) {
       $created = $this->createVideoInstance($collectionId, $video[0]);
       if (!(bool)$created) {
-        if ($bookmarklet) {
-          Session::put('message_fallback', Lang::get('bookmarklet.store.error'));
-          return Redirect::route('bookmarklet.close')->with(array('message' => Lang::get('bookmarklet.store.error')));
+        if ($extension) {
+          Session::put('message_fallback', Lang::get('extension.store.error'));
+          return Redirect::route('extension.close')->with('message', Lang::get('extension.store.error'));
         } else {
           Session::put('message_fallback', Lang::get('videos.controller.store.error'));
           return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.error'));
@@ -245,9 +251,9 @@ class VideosController extends \BaseController {
       try {
         $this->addVideoRequestToQueue($hash, $url, $this->user->id, $collectionId);
       } catch (MongoDuplicateKeyException $error) {
-        if ($bookmarklet) {
-          Session::put('message_fallback', Lang::get('bookmarklet.store.alreadyprocessing'));
-          return Redirect::route('bookmarklet.close')->with(array('message' => Lang::get('bookmarklet.store.alreadyprocessing')));
+        if ($extension) {
+          Session::put('message_fallback', Lang::get('extension.store.alreadyprocessing'));
+          return Redirect::route('extension.close')->with('message', Lang::get('extension.store.alreadyprocessing'));
         } else {
           Session::put('message_fallback', Lang::get('videos.controller.store.alreadyprocessing'));
           return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.alreadyprocessing'));
@@ -255,10 +261,10 @@ class VideosController extends \BaseController {
       }
     }
 
-    // Redirect user with a short message, depending on whether we used the bookmarklet or not.
-    if ($bookmarklet) {
-      Session::put('message_fallback', Lang::get('bookmarklet.store.success'));
-      return Redirect::route('bookmarklet.close')->with(array('message' => Lang::get('bookmarklet.store.success')));
+    // Redirect user with a short message, depending on whether we used the extension or not.
+    if ($extension) {
+      Session::put('message_fallback', Lang::get('extension.store.success'));
+      return Redirect::route('extension.close')->with('message', Lang::get('extension.store.success'));
     } else {
       Session::put('message_fallback', Lang::get('videos.controller.store.success'));
       return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.success'));
