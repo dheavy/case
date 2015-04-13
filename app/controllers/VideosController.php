@@ -58,7 +58,6 @@ class VideosController extends \BaseController {
   public function feed()
   {
     Session::flash('message', 'hello world');
-    dd(Session::all());
 
     $videos = array();
     $users = User::all()->reverse();
