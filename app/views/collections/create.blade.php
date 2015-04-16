@@ -9,12 +9,9 @@
     <div class="col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3">
       {{ HTML::ul($errors->all()) }}
 
-      <?php if (Session::has('message')): ?>
+      @if (Session::has('message')): ?>
         <div class="alert alert-info">{{{ Session::get('message') }}}</div>
-      <?php elseif (Session::has('message_fallback')): ?>
-        <div class="alert alert-info">{{{ Session::get('message_fallback') }}}</div>
-        <?php Session::forget('message_fallback'); ?>
-      <?php endif; ?>
+      @endif
     </div>
 
     <div class="col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3">

@@ -13,9 +13,7 @@
 
 App::before(function($request)
 {
-  /*if( (Request::header('x-forwarded-proto') <> 'https') && !App::environment('local', 'staging')) {
-     return Redirect::secure(Request::getRequestUri());
-  }*/
+	//
 });
 
 

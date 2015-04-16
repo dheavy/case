@@ -4,12 +4,9 @@
 
   <div class="row">
     <div class="col-sm-12 col-md-10 col-lg-10 col-md-offset-2 col-lg-offset-2" style="text-align:center">
-      <?php if (Session::has('message')): ?>
+      @if (Session::has('message')): ?>
         <div class="alert alert-info">{{{ Session::get('message') }}}</div>
-      <?php elseif (Session::has('message_fallback')): ?>
-        <div class="alert alert-info">{{{ Session::get('message_fallback') }}}</div>
-        <?php Session::forget('message_fallback'); ?>
-      <?php endif; ?>
+      @endif
     </div>
   </div>
 
