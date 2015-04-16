@@ -205,7 +205,7 @@ class VideosController extends \BaseController {
       $collection = App::make('CollectionsController')->createUserCollection($this->user->id, $collectionName);
       $collectionId = $collection->id;
       if (!$collectionId) {
-        //Session::put('message_fallback', Lang::get('videos.controller.store.error'));
+        Session::put('message_fallback', Lang::get('videos.controller.store.error'));
         return Redirect::route('videos.create')->with('message', Lang::get('videos.controller.store.error'));
       }
     }
@@ -219,10 +219,10 @@ class VideosController extends \BaseController {
     // Stop here if user already added this video.
     if ($this->user->hasVideoFromHash($hash)) {
       if ($extension) {
-        //Session::put('message_fallback', Lang::get('extension.store.alreadyadded'));
+        Session::put('message_fallback', Lang::get('extension.store.alreadyadded'));
         return Redirect::route('extension.close')->with(array('message' => Lang::get('extension.store.alreadyadded')));
       } else {
-        //Session::put('message_fallback', Lang::get('videos.controller.store.alreadyadded'));
+        Session::put('message_fallback', Lang::get('videos.controller.store.alreadyadded'));
         return Redirect::route('videos.create')->with('message', Lang::get('videos.controller.store.alreadyadded'));
       }
     }
@@ -238,10 +238,10 @@ class VideosController extends \BaseController {
       $created = $this->createVideoInstance($collectionId, $video[0]);
       if (!(bool)$created) {
         if ($extension) {
-          //Session::put('message_fallback', Lang::get('extension.store.error'));
+          Session::put('message_fallback', Lang::get('extension.store.error'));
           return Redirect::route('extension.close')->with('message', Lang::get('extension.store.error'));
         } else {
-          //Session::put('message_fallback', Lang::get('videos.controller.store.error'));
+          Session::put('message_fallback', Lang::get('videos.controller.store.error'));
           return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.error'));
         }
       }
@@ -252,10 +252,10 @@ class VideosController extends \BaseController {
         $this->addVideoRequestToQueue($hash, $url, $this->user->id, $collectionId);
       } catch (MongoDuplicateKeyException $error) {
         if ($extension) {
-          //Session::put('message_fallback', Lang::get('extension.store.alreadyprocessing'));
+          Session::put('message_fallback', Lang::get('extension.store.alreadyprocessing'));
           return Redirect::route('extension.close')->with('message', Lang::get('extension.store.alreadyprocessing'));
         } else {
-          //Session::put('message_fallback', Lang::get('videos.controller.store.alreadyprocessing'));
+          Session::put('message_fallback', Lang::get('videos.controller.store.alreadyprocessing'));
           return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.alreadyprocessing'));
         }
       }
@@ -263,10 +263,10 @@ class VideosController extends \BaseController {
 
     // Redirect user with a short message, depending on whether we used the extension or not.
     if ($extension) {
-      //Session::put('message_fallback', Lang::get('extension.store.success'));
+      Session::put('message_fallback', Lang::get('extension.store.success'));
       return Redirect::route('extension.close')->with('message', Lang::get('extension.store.success'));
     } else {
-      //Session::put('message_fallback', Lang::get('videos.controller.store.success'));
+      Session::put('message_fallback', Lang::get('videos.controller.store.success'));
       return Redirect::route('users.profile')->with('message', Lang::get('videos.controller.store.success'));
     }
   }
@@ -301,10 +301,10 @@ class VideosController extends \BaseController {
       $video->title = $title;
       $saved = $video->save();
       if (!$saved) {
-        //Session::put('message_fallback', Lang::get('videos.controller.update.error'));
+        Session::put('message_fallback', Lang::get('videos.controller.update.error'));
         return Redirect::back()->with('message', Lang::get('videos.controller.update.error'));
       }
-      //Session::put('message_fallback', Lang::get('videos.controller.update.success'));
+      Session::put('message_fallback', Lang::get('videos.controller.update.success'));
       return Redirect::route('videos.index')->with('message', Lang::get('videos.controller.update.success'));
     }
     return Redirect::route('videos.index');
@@ -321,7 +321,7 @@ class VideosController extends \BaseController {
     $video = Video::findOrFail($id);
     if ($this->user->hasVideo($video->id)) {
       $video->delete();
-      //Session::put('message_fallback', Lang::get('videos.controller.destroy.success'));
+      Session::put('message_fallback', Lang::get('videos.controller.destroy.success'));
       return Redirect::route('videos.index')->with('message', Lang::get('videos.controller.destroy.success'));
     }
     return Redirect::route('videos.index');
