@@ -1,0 +1,5 @@
+suites:
+    main:
+        namespace: Mypleasure
+        psr4_prefix: Mypleasure
+        src_path: app
