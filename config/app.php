@@ -148,6 +148,7 @@ return [
 		'Mypleasure\Providers\ConfigServiceProvider',
 		'Mypleasure\Providers\EventServiceProvider',
 		'Mypleasure\Providers\RouteServiceProvider',
+		'Mypleasure\Providers\ObserverServiceProvider',
 
 	],
 

@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "65081a4289bf74647fe2c4703fc2189f",
+    "hash": "ce782417447e5a8ebb7f7e9a0079546a",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2319,6 +2319,54 @@
             "time": "2014-11-28 09:48:17"
         },
         {
+            "name": "fzaninotto/faker",
+            "version": "v1.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fzaninotto/Faker.git",
+                "reference": "010c7efedd88bf31141a02719f51fb44c732d5a0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/010c7efedd88bf31141a02719f51fb44c732d5a0",
+                "reference": "010c7efedd88bf31141a02719f51fb44c732d5a0",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0",
+                "squizlabs/php_codesniffer": "~1.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": []
+            },
+            "autoload": {
+                "psr-0": {
+                    "Faker": "src/",
+                    "Faker\\PHPUnit": "test/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "François Zaninotto"
+                }
+            ],
+            "description": "Faker is a PHP library that generates fake data for you.",
+            "keywords": [
+                "data",
+                "faker",
+                "fixtures"
+            ],
+            "time": "2014-06-04 14:43:02"
+        },
+        {
             "name": "guzzlehttp/guzzle",
             "version": "5.2.0",
             "source": {
@@ -2640,16 +2688,16 @@
         },
         {
             "name": "phpspec/prophecy",
-            "version": "1.4.0",
+            "version": "v1.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "8724cd239f8ef4c046f55a3b18b4d91cc7f3e4c5"
+                "reference": "3132b1f44c7bf2ec4c7eb2d3cb78fdeca760d373"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/8724cd239f8ef4c046f55a3b18b4d91cc7f3e4c5",
-                "reference": "8724cd239f8ef4c046f55a3b18b4d91cc7f3e4c5",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/3132b1f44c7bf2ec4c7eb2d3cb78fdeca760d373",
+                "reference": "3132b1f44c7bf2ec4c7eb2d3cb78fdeca760d373",
                 "shasum": ""
             },
             "require": {
@@ -2696,7 +2744,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2015-03-27 19:31:25"
+            "time": "2015-04-27 22:15:08"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -3699,12 +3747,57 @@
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
             "time": "2015-03-30 15:54:10"
+        },
+        {
+            "name": "way/phpunit-wrappers",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/JeffreyWay/PHPUnit-Wrappers.git",
+                "reference": "1b703050babdf594d120c74635d47a4ffd80bf81"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/JeffreyWay/PHPUnit-Wrappers/zipball/1b703050babdf594d120c74635d47a4ffd80bf81",
+                "reference": "1b703050babdf594d120c74635d47a4ffd80bf81",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Way": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jeffrey Way",
+                    "email": "jeffrey@jeffrey-way.com",
+                    "homepage": "http://jeffrye-way.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Should and Assert wrappers for PHPUnit",
+            "homepage": "https://github.com/JeffreyWay/PHPUnit-Wrapper",
+            "keywords": [
+                "assert",
+                "phpunit",
+                "should"
+            ],
+            "time": "2013-03-21 19:46:13"
         }
     ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "barryvdh/laravel-cors": 20
+        "barryvdh/laravel-cors": 20,
+        "way/phpunit-wrappers": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
