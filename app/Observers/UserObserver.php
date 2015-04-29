@@ -31,7 +31,7 @@ class UserObserver {
   {
     if ($user->role_id == null) {
       $role = Role::where('name', '=', 'curator')->first();
-      $role->users()->save($user);
+      $user->role()->associate($role);
     }
   }
 
