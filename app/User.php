@@ -53,15 +53,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	protected $hidden = ['password', 'remember_token'];
 
 	/**
-   * Start watching UserObserver on model's boot sequence.
-   */
-  public static function boot()
-  {
-    parent::boot();
-    self::observe(new UserObserver);
-  }
-
-	/**
 	 * Set the user's session to naughty mode.
 	 *
 	 * @param boolean $naughty  True to set to naughty mode, false to unset.
@@ -74,17 +65,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	/**
    * Promote user to admin role.
    *
-   * @return boolean  True if successly done, false if failed.
+   * @return boolean  True if successfully set to admin, false otherwise.
    */
 	public function promote()
 	{
-		$role = Role::where('name', '=', 'admin')->first();
+		$admin = Role::where('name', '=', 'admin')->first();
 
-    if ($this->role_id !== $role->id) {
-      $this->role_id = $role->id;
-      $this->save();
-      return true;
-    }
+    if ($this->role->id == $admin->id) return true;
+    if ($this->role()->associate($admin)) return true;
 
     return false;
 	}
@@ -92,20 +80,27 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	/**
    * Demote user to curator role.
    *
-   * @return boolean  True if successly done, false if failed.
+   * @return boolean  True if successfully set to curator, false otherwise.
    */
 	public function demote()
 	{
-		$role = Role::where('name', '=', 'curator')->first();
+		$curator = Role::where('name', '=', 'curator')->first();
 
-    if ($this->role_id !== $role->id) {
-      $this->role_id = $role->id;
-      $this->save();
-      return true;
-    }
+    if ($this->role->id == $curator->id) return true;
+    if ($this->role()->associate($curator)) return true;
 
     return false;
 	}
+
+  /**
+   * Whether user has a placeholder email.
+   *
+   * @return boolean
+   */
+  public function hasPlaceholderEmail()
+  {
+    return (bool)stripos($this->email, self::$EMAIL_PLACEHOLDER_SUFFIX);
+  }
 
   /**
    * Relation with Role model.
