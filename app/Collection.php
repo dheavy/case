@@ -2,6 +2,14 @@
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * id         {integer}
+ * name       {string}
+ * slug       {string}
+ * user_id    {integer}
+ * created_at {timestamp}
+ * updated_at {timestamp}
+ */
 class Collection extends Model {
 
   /**
@@ -25,7 +33,7 @@ class Collection extends Model {
    */
   public function user()
   {
-    return $this->belongsTo('User');
+    return $this->belongsTo('Mypleasure\User');
   }
 
   /**
@@ -47,6 +55,26 @@ class Collection extends Model {
   {
     $this->slug = $this->slugify($this->name);
     return $this->slug;
+  }
+
+  /**
+   * Is the collection public?
+   *
+   * @return boolean  True if it is, false otherwise.
+   */
+  public function isPublic()
+  {
+    return $this->status === 1;
+  }
+
+  /**
+   * Is this collection the user's default one.
+   *
+   * @return boolean True if it is, false otherwise.
+   */
+  public function isDefault()
+  {
+    return $this->id === $this->user->collections()->first()->id;
   }
 
   /**

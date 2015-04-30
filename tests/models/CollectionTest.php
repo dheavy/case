@@ -33,4 +33,23 @@ class CollectionTest extends TestCase {
     Should::beEquals($user->collections()->first()->name, $user->username);
   }
 
+  public function testIsPublic()
+  {
+    $collection = Collection::create([
+      'name' => 'collection'
+    ]);
+
+    Should::beEquals($collection->isPublic(), 1);
+  }
+
+  public function testIsDefault()
+  {
+    $user = User::create([
+      'username' => 'marion',
+      'password' => 'azertyuiop'
+    ]);
+
+    Should::beTrue($user->collections()->first()->isDefault());
+  }
+
 }
