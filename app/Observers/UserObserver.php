@@ -2,6 +2,7 @@
 
 use Mypleasure\User;
 use Mypleasure\Role;
+use Mypleasure\Collection;
 
 /**
  * UserObserver leverages observers in Laravel to allow
@@ -13,7 +14,7 @@ class UserObserver {
   /**
    * Before saving model, set a default email if none was given.
    *
-   * @param User  The user model about to be saved.
+   * @param Mypleasure\User  The user model about to be saved.
    */
   public function saving(User $user)
   {
@@ -23,15 +24,23 @@ class UserObserver {
   }
 
   /**
-   * After saving a model, set role by default to "curator" if none was given.
+   * After saving a model, set role by default to "curator" if none was given,
+   * and create default collection if user has none yet.
    *
-   * @param User  The user model saved.
+   * @param Mypleasure\User  The user model saved.
    */
   public function saved(User $user)
   {
     if ($user->role_id == null) {
       $role = Role::where('name', '=', 'curator')->first();
       $user->role()->associate($role);
+    }
+
+    if ($user->collections()->count() == 0) {
+      $collection = Collection::create([
+        'name' => $user->username
+      ]);
+      $user->collections()->save($collection);
     }
   }
 

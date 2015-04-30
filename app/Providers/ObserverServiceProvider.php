@@ -13,6 +13,7 @@ class ObserverServiceProvider extends ServiceProvider
   public function boot()
   {
     \Mypleasure\User::observe( new \Mypleasure\Observers\UserObserver );
+    \Mypleasure\Collection::observe( new \Mypleasure\Observers\CollectionObserver );
   }
 
   /**

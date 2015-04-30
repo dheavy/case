@@ -112,4 +112,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     return $this->belongsTo('\Mypleasure\Role', 'role_id', 'id');
   }
 
+  /**
+   * Relation with Collection model.
+   *
+   * @return Illuminate\Database\Eloquent\Relations\HasMany
+   */
+  public function collections()
+  {
+    return $this->hasMany('\Mypleasure\Collection');
+  }
+
 }
