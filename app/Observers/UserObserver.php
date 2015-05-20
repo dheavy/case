@@ -24,23 +24,22 @@ class UserObserver {
   }
 
   /**
-   * After saving a model, set role by default to "curator" if none was given,
-   * and create default collection if user has none yet.
+   * After saving a model, create default collection if user has none yet,
+   * and set default status (NOT admin by default).
    *
    * @param Mypleasure\User  The user model saved.
    */
   public function saved(User $user)
   {
-    if ($user->role_id == null) {
-      $role = Role::where('name', '=', 'curator')->first();
-      $user->role()->associate($role);
-    }
-
     if ($user->collections()->count() == 0) {
       $collection = Collection::create([
         'name' => $user->username
       ]);
       $user->collections()->save($collection);
+    }
+
+    if ($user->admin == null) {
+      $user->admin = false;
     }
   }
 

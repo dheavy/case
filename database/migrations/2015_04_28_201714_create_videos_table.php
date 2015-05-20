@@ -15,12 +15,14 @@ class CreateVideosTable extends Migration {
 		Schema::create('videos', function(Blueprint $table) {
 			$table->increments('id');
 			$table->string('hash')->index();
+			$table->integer('collection_id')->nullable()->index();
 			$table->string('title')->nullable();
 			$table->string('slug')->nullable();
 			$table->string('poster')->nullable();
-			$table->string('original_url')->index();
-			$table->string('embed_url')->index();
-			$table->string('duration')->nullable()->index();
+			$table->string('original_url');
+			$table->string('embed_url');
+			$table->string('duration')->nullable();
+			$table->boolean('naughty')->default(false);
 			$table->timestamps();
 		});
 	}

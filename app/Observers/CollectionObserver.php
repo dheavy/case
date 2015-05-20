@@ -10,7 +10,7 @@ use Mypleasure\Collection;
 class CollectionObserver {
 
   /**
-   * Before saving model, set a default email if none was given.
+   * Before saving model, create slug from name, and set private status.
    *
    * @param Mypleasure\Collection  The collection model about to be saved.
    */
@@ -20,8 +20,8 @@ class CollectionObserver {
       $collection->slugifyName();
     }
 
-    if ($collection->status == null) {
-      $collection->status = 1;
+    if ($collection->private == null) {
+      $collection->private = false;
     }
   }
 

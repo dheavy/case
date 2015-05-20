@@ -14,7 +14,7 @@ use Mypleasure\Observers\UserObserver;
  * username       {string}
  * password       {string}
  * email          {string}
- * role_id        {integer|foreign:Role}
+ * admin          {boolean}
  * remember_token {string}
  * created_at     {timestamp}
  * updated_at     {timestamp}
@@ -43,7 +43,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	 *
 	 * @var array
 	 */
-	protected $fillable = ['username', 'email', 'password'];
+	protected $fillable = ['username', 'email', 'password', 'admin'];
 
 	/**
 	 * The attributes excluded from the model's JSON form.
@@ -69,10 +69,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
    */
 	public function promote()
 	{
-		$admin = Role::where('name', '=', 'admin')->first();
-
-    if ($this->role->id == $admin->id) return true;
-    if ($this->role()->associate($admin)) return true;
+		if (!$this->admin) {
+      $this->admin = true;
+      $this->save();
+      return true;
+    }
 
     return false;
 	}
@@ -80,14 +81,15 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	/**
    * Demote user to curator role.
    *
-   * @return boolean  True if successfully set to curator, false otherwise.
+   * @return boolean  True if successfully unset admin, false otherwise.
    */
 	public function demote()
 	{
-		$curator = Role::where('name', '=', 'curator')->first();
-
-    if ($this->role->id == $curator->id) return true;
-    if ($this->role()->associate($curator)) return true;
+		if ($this->admin) {
+      $this->admin = false;
+      $this->save();
+      return true;
+    }
 
     return false;
 	}
@@ -103,16 +105,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
   }
 
   /**
-   * Relation with Role model.
-   *
-   * @return Illuminate\Database\Eloquent\Relations\BelongsTo
-   */
-  public function role()
-  {
-    return $this->belongsTo('\Mypleasure\Role', 'role_id', 'id');
-  }
-
-  /**
    * Relation with Collection model.
    *
    * @return Illuminate\Database\Eloquent\Relations\HasMany
@@ -120,6 +112,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
   public function collections()
   {
     return $this->hasMany('\Mypleasure\Collection');
+  }
+
+  /**
+   * Relation with Videos model. User has many Videos through Collections.
+   *
+   * @return Illuminate\Database\Eloquent\Relations\HasManyThrough
+   */
+  public function videos()
+  {
+    return $this->hasManyThrough('\Mypleasure\Video', '\Mypleasure\Collection');
   }
 
 }

@@ -21,8 +21,12 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
    */
   protected function prepareTestDB()
   {
-    Artisan::call('migrate:refresh', ['--env' => 'testing']);
-    Artisan::call('migrate', ['--env' => 'testing']);
+    try {
+      Artisan::call('migrate:install', ['--env' => 'testing']);
+    } catch (Exception $e) {
+      Artisan::call('migrate:refresh', ['--env' => 'testing']);
+    }
+
     Mail::pretend(true);
   }
 

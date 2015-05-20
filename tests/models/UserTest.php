@@ -2,7 +2,8 @@
 
 use Way\Tests\Should;
 use Mypleasure\User;
-use Mypleasure\Role;
+use Mypleasure\Video;
+use Mypleasure\Collection;
 
 class UserTest extends TestCase {
 
@@ -23,40 +24,14 @@ class UserTest extends TestCase {
     Should::contain(User::$EMAIL_PLACEHOLDER_SUFFIX, $user->email);
   }
 
-  public function testUserIsCuratorByDefault()
+  public function testNotAdminBydefault()
   {
     $user = User::create([
       'username' => 'marion',
       'password' => 'azertyuiop'
     ]);
 
-    $curator = Role::where('name', '=', 'curator')->first();
-
-    Should::beEquals($user->role->id, $curator->id);
-  }
-
-  public function testUserRoleNotAlteredDuringSave()
-  {
-    $user = User::create([
-      'username' => 'marion',
-      'password' => 'azertyuiop'
-    ]);
-
-    $curator = Role::where('name', '=', 'curator')->first();
-    $admin = Role::where('name', '=', 'admin')->first();
-
-    $user->email = 'marion@mypleasu.re';
-    $user->save();
-
-    Should::beEquals($user->role->id, $curator->id);
-
-    $user->role()->associate($admin);
-    Should::beEquals($user->role->id, $admin->id);
-
-    $user->email = 'marioune@mypleasu.re';
-    $user->save();
-
-    Should::beEquals($user->role->id, $admin->id);
+    Should::beFalse($user->admin);
   }
 
   public function testPromoteToAdmin()
@@ -66,30 +41,21 @@ class UserTest extends TestCase {
       'password' => 'azertyuiop'
     ]);
 
-    $curator = Role::where('name', '=', 'curator')->first();
-    $admin = Role::where('name', '=', 'admin')->first();
-
-    Should::beEquals($user->role->id, $curator->id);
-
+    Should::beFalse($user->admin);
     Should::beTrue($user->promote());
-
-    Should::beEquals($user->role->id, $admin->id);
+    Should::beTrue($user->admin);
   }
 
-  public function testDemoteToCurator()
+  public function testDemoteFromAdmin()
   {
     $user = User::create([
       'username' => 'morgane',
       'password' => 'azertyuiop'
     ]);
 
-    $curator = Role::where('name', '=', 'curator')->first();
-
     $user->promote();
-
     Should::beTrue($user->demote());
-
-    Should::beEquals($user->role->id, $curator->id);
+    Should::beFalse($user->admin);
   }
 
   public function testHasPlaceholderEmail()
@@ -105,6 +71,58 @@ class UserTest extends TestCase {
     $user->save();
 
     Should::beFalse($user->hasPlaceholderEmail());
+  }
+
+  public function testHasVideosManyThroughCollections()
+  {
+    $user = User::create([
+      'username' => 'marion',
+      'password' => 'azertyuiop'
+    ]);
+
+    $collection = Collection::create([
+      'name' => 'collection'
+    ]);
+
+    $video0 = Video::create([
+      'hash' => 'azertyuiop0',
+      'title' => 'video0',
+      'poster' => 'poster.jpg',
+      'original_url' => 'http://original.url',
+      'embed_url' => 'http://embed.url',
+      'duration' => '00:11:22',
+      'naughty' => false
+    ]);
+
+    $video1 = Video::create([
+      'hash' => 'azertyuiop1',
+      'title' => 'video1',
+      'poster' => 'poster.jpg',
+      'original_url' => 'http://original.url',
+      'embed_url' => 'http://embed.url',
+      'duration' => '00:11:22',
+      'naughty' => false
+    ]);
+
+    $video2 = Video::create([
+      'hash' => 'azertyuiop2',
+      'title' => 'video2',
+      'poster' => 'poster.jpg',
+      'original_url' => 'http://original.url',
+      'embed_url' => 'http://embed.url',
+      'duration' => '00:11:22',
+      'naughty' => false
+    ]);
+
+    $user->collections()->first()->videos()->save($video0);
+
+    $collection->videos()->saveMany([$video1, $video2]);
+    $collection->save();
+
+    $user->collections()->save($collection);
+    $user->save();
+
+    Should::equal($user->videos->count(), 3);
   }
 
 }

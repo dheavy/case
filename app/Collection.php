@@ -2,15 +2,20 @@
 
 use Illuminate\Database\Eloquent\Model;
 
+use Mypleasure\Traits\Slugifies;
+
 /**
  * id         {integer}
  * name       {string}
  * slug       {string}
- * user_id    {integer}
+ * private    {boolean}
+ * user_id    {integer|User:id}
  * created_at {timestamp}
  * updated_at {timestamp}
  */
 class Collection extends Model {
+
+  use Slugifies;
 
   /**
    * The database table used by the model.
@@ -43,28 +48,7 @@ class Collection extends Model {
    */
   public function videos()
   {
-    return $this->belongsToMany('Video', 'collection_video');
-  }
-
-  /**
-   * Make slug from the instance's name.
-   *
-   * @return string  The resulting slug.
-   */
-  public function slugifyName()
-  {
-    $this->slug = $this->slugify($this->name);
-    return $this->slug;
-  }
-
-  /**
-   * Is the collection public?
-   *
-   * @return boolean  True if it is, false otherwise.
-   */
-  public function isPublic()
-  {
-    return $this->status === 1;
+    return $this->hasMany('Mypleasure\Video');
   }
 
   /**
@@ -75,24 +59,6 @@ class Collection extends Model {
   public function isDefault()
   {
     return $this->id === $this->user->collections()->first()->id;
-  }
-
-  /**
-   * Slugify item passed as argument.
-   *
-   * @param  string  $text
-   * @return string  A slug based on the text.
-   */
-  protected function slugify($item)
-  {
-    $item = preg_replace('~[^\\pL\d]+~u', '-', $item);
-    $item = trim($item, '-');
-    $item = iconv('utf-8', 'us-ascii//TRANSLIT', $item);
-    $item = strtolower($item);
-    $item = preg_replace('~[^-\w]+~', '', $item);
-    if (empty($item)) return 'n-a';
-
-    return $item;
   }
 
 }
