@@ -4,11 +4,12 @@
 	"license": "Copyright 2014-2015 MyPleasu.re",
 	"type": "project",
 	"require": {
-		"laravel/framework": "5.0.*",
+		"laravel/framework": "5.1",
 		"barryvdh/laravel-debugbar": "~2.0",
-		"laravelcollective/html": "~5.0",
-		"tymon/jwt-auth": "0.5.*",
-		"barryvdh/laravel-cors": "0.4.x@dev"
+		"dingo/api": "1.0.x@dev",
+		"tymon/jwt-auth": "^0.5.4",
+		"lucadegasperi/oauth2-server-laravel": "^5.0",
+		"barryvdh/laravel-cors": "^0.7.1"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",
