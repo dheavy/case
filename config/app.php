@@ -137,7 +137,9 @@ return [
 		'Illuminate\View\ViewServiceProvider',
 		'Barryvdh\Debugbar\ServiceProvider',
 		'Tymon\JWTAuth\Providers\JWTAuthServiceProvider',
-		'Barryvdh\Cors\CorsServiceProvider',
+		'Barryvdh\Cors\ServiceProvider',
+		Dingo\Api\Provider\LaravelServiceProvider::class,
+		Mypleasure\Providers\AppServiceProvider::class,
 
 		/*
 		 * Application Service Providers...
@@ -196,7 +198,10 @@ return [
 		'URL'       => 'Illuminate\Support\Facades\URL',
 		'Validator' => 'Illuminate\Support\Facades\Validator',
 		'View'      => 'Illuminate\Support\Facades\View',
-		'JWTAuth'   => 'Tymon\JWTAuth\Facades\JWTAuth'
+		'JWTAuth'   => 'Tymon\JWTAuth\Facades\JWTAuth',
+		'API'       => 'Dingo\Api\Facade\API',
+		'APIRouter' => 'Dingo\Api\Facade\Route',
+		'jwt'       => 'Dingo\Api\Auth\Provider\JWT'
 
 	],
 
