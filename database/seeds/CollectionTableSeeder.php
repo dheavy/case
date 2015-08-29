@@ -15,17 +15,17 @@ class CollectionTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('collections')->truncate();
+        $this->command->info('Deleting Collection table...');
+        DB::table('collections')->delete();
 
+        $this->command->info('Seeding Collection table...');
         $davy = User::where('username', 'davy')->first();
         $morgane = User::where('username', 'morgane')->first();
         $max = User::where('username', 'max')->first();
 
-        var_dump($davy);
-
         $set1 = [
           ['name' => 'collection de davy 1', 'slug' => 'collection-de-davy-1', 'private' => false, 'user_id' => $davy->id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-          ['name' => 'collection de davy 2', 'slug' => 'collection-de-davy-2', 'private' => false, 'user_id' => $davy->id], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now(),
+          ['name' => 'collection de davy 2', 'slug' => 'collection-de-davy-2', 'private' => false, 'user_id' => $davy->id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
           ['name' => 'collection de davy 4', 'slug' => 'collection-de-davy-3', 'private' => true, 'user_id' => $davy->id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
         ];
 
