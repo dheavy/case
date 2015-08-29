@@ -1,7 +1,6 @@
 <?php namespace Mypleasure;
 
 use Illuminate\Database\Eloquent\Model;
-
 use Mypleasure\Traits\Slugifies;
 
 /**
