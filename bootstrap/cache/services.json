@@ -2,6 +2,7 @@
     "providers": [
         "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider",
         "Illuminate\\Auth\\AuthServiceProvider",
+        "Illuminate\\Broadcasting\\BroadcastServiceProvider",
         "Illuminate\\Bus\\BusServiceProvider",
         "Illuminate\\Cache\\CacheServiceProvider",
         "Illuminate\\Foundation\\Providers\\ConsoleSupportServiceProvider",
@@ -22,17 +23,9 @@
         "Illuminate\\Translation\\TranslationServiceProvider",
         "Illuminate\\Validation\\ValidationServiceProvider",
         "Illuminate\\View\\ViewServiceProvider",
-        "Barryvdh\\Debugbar\\ServiceProvider",
-        "Tymon\\JWTAuth\\Providers\\JWTAuthServiceProvider",
-        "Barryvdh\\Cors\\ServiceProvider",
-        "Dingo\\Api\\Provider\\LaravelServiceProvider",
         "Mypleasure\\Providers\\AppServiceProvider",
-        "Mypleasure\\Providers\\AppServiceProvider",
-        "Mypleasure\\Providers\\BusServiceProvider",
-        "Mypleasure\\Providers\\ConfigServiceProvider",
         "Mypleasure\\Providers\\EventServiceProvider",
-        "Mypleasure\\Providers\\RouteServiceProvider",
-        "Mypleasure\\Providers\\ObserverServiceProvider"
+        "Mypleasure\\Providers\\RouteServiceProvider"
     ],
     "eager": [
         "Illuminate\\Auth\\AuthServiceProvider",
@@ -46,17 +39,9 @@
         "Illuminate\\Session\\SessionServiceProvider",
         "Illuminate\\Validation\\ValidationServiceProvider",
         "Illuminate\\View\\ViewServiceProvider",
-        "Barryvdh\\Debugbar\\ServiceProvider",
-        "Tymon\\JWTAuth\\Providers\\JWTAuthServiceProvider",
-        "Barryvdh\\Cors\\ServiceProvider",
-        "Dingo\\Api\\Provider\\LaravelServiceProvider",
         "Mypleasure\\Providers\\AppServiceProvider",
-        "Mypleasure\\Providers\\AppServiceProvider",
-        "Mypleasure\\Providers\\BusServiceProvider",
-        "Mypleasure\\Providers\\ConfigServiceProvider",
         "Mypleasure\\Providers\\EventServiceProvider",
-        "Mypleasure\\Providers\\RouteServiceProvider",
-        "Mypleasure\\Providers\\ObserverServiceProvider"
+        "Mypleasure\\Providers\\RouteServiceProvider"
     ],
     "deferred": {
         "command.app.name": "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider",
@@ -86,6 +71,9 @@
         "command.up": "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider",
         "command.vendor.publish": "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider",
         "command.view.clear": "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider",
+        "Illuminate\\Broadcasting\\BroadcastManager": "Illuminate\\Broadcasting\\BroadcastServiceProvider",
+        "Illuminate\\Contracts\\Broadcasting\\Factory": "Illuminate\\Broadcasting\\BroadcastServiceProvider",
+        "Illuminate\\Contracts\\Broadcasting\\Broadcaster": "Illuminate\\Broadcasting\\BroadcastServiceProvider",
         "Illuminate\\Bus\\Dispatcher": "Illuminate\\Bus\\BusServiceProvider",
         "Illuminate\\Contracts\\Bus\\Dispatcher": "Illuminate\\Bus\\BusServiceProvider",
         "Illuminate\\Contracts\\Bus\\QueueingDispatcher": "Illuminate\\Bus\\BusServiceProvider",
@@ -141,6 +129,7 @@
     },
     "when": {
         "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider": [],
+        "Illuminate\\Broadcasting\\BroadcastServiceProvider": [],
         "Illuminate\\Bus\\BusServiceProvider": [],
         "Illuminate\\Cache\\CacheServiceProvider": [],
         "Illuminate\\Foundation\\Providers\\ConsoleSupportServiceProvider": [],

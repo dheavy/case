@@ -1,7 +1,8 @@
-<?php namespace Mypleasure\Events;
+<?php
 
-abstract class Event {
+namespace Mypleasure\Events;
 
-	//
-
+abstract class Event
+{
+    //
 }

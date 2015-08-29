@@ -1,6 +1,5 @@
 /vendor
 /node_modules
+Homestead.yaml
+Homestead.json
 .env
-.env.*.php
-.DS_Store
-Thumbs.db
