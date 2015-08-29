@@ -136,6 +136,8 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
+        Dingo\Api\Provider\LaravelServiceProvider::class,
+        Mypleasure\Providers\AppServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -143,6 +145,7 @@ return [
         Mypleasure\Providers\AppServiceProvider::class,
         Mypleasure\Providers\EventServiceProvider::class,
         Mypleasure\Providers\RouteServiceProvider::class,
+        Mypleasure\Providers\ObserverServiceProvider::class,
 
     ],
 
@@ -191,6 +194,10 @@ return [
         'URL'       => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View'      => Illuminate\Support\Facades\View::class,
+        'JWTAuth'   => Tymon\JWTAuth\Facades\JWTAuth::class,
+        'API'       => Dingo\Api\Facade\API::class,
+        'APIRouter' => Dingo\Api\Facade\Route::class,
+        'jwt'       => Dingo\Api\Auth\Provider\JWT::class
 
     ],
 
