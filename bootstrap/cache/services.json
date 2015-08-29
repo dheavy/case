@@ -23,9 +23,12 @@
         "Illuminate\\Translation\\TranslationServiceProvider",
         "Illuminate\\Validation\\ValidationServiceProvider",
         "Illuminate\\View\\ViewServiceProvider",
+        "Dingo\\Api\\Provider\\LaravelServiceProvider",
+        "Mypleasure\\Providers\\AppServiceProvider",
         "Mypleasure\\Providers\\AppServiceProvider",
         "Mypleasure\\Providers\\EventServiceProvider",
-        "Mypleasure\\Providers\\RouteServiceProvider"
+        "Mypleasure\\Providers\\RouteServiceProvider",
+        "Mypleasure\\Providers\\ObserverServiceProvider"
     ],
     "eager": [
         "Illuminate\\Auth\\AuthServiceProvider",
@@ -39,9 +42,12 @@
         "Illuminate\\Session\\SessionServiceProvider",
         "Illuminate\\Validation\\ValidationServiceProvider",
         "Illuminate\\View\\ViewServiceProvider",
+        "Dingo\\Api\\Provider\\LaravelServiceProvider",
+        "Mypleasure\\Providers\\AppServiceProvider",
         "Mypleasure\\Providers\\AppServiceProvider",
         "Mypleasure\\Providers\\EventServiceProvider",
-        "Mypleasure\\Providers\\RouteServiceProvider"
+        "Mypleasure\\Providers\\RouteServiceProvider",
+        "Mypleasure\\Providers\\ObserverServiceProvider"
     ],
     "deferred": {
         "command.app.name": "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider",
