@@ -8,10 +8,10 @@ class TagTransformer extends TransformerAbstract {
   public function transformer(Tag $tag)
   {
     return [
-      'id' => (int) $tag->id,
-      'name' => $tag->name,
-      'slug' => $tag->slug,
-      'links' => [
+      'id'     => (int) $tag->id,
+      'name'   => $tag->name,
+      'slug'   => $tag->slug,
+      'links'  => [
         'self' => ['rel' => 'self', 'uri' => '/tags/' . $tag->id]
       ]
     ];

@@ -19,8 +19,8 @@ class VideoTransformer extends TransformerAbstract {
       'duration'      => $vide->duration,
       'created_at'    => $video->created_at,
       'links' => [
-        'self' => ['rel' => 'self', 'uri' => '/videos/' . $video->id],
-        'collection' => ['rel' => 'collection', 'uri' => '/collections/' . $video->collection_id]
+        'self'        => ['rel' => 'self', 'uri' => '/videos/' . $video->id],
+        'collection'  => ['rel' => 'collection', 'uri' => '/collections/' . $video->collection_id]
       ]
     ];
   }

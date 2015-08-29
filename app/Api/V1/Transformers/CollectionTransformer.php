@@ -23,7 +23,7 @@ class CollectionTransformer extends TransformerAbstract {
       'user_id'    => $collection->user_id,
       'created_at' => $collection->created_at,
       'links'      => [
-        'self' => ['rel' => 'self', 'uri' => '/collections/' . $collection->id]
+        'self'     => ['rel' => 'self', 'uri' => '/collections/' . $collection->id]
       ]
     ];
   }
