@@ -14,8 +14,10 @@ class UserTableSeeder extends Seeder
      */
     public function run()
     {
+        $this->command->info('Deleting User table...');
         DB::table('users')->delete();
 
+        $this->command->info('Seeding User table...');
         $davy = new User;
         $davy->username = 'davy';
         $davy->password = \Hash::make('azertyuiop');
@@ -31,7 +33,5 @@ class UserTableSeeder extends Seeder
         $max->username = 'max';
         $max->password = \Hash::make('azertyuiop');
         $max->save();
-
-        $this->command->info('User table seeded!');
     }
 }
