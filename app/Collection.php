@@ -28,7 +28,7 @@ class Collection extends Model {
    *
    * @var array
    */
-  protected $fillable = ['name', 'status'];
+  protected $fillable = ['name', 'slug', 'private', 'user_id'];
 
   /**
    * Relation with User model.
