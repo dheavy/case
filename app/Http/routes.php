@@ -12,7 +12,7 @@
 */
 
 Route::controllers([
-	'auth' => 'Auth\AuthController',
+	'auth'     => 'Auth\AuthController',
 	'password' => 'Auth\PasswordController',
 ]);
 
@@ -20,13 +20,10 @@ $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', function ($api) {
 
-  $api->get('test', function () {
-    return 'All the users';
-  });
-
   // User
   $api->get('users',           ['as' => 'users.index',   'uses' => 'Mypleasure\Api\V1\Controllers\UserController@index']);
   $api->get('users/{id}',      ['as' => 'users.show',    'uses' => 'Mypleasure\Api\V1\Controllers\UserController@show']);
+  $api->post('users',          ['as' => 'users.store',   'uses' => 'Mypleasure\Api\V1\Controllers\UserController@store']);
   $api->put('users/{id}',      ['as' => 'users.update',  'uses' => 'Mypleasure\Api\V1\Controllers\UserController@update']);
   $api->delete('users/{id}',   ['as' => 'users.destroy', 'uses' => 'Mypleasure\Api\V1\Controllers\UserController@destroy']);
 
