@@ -1,7 +1,8 @@
 <?php namespace Mypleasure\Api\V1\Controllers;
 
 use Mypleasure\User;
-use Illuminate\Http\Request;
+use Mypleasure\Http\Requests\StoreUserRequest;
+use Mypleasure\Http\Requests\UpdateUserRequest;
 use Mypleasure\Api\V1\Transformers\UserTransformer;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -22,14 +23,28 @@ class UserController extends BaseController {
     }
   }
 
-  public function store(Request $request, $id)
+  public function store(StoreUserRequest $request)
   {
+    $user = new User;
+    $user->username = $request->input('username');
+    $user->password = \Hash::make($request->input('password'));
+    $user->save();
 
+    return $this->item($user, new UserTransformer);
   }
 
-  public function update(Request $request, $id)
+  public function update(UpdateUserRequest $request, $id)
   {
-    return 'users.update ' . $id;
+    $currentPassword = $request->input('current_password');
+    $email = $request->input('current_password');
+
+    if ($currentPassword) {
+
+    }
+
+    if ($email) {
+
+    }
   }
 
   public function destroy($id)
