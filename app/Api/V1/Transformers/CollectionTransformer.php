@@ -10,19 +10,19 @@ use League\Fractal\TransformerAbstract;
  */
 class CollectionTransformer extends TransformerAbstract {
 
-  protected $availableIncludes = [
+  protected $availableIncludes = [
     'videos'
   ];
 
-  public function transformer(Collection $collection)
+  public function transform(Collection $collection)
   {
     return [
-      'id' => (int) $collection->id,
-      'name' => $collection->name,
-      'slug' => $collection->slug,
-      'user_id' => $collection->user_id,
+      'id'         => (int) $collection->id,
+      'name'       => $collection->name,
+      'slug'       => $collection->slug,
+      'user_id'    => $collection->user_id,
       'created_at' => $collection->created_at,
-      'links' => [
+      'links'      => [
         'self' => ['rel' => 'self', 'uri' => '/collections/' . $collection->id]
       ]
     ];
