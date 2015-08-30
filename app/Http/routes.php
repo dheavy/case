@@ -12,13 +12,16 @@
 */
 
 Route::controllers([
-	'auth'     => 'Auth\AuthController',
+	//'auth'     => 'Auth\AuthController',
 	'password' => 'Auth\PasswordController',
 ]);
 
 $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', function ($api) {
+
+  // Auth
+  $api->post('login',          ['as' => 'auth.login',    'uses' => 'Mypleasure\Api\V1\Controllers\AuthController@authenticate']);
 
   // User
   $api->get('users',           ['as' => 'users.index',   'uses' => 'Mypleasure\Api\V1\Controllers\UserController@index']);
