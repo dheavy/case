@@ -138,6 +138,7 @@ return [
         Illuminate\View\ViewServiceProvider::class,
         Dingo\Api\Provider\LaravelServiceProvider::class,
         Mypleasure\Providers\AppServiceProvider::class,
+        Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -197,7 +198,7 @@ return [
         'JWTAuth'   => Tymon\JWTAuth\Facades\JWTAuth::class,
         'API'       => Dingo\Api\Facade\API::class,
         'APIRouter' => Dingo\Api\Facade\Route::class,
-        'jwt'       => Dingo\Api\Auth\Provider\JWT::class
+        'JWT'       => Dingo\Api\Auth\Provider\JWT::class
 
     ],
 

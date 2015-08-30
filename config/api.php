@@ -155,12 +155,7 @@ return [
     */
 
     'auth' => [
-        'basic' => function ($app) {
-            return new Dingo\Api\Auth\BasicProvider($app['auth']);
-        },
-        'jwt' => function ($app) {
-            return new Dingo\Api\Auth\JWTProvider($app['tymon.jwt.auth']);
-        }
+        'jwt' => 'Dingo\Api\Auth\Provider\JWT'
     ],
 
     /*
