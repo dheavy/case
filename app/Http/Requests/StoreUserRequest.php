@@ -13,7 +13,7 @@ class StoreUserRequest extends Request
      */
     public function authorize()
     {
-        if (\Auth::user()) {
+        if (\Auth::user() || app('Dingo\Api\Auth\Auth')->user()) {
             return false;
         } else {
             return true;

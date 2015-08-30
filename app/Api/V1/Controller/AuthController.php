@@ -1,4 +1,6 @@
-<?php namespace Mypleasure\Api\V1\Controllers;
+<?php
+
+namespace Mypleasure\Api\V1\Controller;
 
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;

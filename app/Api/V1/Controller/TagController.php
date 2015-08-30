@@ -1,4 +1,6 @@
-<?php namespace Mypleasure\Api\V1\Controllers;
+<?php
+
+namespace Mypleasure\Api\V1\Controller;
 
 class TagController extends BaseController {
 

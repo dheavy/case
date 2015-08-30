@@ -1,8 +1,8 @@
-<?php namespace Mypleasure\Api\V1\Transformers;
+<?php namespace Mypleasure\Api\V1\Transformer;
 
 use Mypleasure\Collection;
 use Mypleasure\Video;
-use Mypleasure\Api\V1\Transformers\VideoTransformer;
+use Mypleasure\Api\V1\Transformer\VideoTransformer;
 use League\Fractal\TransformerAbstract;
 
 /**

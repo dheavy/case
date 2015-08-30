@@ -21,40 +21,40 @@ $api = app('Dingo\Api\Routing\Router');
 $api->version('v1', function ($api) {
 
   // Auth
-  $api->post('login',          ['as' => 'auth.login',    'uses' => 'Mypleasure\Api\V1\Controllers\AuthController@authenticate']);
+  $api->post('login',          ['as' => 'auth.login',    'uses' => 'Mypleasure\Api\V1\Controller\AuthController@authenticate']);
 
   // User
-  $api->get('users',           ['as' => 'users.index',   'uses' => 'Mypleasure\Api\V1\Controllers\UserController@index']);
-  $api->get('users/{id}',      ['as' => 'users.show',    'uses' => 'Mypleasure\Api\V1\Controllers\UserController@show']);
-  $api->post('users',          ['as' => 'users.store',   'uses' => 'Mypleasure\Api\V1\Controllers\UserController@store']);
-  $api->put('users/{id}',      ['as' => 'users.update',  'uses' => 'Mypleasure\Api\V1\Controllers\UserController@update']);
-  $api->delete('users/{id}',   ['as' => 'users.destroy', 'uses' => 'Mypleasure\Api\V1\Controllers\UserController@destroy']);
+  $api->get('users',           ['as' => 'users.index',   'uses' => 'Mypleasure\Api\V1\Controller\UserController@index']);
+  $api->get('users/{id}',      ['as' => 'users.show',    'uses' => 'Mypleasure\Api\V1\Controller\UserController@show']);
+  $api->post('users',          ['as' => 'users.store',   'uses' => 'Mypleasure\Api\V1\Controller\UserController@store']);
+  $api->put('users/{id}',      ['as' => 'users.update',  'uses' => 'Mypleasure\Api\V1\Controller\UserController@update']);
+  $api->delete('users/{id}',   ['as' => 'users.destroy', 'uses' => 'Mypleasure\Api\V1\Controller\UserController@destroy']);
 
-  $api->get('users/{uid}/collections', ['as' => 'users.collections.index', 'uses' => 'Mypleasure\Api\V1\Controllers\UserCollectionController@index']);
-  $api->get('users/{uid}/collections/{cid}', ['as' => 'users.collections.show', 'uses' => 'Mypleasure\Api\V1\Controllers\UserCollectionController@show']);
-  $api->put('users/{uid}/collections/{cid}', ['as' => 'users.collections.update', 'uses' => 'Mypleasure\Api\V1\Controllers\UserCollectionController@update']);
-  $api->delete('users/{uid}/collections/{cid}', ['as' => 'users.collections.destroy', 'uses' => 'Mypleasure\Api\V1\Controllers\UserCollectionController@destroy']);
+  $api->get('users/{uid}/collections', ['as' => 'users.collections.index', 'uses' => 'Mypleasure\Api\V1\Controller\UserCollectionController@index']);
+  $api->get('users/{uid}/collections/{cid}', ['as' => 'users.collections.show', 'uses' => 'Mypleasure\Api\V1\Controller\UserCollectionController@show']);
+  $api->put('users/{uid}/collections/{cid}', ['as' => 'users.collections.update', 'uses' => 'Mypleasure\Api\V1\Controller\UserCollectionController@update']);
+  $api->delete('users/{uid}/collections/{cid}', ['as' => 'users.collections.destroy', 'uses' => 'Mypleasure\Api\V1\Controller\UserCollectionController@destroy']);
 
-  $api->get('users/{uid}/videos', ['as' => 'users.videos.index', 'uses' => 'Mypleasure\Api\V1\Controllers\UserCollectionController@index']);
-  $api->get('users/{uid}/videos/{cid}', ['as' => 'users.videos.show', 'uses' => 'Mypleasure\Api\V1\Controllers\UserCollectionController@show']);
-  $api->put('users/{uid}/videos/{cid}', ['as' => 'users.videos.update', 'uses' => 'Mypleasure\Api\V1\Controllers\UserCollectionController@update']);
-  $api->delete('users/{uid}/videos/{cid}', ['as' => 'users.videos.destroy', 'uses' => 'Mypleasure\Api\V1\Controllers\UserCollectionController@destroy']);
+  $api->get('users/{uid}/videos', ['as' => 'users.videos.index', 'uses' => 'Mypleasure\Api\V1\Controller\UserCollectionController@index']);
+  $api->get('users/{uid}/videos/{cid}', ['as' => 'users.videos.show', 'uses' => 'Mypleasure\Api\V1\Controller\UserCollectionController@show']);
+  $api->put('users/{uid}/videos/{cid}', ['as' => 'users.videos.update', 'uses' => 'Mypleasure\Api\V1\Controller\UserCollectionController@update']);
+  $api->delete('users/{uid}/videos/{cid}', ['as' => 'users.videos.destroy', 'uses' => 'Mypleasure\Api\V1\Controller\UserCollectionController@destroy']);
 
   // Collection
-  $api->get('collections',           ['as' => 'collections.index',   'uses' => 'Mypleasure\Api\V1\Controllers\CollectionController@index']);
-  $api->get('collections/{id}',      ['as' => 'collections.show',    'uses' => 'Mypleasure\Api\V1\Controllers\CollectionController@show']);
-  $api->put('collections/{id}',      ['as' => 'collections.update',  'uses' => 'Mypleasure\Api\V1\Controllers\CollectionController@update']);
-  $api->delete('collections/{id}',   ['as' => 'collections.destroy', 'uses' => 'Mypleasure\Api\V1\Controllers\CollectionController@destroy']);
+  $api->get('collections',           ['as' => 'collections.index',   'uses' => 'Mypleasure\Api\V1\Controller\CollectionController@index']);
+  $api->get('collections/{id}',      ['as' => 'collections.show',    'uses' => 'Mypleasure\Api\V1\Controller\CollectionController@show']);
+  $api->put('collections/{id}',      ['as' => 'collections.update',  'uses' => 'Mypleasure\Api\V1\Controller\CollectionController@update']);
+  $api->delete('collections/{id}',   ['as' => 'collections.destroy', 'uses' => 'Mypleasure\Api\V1\Controller\CollectionController@destroy']);
 
   // Video
-  $api->get('videos',           ['as' => 'videos.index',   'uses' => 'Mypleasure\Api\V1\Controllers\VideoController@index']);
-  $api->get('videos/{id}',      ['as' => 'videos.show',    'uses' => 'Mypleasure\Api\V1\Controllers\VideoController@show']);
-  $api->put('videos/{id}',      ['as' => 'videos.update',  'uses' => 'Mypleasure\Api\V1\Controllers\VideoController@update']);
-  $api->delete('videos/{id}',   ['as' => 'videos.destroy', 'uses' => 'Mypleasure\Api\V1\Controllers\VideoController@destroy']);
+  $api->get('videos',           ['as' => 'videos.index',   'uses' => 'Mypleasure\Api\V1\Controller\VideoController@index']);
+  $api->get('videos/{id}',      ['as' => 'videos.show',    'uses' => 'Mypleasure\Api\V1\Controller\VideoController@show']);
+  $api->put('videos/{id}',      ['as' => 'videos.update',  'uses' => 'Mypleasure\Api\V1\Controller\VideoController@update']);
+  $api->delete('videos/{id}',   ['as' => 'videos.destroy', 'uses' => 'Mypleasure\Api\V1\Controller\VideoController@destroy']);
 
   // Video
-  $api->get('tags',           ['as' => 'tags.index',   'uses' => 'Mypleasure\Api\V1\Controllers\TagController@index']);
-  $api->get('tags/{id}',      ['as' => 'tags.show',    'uses' => 'Mypleasure\Api\V1\Controllers\TagController@show']);
-  $api->delete('tags/{id}',   ['as' => 'tags.destroy', 'uses' => 'Mypleasure\Api\V1\Controllers\TagController@destroy']);
+  $api->get('tags',           ['as' => 'tags.index',   'uses' => 'Mypleasure\Api\V1\Controller\TagController@index']);
+  $api->get('tags/{id}',      ['as' => 'tags.show',    'uses' => 'Mypleasure\Api\V1\Controller\TagController@show']);
+  $api->delete('tags/{id}',   ['as' => 'tags.destroy', 'uses' => 'Mypleasure\Api\V1\Controller\TagController@destroy']);
 
 });

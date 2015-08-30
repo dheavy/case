@@ -1,4 +1,4 @@
-<?php namespace Mypleasure\Api\V1\Transformers;
+<?php namespace Mypleasure\Api\V1\Transformer;
 
 use Mypleasure\Tag;
 use League\Fractal\TransformerAbstract;

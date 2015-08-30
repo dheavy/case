@@ -1,9 +1,11 @@
-<?php namespace Mypleasure\Api\V1\Controllers;
+<?php
+
+namespace Mypleasure\Api\V1\Controller;
 
 use Mypleasure\User;
 use Mypleasure\Http\Requests\StoreUserRequest;
 use Mypleasure\Http\Requests\UpdateUserRequest;
-use Mypleasure\Api\V1\Transformers\UserTransformer;
+use Mypleasure\Api\V1\Transformer\UserTransformer;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserController extends BaseController {

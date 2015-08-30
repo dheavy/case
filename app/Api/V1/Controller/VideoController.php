@@ -1,12 +1,12 @@
-<?php namespace Mypleasure\Api\V1\Controllers;
+<?php
 
-use Mypleasure\Collection;
+namespace Mypleasure\Api\V1\Controller;
 
-class CollectionController extends BaseController {
+class VideoController extends BaseController {
 
   public function index()
   {
-    return Collection::all();
+
   }
 
   public function show($id)
