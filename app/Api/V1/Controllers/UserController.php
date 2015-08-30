@@ -8,6 +8,11 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserController extends BaseController {
 
+  public function __construct()
+  {
+    $this->middleware('api.auth', ['only' => ['store', 'update', 'delete']]);
+  }
+
   public function index()
   {
     return $this->collection(User::all(), new UserTransformer);
