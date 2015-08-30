@@ -52,20 +52,10 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     protected $hidden = ['password', 'remember_token'];
 
     /**
-     * Set the user's session to naughty mode.
+     * Promote user to admin role.
      *
-     * @param boolean $naughty  True to set to naughty mode, false to unset.
+     * @return boolean  True if successfully set to admin, false otherwise.
      */
-    public function setNaughtyMode($naughty)
-    {
-        Session::put('naughty', $naughty);
-    }
-
-    /**
-   * Promote user to admin role.
-   *
-   * @return boolean  True if successfully set to admin, false otherwise.
-   */
     public function promote()
     {
       if (!$this->admin) {
@@ -78,10 +68,10 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-   * Demote user to curator role.
-   *
-   * @return boolean  True if successfully unset admin, false otherwise.
-   */
+     * Demote user to curator role.
+     *
+     * @return boolean  True if successfully unset admin, false otherwise.
+     */
     public function demote()
     {
       if ($this->admin) {
