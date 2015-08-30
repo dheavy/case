@@ -53,7 +53,7 @@ class UserController extends BaseController {
 
     // Edge case: if a admin/user attempt to update a record that has been
     // updated by another user prior to this update request.
-    if ($user->updated_at > app('request')->get('last_updated')) {
+    if ($user->updated_at > app('request')->get('last_updated')) {
       throw new ConflictHttpException('User was updated prior to your request.');
     }
 
