@@ -68,13 +68,13 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
    */
     public function promote()
     {
-        if (!$this->admin) {
-      $this->admin = true;
-      $this->save();
-      return true;
-    }
+      if (!$this->admin) {
+        $this->admin = true;
+        $this->save();
+        return true;
+      }
 
-    return false;
+      return false;
     }
 
     /**
@@ -84,13 +84,13 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
    */
     public function demote()
     {
-        if ($this->admin) {
-      $this->admin = false;
-      $this->save();
-      return true;
-    }
+      if ($this->admin) {
+        $this->admin = false;
+        $this->save();
+        return true;
+      }
 
-    return false;
+      return false;
     }
 
   /**
