@@ -2,9 +2,11 @@
 
 namespace Mypleasure\Http\Requests;
 
-use Mypleasure\Http\Requests\Request;
+use Tymon\JWTAuth\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Dingo\Api\Http\FormRequest;
 
-class StoreUserRequest extends Request
+class StoreUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,11 +15,7 @@ class StoreUserRequest extends Request
      */
     public function authorize()
     {
-        if (\Auth::user() || app('Dingo\Api\Auth\Auth')->user()) {
-            return false;
-        } else {
-            return true;
-        }
+        return true;
     }
 
     /**
