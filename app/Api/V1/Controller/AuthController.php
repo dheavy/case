@@ -4,6 +4,8 @@ namespace Mypleasure\Api\V1\Controller;
 
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Mypleasure\Api\V1\Exception\CreateTokenFailedException;
+use Mypleasure\Api\V1\Exception\InvalidCredentialsException;
 use Illuminate\Http\Request;
 
 class AuthController extends BaseController {
@@ -13,10 +15,10 @@ class AuthController extends BaseController {
     $credentials = $request->only('username', 'password');
     try {
       if (!$token = JWTAuth::attempt($credentials)) {
-        return response()->json(['error' => 'invalid_credentials'], 401);
+        throw new InvalidCredentialsException;
       }
     } catch (JWTException $e) {
-      return response()->json(['error' => 'could_not_create_token'], 500);
+      throw new CreateTokenFailedException('Could not create token.');
     }
 
     return response()->json(compact('token'));
