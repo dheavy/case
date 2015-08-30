@@ -7,6 +7,7 @@ use Mypleasure\Http\Requests\StoreUserRequest;
 use Mypleasure\Http\Requests\UpdateUserRequest;
 use Mypleasure\Api\V1\Transformer\UserTransformer;
 use Dingo\Api\Exception\UpdateResourceFailedException;
+use Dingo\Api\Exception\DeleteResourceFailedException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class UserController extends BaseController {
@@ -104,7 +105,16 @@ class UserController extends BaseController {
 
   public function destroy($id)
   {
-    return 'users.destroy ' . $id;
+    $currentUser = \JWTAuth::parseToken()->toUser();
+    $userToDelete = User::find($id);
+
+    // User can only delete herself, unless she's an (omnipotent!) admin.
+    if ($currentUser->admin || (int) $userToDelete->id === (int) $currentUser->id) {
+      $userToDelete->delete();
+      return response()->json(['status_code' => 200, 'message' => 'User ' . $userToDelete->username . ' (id: ' . $userToDelete->id . ') was permanently deleted.']);
+    }
+
+    throw new DeleteResourceFailedException('Could not delete user.');
   }
 
 }
