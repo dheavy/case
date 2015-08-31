@@ -5,7 +5,7 @@ use League\Fractal\TransformerAbstract;
 
 class VideoTransformer extends TransformerAbstract {
 
-  public function transformer(Video $video)
+  public function transform(Video $video)
   {
     return [
       'id'            => (int) $video->id,
@@ -16,7 +16,7 @@ class VideoTransformer extends TransformerAbstract {
       'poster'        => $video->poster,
       'original_url'  => $video->original_url,
       'embed_url'     => $video->embed_url,
-      'duration'      => $vide->duration,
+      'duration'      => $video->duration,
       'created_at'    => $video->created_at,
       'links' => [
         'self'        => ['rel' => 'self', 'uri' => '/videos/' . $video->id],

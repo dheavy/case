@@ -30,7 +30,7 @@ class CollectionTransformer extends TransformerAbstract {
 
   public function includeVideos(Collection $collection)
   {
-    $videos = $collections->videos;
+    $videos = $collection->videos;
     return $this->collection($videos, new VideoTransformer);
   }
 
