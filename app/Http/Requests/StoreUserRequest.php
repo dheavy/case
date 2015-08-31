@@ -2,8 +2,6 @@
 
 namespace Mypleasure\Http\Requests;
 
-use Tymon\JWTAuth\JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
 use Dingo\Api\Http\FormRequest;
 
 class StoreUserRequest extends FormRequest
