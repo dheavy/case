@@ -13,7 +13,7 @@ class UpdateUserRequest extends FormRequest
      */
     public function authorize()
     {
-        $user = \Auth::user();
+        $user = \JWTAuth::parseToken()->toUser();
         if ($user && (int) $this->route('id') == (int) $user->id) {
             return true;
         } else {
