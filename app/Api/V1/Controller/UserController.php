@@ -14,7 +14,7 @@ class UserController extends BaseController {
 
   public function __construct()
   {
-    $this->middleware('api.auth', ['only' => ['update', 'delete']]);
+    $this->middleware('api.auth', ['only' => ['index', 'update', 'delete']]);
   }
 
   public function index()
