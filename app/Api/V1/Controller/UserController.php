@@ -105,16 +105,9 @@ class UserController extends BaseController {
 
   public function destroy($id)
   {
-    $currentUser = \JWTAuth::parseToken()->toUser();
-    $userToDelete = User::find($id);
-
-    // User can only delete herself, unless she's an (omnipotent!) admin.
-    if ($currentUser->admin || (int) $userToDelete->id === (int) $currentUser->id) {
-      $userToDelete->delete();
-      return response()->json(['status_code' => 200, 'message' => 'User ' . $userToDelete->username . ' (id: ' . $userToDelete->id . ') was permanently deleted.']);
-    }
-
-    throw new DeleteResourceFailedException('Could not delete user.');
+    $user = User::find($id);
+    $user->delete();
+    return response()->json(['status_code' => 200, 'message' => 'User ' . $user->username . ' (id: ' . $user->id . ') was permanently deleted.']);
   }
 
 }
