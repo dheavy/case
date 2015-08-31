@@ -33,6 +33,7 @@ $api->version('v1', function ($api) {
   // Collection
   $api->get('collections',           ['as' => 'collections.index',   'uses' => 'Mypleasure\Api\V1\Controller\CollectionController@index']);
   $api->get('collections/{id}',      ['as' => 'collections.show',    'uses' => 'Mypleasure\Api\V1\Controller\CollectionController@show']);
+  $api->post('collections',          ['as' => 'collections.store',   'uses' => 'Mypleasure\Api\V1\Controller\CollectionController@store']);
   $api->put('collections/{id}',      ['as' => 'collections.update',  'uses' => 'Mypleasure\Api\V1\Controller\CollectionController@update']);
   $api->delete('collections/{id}',   ['as' => 'collections.destroy', 'uses' => 'Mypleasure\Api\V1\Controller\CollectionController@destroy']);
 
