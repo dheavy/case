@@ -27,7 +27,16 @@ class VideoController extends BaseController {
 
   public function show($id)
   {
+    $user = \JWTAuth::parseToken()->toUser();
+    $video = Video::find($id);
 
+    if (!$video) {
+      return $this->response->errorNotFound();
+    }
+    if ($video && (int) $video->getOwner()->id === $user->id) {
+      return $this->item($video, new VideoTransformer);
+    }
+    return $this->response->errorForbidden();
   }
 
   public function update($id)
