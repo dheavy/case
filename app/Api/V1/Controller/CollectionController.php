@@ -66,7 +66,7 @@ class CollectionController extends BaseController {
       }
 
       $collection->save();
-      return response()->json(['status_code' => 200, 'message' => 'Collection successfully edited.']);
+      return response()->json(['status_code' => 200, 'message' => 'Collection successfully updated.']);
     }
 
     throw new UpdateResourceFailedException('Could not update collection.');
