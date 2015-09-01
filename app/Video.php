@@ -57,6 +57,16 @@ class Video extends Model {
   }
 
   /**
+   * Returns the User owning the video.
+   *
+   * @return Mypleasure\User
+   */
+  public function getOwner()
+  {
+    return $this->collection->user;
+  }
+
+  /**
    * Is the video private (i.e. part of a private collection)?
    *
    * @return boolean  True if private, false, otherwise.
