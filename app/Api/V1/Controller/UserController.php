@@ -5,6 +5,7 @@ namespace Mypleasure\Api\V1\Controller;
 use Mypleasure\User;
 use Mypleasure\Http\Requests\StoreUserRequest;
 use Mypleasure\Http\Requests\UpdateUserRequest;
+use Mypleasure\Http\Requests\DeleteUserRequest;
 use Mypleasure\Api\V1\Transformer\UserTransformer;
 use Dingo\Api\Exception\UpdateResourceFailedException;
 use Dingo\Api\Exception\DeleteResourceFailedException;
@@ -103,7 +104,7 @@ class UserController extends BaseController {
     throw new UpdateResourceFailedException('Could not update email address.');
   }
 
-  public function destroy($id)
+  public function destroy(DeleteUserRequest $request, $id)
   {
     $user = User::find($id);
     $user->delete();
