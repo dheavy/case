@@ -3,6 +3,7 @@
 namespace Mypleasure\Http\Requests;
 
 use Dingo\Api\Http\FormRequest;
+use Mypleasure\Collection;
 
 class UpdateCollectionRequest extends Request
 {
@@ -14,7 +15,9 @@ class UpdateCollectionRequest extends Request
     public function authorize()
     {
         $user = \JWTAuth::parseToken()->toUser();
-        if ($user) {
+        $collection = Collection::find((int) $this->route('id'));
+
+        if ($user && ((int) $collection->user_id === (int) $user->id) || $user->admin) {
             return true;
         } else {
             return false;
