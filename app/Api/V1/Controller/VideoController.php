@@ -7,7 +7,7 @@ use Dingo\Api\Exception\DeleteResourceFailedException;
 use Mypleasure\Api\V1\Transformer\VideoTransformer;
 use Mypleasure\Http\Requests\StoreVideoRequest;
 use Mypleasure\Http\Requests\UpdateVideoRequest;
-// use Mypleasure\Http\Requests\DeleteVideoRequest;
+use Mypleasure\Http\Requests\DeleteVideoRequest;
 use Illuminate\Http\Request;
 use Mypleasure\Collection;
 use Mypleasure\Video;
@@ -95,9 +95,11 @@ class VideoController extends BaseController {
     throw new UpdateResourceFailedException('Could not update video.');
   }
 
-  public function destroy($id)
+  public function destroy(DeleteVideoRequest $request, $id)
   {
-
+    $video = Video::find($id);
+    $video->delete();
+    return response()->json(['status_code' => 200, 'message' => 'Video (id: ' . $video->id . ') was successfully deleted.']);
   }
 
 }
