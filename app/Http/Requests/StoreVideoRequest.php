@@ -34,6 +34,7 @@ class StoreVideoRequest extends Request
             'title'         => 'sometimes|between:1,50',
             'original_url'  => 'required|url',
             'embed_url'     => 'required|url',
+            'poster'        => 'url',
             'duration'      => 'required|between:8,8',
         ];
     }
