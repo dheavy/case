@@ -39,7 +39,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'posterdavy1',
           'original_url' => 'originalurldavy1',
           'embed_url' => 'embedurldavy1',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => false,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -52,7 +52,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'posterdavy2',
           'original_url' => 'originalurldavy2',
           'embed_url' => 'embedurldavy2',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => false,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -65,7 +65,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'posterdavy3',
           'original_url' => 'originalurldavy3',
           'embed_url' => 'embedurldavy3',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => true,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -81,7 +81,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'posterdavy4',
           'original_url' => 'originalurldavy4',
           'embed_url' => 'embedurldavy4',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => false,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -94,7 +94,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'posterdavy5',
           'original_url' => 'originalurldavy5',
           'embed_url' => 'embedurldavy5',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => false,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -107,7 +107,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'posterdavy6',
           'original_url' => 'originalurldavy6',
           'embed_url' => 'embedurldavy6',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => true,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -123,7 +123,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'posterdavy7',
           'original_url' => 'originalurldavy7',
           'embed_url' => 'embedurldavy7',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => false,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -136,7 +136,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'posterdavy8',
           'original_url' => 'originalurldavy8',
           'embed_url' => 'embedurldavy8',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => false,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -149,7 +149,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'posterdavy9',
           'original_url' => 'originalurldavy9',
           'embed_url' => 'embedurldavy9',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => true,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -165,7 +165,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'postermorgane1',
           'original_url' => 'originalurlmorgane1',
           'embed_url' => 'embedurlmorgane1',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => false,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -178,7 +178,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'postermorgane2',
           'original_url' => 'originalurlmorgane2',
           'embed_url' => 'embedurlmorgane2',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => false,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -191,7 +191,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'postermorgane3',
           'original_url' => 'originalurlmorgane3',
           'embed_url' => 'embedurlmorgane3',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => true,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -207,7 +207,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'postermorgane4',
           'original_url' => 'originalurlmorgane4',
           'embed_url' => 'embedurlmorgane4',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => false,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -220,7 +220,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'postermorgane5',
           'original_url' => 'originalurlmorgane5',
           'embed_url' => 'embedurlmorgane5',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => false,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -233,7 +233,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'postermorgane6',
           'original_url' => 'originalurlmorgane6',
           'embed_url' => 'embedurlmorgane6',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => true,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -249,7 +249,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'postermax1',
           'original_url' => 'originalurlmax1',
           'embed_url' => 'embedurlmax1',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => false,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -262,7 +262,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'postermax2',
           'original_url' => 'originalurlmax2',
           'embed_url' => 'embedurlmax2',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => false,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -275,7 +275,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'postermax3',
           'original_url' => 'originalurlmax3',
           'embed_url' => 'embedurlmax3',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => true,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -291,7 +291,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'postermax4',
           'original_url' => 'originalurlmax4',
           'embed_url' => 'embedurlmax4',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => false,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -304,7 +304,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'postermax5',
           'original_url' => 'originalurlmax5',
           'embed_url' => 'embedurlmax5',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => false,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
@@ -317,7 +317,7 @@ class VideoTableSeeder extends Seeder
           'poster' => 'postermax6',
           'original_url' => 'originalurlmax6',
           'embed_url' => 'embedurlmax6',
-          'duration' => '--:--',
+          'duration' => '--:--:--',
           'naughty' => true,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now()
