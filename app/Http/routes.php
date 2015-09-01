@@ -40,6 +40,7 @@ $api->version('v1', function ($api) {
   // Video
   $api->get('videos',           ['as' => 'videos.index',   'uses' => 'Mypleasure\Api\V1\Controller\VideoController@index']);
   $api->get('videos/{id}',      ['as' => 'videos.show',    'uses' => 'Mypleasure\Api\V1\Controller\VideoController@show']);
+  $api->post('videos',          ['as' => 'videos.store',   'uses' => 'Mypleasure\Api\V1\Controller\VideoController@store']);
   $api->put('videos/{id}',      ['as' => 'videos.update',  'uses' => 'Mypleasure\Api\V1\Controller\VideoController@update']);
   $api->delete('videos/{id}',   ['as' => 'videos.destroy', 'uses' => 'Mypleasure\Api\V1\Controller\VideoController@destroy']);
 
