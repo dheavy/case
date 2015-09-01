@@ -51,7 +51,7 @@ class Video extends Model {
    *
    * @return Illuminate\Database\Eloquent\Relations\BelongsToMany
    */
-  public function videos()
+  public function tags()
   {
     return $this->belongsToMany('Mypleasure\Tag')->withTimestamps();
   }
