@@ -47,7 +47,7 @@ class CollectionController extends BaseController {
     $collection->user_id = $user->id;
     $collection->save();
 
-    return response()->json(['status_code' => 200, 'message' => 'Collection successfully created']);
+    return response()->json(['status_code' => 200, 'message' => 'Collection successfully created'], 200);
   }
 
   public function update(UpdateCollectionRequest $request, $id)
@@ -66,7 +66,7 @@ class CollectionController extends BaseController {
       }
 
       $collection->save();
-      return response()->json(['status_code' => 200, 'message' => 'Collection successfully updated.']);
+      return response()->json(['status_code' => 200, 'message' => 'Collection successfully updated.'], 200);
     }
 
     throw new UpdateResourceFailedException('Could not update collection.');
@@ -167,7 +167,7 @@ class CollectionController extends BaseController {
     }
 
     $deletableCollection->delete();
-    return response()->json(['status_code' => 200, 'message' => 'Collection successfully deleted.']);
+    return response()->json(['status_code' => 200, 'message' => 'Collection successfully deleted.'], 200);
   }
 
 }

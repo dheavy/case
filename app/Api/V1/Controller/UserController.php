@@ -70,7 +70,7 @@ class UserController extends BaseController {
       if (\Hash::check($currentPassword, $user->password)) {
         $user->password = \Hash::make($newPassword);
         $user->save();
-        return response()->json(['status_code' => 200, 'message' => 'Password successfully modified.']);
+        return response()->json(['status_code' => 200, 'message' => 'Password successfully modified.'], 200);
       } else {
         throw new UpdateResourceFailedException('Could not update password.', $validator->errors());
       }
@@ -83,7 +83,7 @@ class UserController extends BaseController {
       if (trim($email) == '') {
         $user->email = md5($user->username) . User::$EMAIL_PLACEHOLDER_SUFFIX;
         $user->save();
-        return response()->json(['status_code' => 200, 'message' => 'Email address successfully removed.']);
+        return response()->json(['status_code' => 200, 'message' => 'Email address successfully removed.'], 200);
       } else {
         // New email: attempt validation.
         $validator = \Validator::make(['email' => $email], [
@@ -97,7 +97,7 @@ class UserController extends BaseController {
         $user->email = $email;
         $user->save();
 
-        return response()->json(['status_code' => 200, 'message' => 'Email address successfully modified.']);
+        return response()->json(['status_code' => 200, 'message' => 'Email address successfully modified.'], 200);
       }
     }
 
@@ -108,7 +108,7 @@ class UserController extends BaseController {
   {
     $user = User::find($id);
     $user->delete();
-    return response()->json(['status_code' => 200, 'message' => 'User ' . $user->username . ' (id: ' . $user->id . ') was permanently deleted.']);
+    return response()->json(['status_code' => 200, 'message' => 'User ' . $user->username . ' (id: ' . $user->id . ') was permanently deleted.'], 200);
   }
 
 }

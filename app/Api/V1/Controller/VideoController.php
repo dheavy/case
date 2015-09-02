@@ -65,7 +65,7 @@ class VideoController extends BaseController {
     $video->naughty = $naughty;
     $video->save();
 
-    return response()->json(['status_code' => 200, 'message' => 'Video successfully created.']);
+    return response()->json(['status_code' => 200, 'message' => 'Video successfully created.'], 200);
   }
 
   public function update(UpdateVideoRequest $request, $id)
@@ -89,7 +89,7 @@ class VideoController extends BaseController {
       }
 
       $video->save();
-      return response()->json(['status_code' => 200, 'message' => 'Video successfully updated.']);
+      return response()->json(['status_code' => 200, 'message' => 'Video successfully updated.'], 200);
     }
 
     throw new UpdateResourceFailedException('Could not update video.');
@@ -99,7 +99,7 @@ class VideoController extends BaseController {
   {
     $video = Video::find($id);
     $video->delete();
-    return response()->json(['status_code' => 200, 'message' => 'Video (id: ' . $video->id . ') was successfully deleted.']);
+    return response()->json(['status_code' => 200, 'message' => 'Video (id: ' . $video->id . ') was successfully deleted.'], 200);
   }
 
 }
