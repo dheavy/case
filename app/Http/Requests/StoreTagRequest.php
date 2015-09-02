@@ -13,7 +13,12 @@ class StoreTagRequest extends Request
      */
     public function authorize()
     {
-        return false;
+        $user = \JWTAuth::parseToken()->toUser();
+        if ($user) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -24,7 +29,7 @@ class StoreTagRequest extends Request
     public function rules()
     {
         return [
-            //
+            'name' => 'required|between:2,60'
         ];
     }
 }

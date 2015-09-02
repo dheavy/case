@@ -23,12 +23,21 @@ class TagController extends BaseController {
 
   public function store(StoreTagRequest $request)
   {
+    $tag = new Tag;
+    $tag->name = $request->input('name');
+    $tag->slugifyName();
+    $tag->save();
 
+    return response()->json(['status_code' => 200, 'message' => 'Tag successfully created.'], 200);
   }
 
   public function show($id)
   {
-
+    $tag = Tag::find($id);
+    if (!$tag) {
+      return $this->response->errorNotFound();
+    }
+    return $this->item($tag, new TagTransformer);
   }
 
   public function destroy(DeleteTagRequest $request, $id)
