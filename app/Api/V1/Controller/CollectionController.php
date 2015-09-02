@@ -8,7 +8,6 @@ use Mypleasure\Http\Requests\StoreCollectionRequest;
 use Mypleasure\Http\Requests\UpdateCollectionRequest;
 use Mypleasure\Http\Requests\DeleteCollectionRequest;
 use Mypleasure\Api\V1\Transformer\CollectionTransformer;
-use Illuminate\Http\Request;
 use Mypleasure\Collection;
 
 class CollectionController extends BaseController {
