@@ -46,7 +46,7 @@ class CollectionController extends BaseController {
     $collection->user_id = $user->id;
     $collection->save();
 
-    return response()->json(['status_code' => 200, 'message' => 'Collection successfully created'], 200);
+    return response()->json(['status_code' => 200, 'message' => 'Collection successfully created.'], 200);
   }
 
   public function update(UpdateCollectionRequest $request, $id)
