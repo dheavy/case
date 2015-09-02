@@ -17,19 +17,19 @@ class EventServiceProvider extends ServiceProvider
             'Mypleasure\Listeners\EventListener',
         ],*/
         'tymon.jwt.valid' => [
-            'App\Events\JWTEvents@valid',
+            'Mypleasure\Events\JWTEvents@valid',
         ],
         'tymon.jwt.user_not_found' => [
-            'App\Events\JWTEvents@notFound'
+            'Mypleasure\Events\JWTEvents@notFound'
         ],
         'tymon.jwt.invalid' => [
-            'App\Events\JWTEvents@invalid'
+            'Mypleasure\Events\JWTEvents@invalid'
         ],
         'tymon.jwt.expired' => [
-            'App\Events\JWTEvents@expired'
+            'Mypleasure\Events\JWTEvents@expired'
         ],
         'tymon.jwt.absent' => [
-            'App\Events\JWTEvents@missing'
+            'Mypleasure\Events\JWTEvents@missing'
         ]
     ];
 

@@ -32,7 +32,7 @@ class AuthController extends BaseController {
   public function invalidate(Request $request)
   {
     JWTAuth::invalidate(JWTAuth::getToken());
-    return response()->json(['status_code' => 200, 'message' => 'User logged out.']);
+    return response()->json(['status_code' => 200, 'message' => 'User logged out.'], 200);
   }
 
 }

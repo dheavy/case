@@ -22,6 +22,7 @@ $api->version('v1', function ($api) {
 
   // Auth
   $api->post('login',          ['as' => 'auth.login',    'uses' => 'Mypleasure\Api\V1\Controller\AuthController@authenticate']);
+  $api->get('logout',          ['as' => 'auth.logout',   'uses' => 'Mypleasure\Api\V1\Controller\AuthController@invalidate']);
 
   // User
   $api->get('users',           ['as' => 'users.index',   'uses' => 'Mypleasure\Api\V1\Controller\UserController@index']);
