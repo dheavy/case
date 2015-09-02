@@ -17,10 +17,11 @@ class TagController extends BaseController {
 
   public function index()
   {
-
+    $tags = Tag::all();
+    return $this->response->collection($tags, new TagTransformer);
   }
 
-  public function store()
+  public function store(StoreTagRequest $request)
   {
 
   }
@@ -30,7 +31,7 @@ class TagController extends BaseController {
 
   }
 
-  public function destroy($id)
+  public function destroy(DeleteTagRequest $request, $id)
   {
 
   }
