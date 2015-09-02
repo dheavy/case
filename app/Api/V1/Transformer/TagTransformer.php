@@ -27,7 +27,13 @@ class TagTransformer extends TransformerAbstract {
   public function includeVideos(Tag $tag)
   {
     $videos = $tag->videos;
-    return $this->collection($videos, new VideoTransformer);
+    $user = \JWTAuth::parseToken()->toUser();
+
+    $filtered = $videos->reject(function ($video) use ($user) {
+      return ($video->getOwner()->id !== $user->id && $video->naughty == true);
+    });
+
+    return $this->collection($filtered, new VideoTransformer);
   }
 
 }
