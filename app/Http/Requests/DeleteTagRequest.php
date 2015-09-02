@@ -7,13 +7,18 @@ use Mypleasure\Http\Requests\Request;
 class DeleteTagRequest extends Request
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Only admin may delete a tag.
      *
      * @return bool
      */
     public function authorize()
     {
-        return false;
+        $user = \JWTAuth::parseToken()->toUser();
+        if ($user && $user->admin === true) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

@@ -7,6 +7,7 @@ use Mypleasure\Http\Requests\StoreTagRequest;
 use Mypleasure\Http\Requests\DeleteTagRequest;
 use Mypleasure\Api\V1\Transformer\TagTransformer;
 use Mypleasure\Tag;
+use \DB;
 
 class TagController extends BaseController {
 
@@ -42,7 +43,17 @@ class TagController extends BaseController {
 
   public function destroy(DeleteTagRequest $request, $id)
   {
+    $tag = Tag::find($id);
+    if (!$tag) {
+      return $this->response->errorNotFound();
+    }
 
+    $tag->delete();
+    DB::table('tag_video')
+      ->where('tag_id', $id)
+      ->delete();
+
+    return response()->json(['status_code' => 200, 'message' => 'Tag successfully deleted.'], 200);
   }
 
 }
