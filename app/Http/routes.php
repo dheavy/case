@@ -45,8 +45,9 @@ $api->version('v1', function ($api) {
   $api->put('videos/{id}',      ['as' => 'videos.update',  'uses' => 'Mypleasure\Api\V1\Controller\VideoController@update']);
   $api->delete('videos/{id}',   ['as' => 'videos.destroy', 'uses' => 'Mypleasure\Api\V1\Controller\VideoController@destroy']);
 
-  // Video
+  // Tags
   $api->get('tags',           ['as' => 'tags.index',   'uses' => 'Mypleasure\Api\V1\Controller\TagController@index']);
+  $api->post('tags',          ['as' => 'tags.store',   'uses' => 'Mypleasure\Api\V1\Controller\TagController@store']);
   $api->get('tags/{id}',      ['as' => 'tags.show',    'uses' => 'Mypleasure\Api\V1\Controller\TagController@show']);
   $api->delete('tags/{id}',   ['as' => 'tags.destroy', 'uses' => 'Mypleasure\Api\V1\Controller\TagController@destroy']);
 
