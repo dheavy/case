@@ -53,12 +53,6 @@ class UserController extends BaseController {
     $newPasswordConfirm = $request->input('password_confirmation');
     $email = $request->input('email');
 
-    // Edge case: if a admin/user attempt to update a record that has been
-    // updated by another user prior to this update request.
-    if ($user->updated_at > app('request')->get('last_updated')) {
-      throw new ConflictHttpException('User was updated prior to your request.');
-    }
-
     // Forbid editing username.
     if ($username) {
       return $this->response->errorForbidden('Username cannot be changed.');
