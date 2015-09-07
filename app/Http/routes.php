@@ -11,11 +11,6 @@
 |
 */
 
-Route::controllers([
-	//'auth'     => 'Auth\AuthController',
-	'password' => 'Auth\PasswordController',
-]);
-
 $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', function ($api) {
