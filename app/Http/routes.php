@@ -24,6 +24,11 @@ $api->version('v1', function ($api) {
   $api->post('login',          ['as' => 'auth.login',    'uses' => 'Mypleasure\Api\V1\Controller\AuthController@authenticate']);
   $api->get('logout',          ['as' => 'auth.logout',   'uses' => 'Mypleasure\Api\V1\Controller\AuthController@invalidate']);
 
+  // Password
+  $api->post('password/email',         ['as' => 'password.email',      'uses' => 'Mypleasure\Api\V1\Controller\PasswordController@postEmail']);
+  $api->get('password/reset/{token}',  ['as' => 'password.getreset',  'uses' => 'Mypleasure\Api\V1\Controller\PasswordController@getReset']);
+  $api->post('password/reset',         ['as' => 'password.postreset', 'uses' => 'Mypleasure\Api\V1\Controller\PasswordController@postReset']);
+
   // User
   $api->get('users',           ['as' => 'users.index',   'uses' => 'Mypleasure\Api\V1\Controller\UserController@index']);
   $api->get('users/{id}',      ['as' => 'users.show',    'uses' => 'Mypleasure\Api\V1\Controller\UserController@show']);
