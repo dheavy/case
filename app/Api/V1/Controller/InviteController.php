@@ -1,6 +1,7 @@
 <?php
 
 namespace Mypleasure\Api\V1\Controller;
+use Mypleasure\Http\Requests\SendInviteRequest;
 
 class InviteController extends BaseController {
 
@@ -10,7 +11,7 @@ class InviteController extends BaseController {
     $this->middleware('guest', ['only' => ['claim']]);
   }
 
-  public function send()
+  public function send(SendInviteRequest $request)
   {
 
   }
