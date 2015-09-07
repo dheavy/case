@@ -104,7 +104,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
   }
 
   /**
-   * Relation with Videos model. User has many Videos through Collections.
+   * Relation with Video model. User has many Videos through Collections.
    *
    * @return Illuminate\Database\Eloquent\Relations\HasManyThrough
    */
