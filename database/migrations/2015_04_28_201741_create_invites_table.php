@@ -17,6 +17,7 @@ class CreateInvitesTable extends Migration {
 			$table->string('email')->index();
 			$table->string('code')->index();
 			$table->integer('from_id')->references('id')->on('users');
+			$table->string('message')->nullable();
 			$table->timestamp('claimed_at')->nullable();
 			$table->timestamp('created_at');
 		});
