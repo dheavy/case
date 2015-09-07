@@ -112,4 +112,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
   {
     return $this->hasManyThrough('\Mypleasure\Video', '\Mypleasure\Collection');
   }
+
+  /**
+   * Relation with Invite model. User has many Invites.
+   *
+   * @return Illuminate\Database\Eloquent\Relations\HasManyThrough
+   */
+  public function invites()
+  {
+    return $this->hasMany('\Mypleasure\Invite', 'from_id');
+  }
 }
