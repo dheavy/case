@@ -1,0 +1,2 @@
+{{ $body }}
+{{ URL::secure($url) }}

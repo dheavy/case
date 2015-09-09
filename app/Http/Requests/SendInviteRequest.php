@@ -13,7 +13,8 @@ class SendInviteRequest extends Request
      */
     public function authorize()
     {
-        return false;
+        // Check if $user can send invites...
+        return true;
     }
 
     /**
@@ -24,7 +25,8 @@ class SendInviteRequest extends Request
     public function rules()
     {
         return [
-            //
+            'email' => 'required|email',
+            'message' => 'sometimes|between:1,500'
         ];
     }
 }

@@ -13,13 +13,17 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Invite extends Model {
 
+  public $timestamps = false;
+
   protected $table = 'invites';
+
+  protected $primaryKey = 'email';
 
   protected $fillable = ['email', 'code', 'from_id'];
 
   public function sender()
   {
-    return $this->belongsTo('\Mypleasure\User', 'from_id', 'id');
+    return $this->belongsTo('\Mypleasure\User', 'from_id');
   }
 
 }
