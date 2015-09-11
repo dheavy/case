@@ -3,10 +3,13 @@
 namespace Mypleasure\Api\V1\Controller;
 
 use Mypleasure\User;
+use Mypleasure\Invite;
 use Mypleasure\Http\Requests\StoreUserRequest;
 use Mypleasure\Http\Requests\UpdateUserRequest;
 use Mypleasure\Http\Requests\DeleteUserRequest;
+use Mypleasure\Http\Requests\CreateUserFromInviteRequest;
 use Mypleasure\Api\V1\Transformer\UserTransformer;
+use Mypleasure\Api\V1\Controller\AuthController;
 use Dingo\Api\Exception\UpdateResourceFailedException;
 use Dingo\Api\Exception\DeleteResourceFailedException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -29,16 +32,17 @@ class UserController extends BaseController {
     if ($user) {
       return $this->response->item($user->first(), new UserTransformer);
     } else {
-      return $this->response->error('User ' . $id . ' was not found.');
+      return $this->response->errorNotFound('User ' . $id . ' was not found.');
     }
   }
 
   public function store(StoreUserRequest $request)
   {
-    $user = new User;
-    $user->username = $request->input('username');
-    $user->password = \Hash::make($request->input('password'));
-    $user->save();
+    $user = $this->createUser(
+      $request->input('username'),
+      $request->input('email', ''),
+      $request->input('password')
+    );
 
     return $this->response->item($user, new UserTransformer);
   }
@@ -103,6 +107,85 @@ class UserController extends BaseController {
     $user = User::find($id);
     $user->delete();
     return response()->json(['status_code' => 200, 'message' => 'User ' . $user->username . ' (id: ' . $user->id . ') was permanently deleted.'], 200);
+  }
+
+  /**
+   * Return a payload containing information from a claimed invite.
+   * Should be used to set up onboarding from this invite,
+   * i.e. present to invitee a form where she will create a new User,
+   * then save the User (via UserController#createFromInvite) and proceed
+   * with onboarding apparatus (maybe send an email, etc...)
+   *
+   * @param  Invite $invite
+   * @return Response
+   */
+  public function onboardFromInvite(Invite $invite)
+  {
+    return response()->json([
+      'status_code' => 200,
+      'message' => 'Onboard from invite.',
+      'invite' => [
+        'email' => $invite->email,
+        'code' => $invite->code
+      ]
+    ], 200);
+  }
+
+  /**
+   * Create new User from an Invite onboarding process.
+   * Log in the newly created user. Returned JSON payload
+   * includes the token.
+   *
+   * @param  CreateUserFromInviteRequest $request
+   * @param  AuthController              $authController
+   * @return Response
+   */
+  public function createFromInvite(CreateUserFromInviteRequest $request, AuthController $authController)
+  {
+    $invite = Invite::where('code', $request->input('code'))
+                    ->where('email', $request->input('email'))
+                    ->first();
+
+    if (!$invite) {
+      return response()->json([
+        'status_code' => 404,
+        'message' => 'Invite not found.'
+      ], 404);
+    }
+
+    if ($invite->claimed_at == null) {
+      return response()->json([
+        'status_code' => 401,
+        'message' => 'Invite not yet claimed.'
+      ], 401);
+    }
+
+    $user = $this->createUser(
+      $request->input('username'),
+      $request->input('email'),
+      $request->input('password')
+    );
+
+    $token = $authController->createToken([
+      'username' => $request->input('username'),
+      'password' => $request->input('password')
+    ]);
+
+    return response()->json([
+      'status_code' => 200,
+      'message' => 'Token created.',
+      'token' => $token
+    ], 200);
+  }
+
+  protected function createUser($username, $email, $password)
+  {
+    $user = new User;
+    $user->username = $username;
+    $user->password = \Hash::make($password);
+    $user->email = $email;
+    $user->save();
+    return $user;
   }
 
 }
