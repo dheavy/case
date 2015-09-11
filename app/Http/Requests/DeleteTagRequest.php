@@ -2,9 +2,9 @@
 
 namespace Mypleasure\Http\Requests;
 
-use Mypleasure\Http\Requests\Request;
+use use Dingo\Api\Http\FormRequest;
 
-class DeleteTagRequest extends Request
+class DeleteTagRequest extends FormRequest
 {
     /**
      * Only admin may delete a tag.

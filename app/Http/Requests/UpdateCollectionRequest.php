@@ -5,7 +5,7 @@ namespace Mypleasure\Http\Requests;
 use Dingo\Api\Http\FormRequest;
 use Mypleasure\Collection;
 
-class UpdateCollectionRequest extends Request
+class UpdateCollectionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

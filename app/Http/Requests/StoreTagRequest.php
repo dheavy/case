@@ -2,9 +2,9 @@
 
 namespace Mypleasure\Http\Requests;
 
-use Mypleasure\Http\Requests\Request;
+use Dingo\Api\Http\FormRequest;
 
-class StoreTagRequest extends Request
+class StoreTagRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

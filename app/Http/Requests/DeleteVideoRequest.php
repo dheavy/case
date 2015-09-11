@@ -2,10 +2,10 @@
 
 namespace Mypleasure\Http\Requests;
 
-use Mypleasure\Http\Requests\Request;
+use Dingo\Api\Http\FormRequest;
 use Mypleasure\Video;
 
-class DeleteVideoRequest extends Request
+class DeleteVideoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
