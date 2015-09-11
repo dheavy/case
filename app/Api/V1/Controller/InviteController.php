@@ -2,6 +2,7 @@
 
 namespace Mypleasure\Api\V1\Controller;
 
+use Mypleasure\Api\V1\Controller\UserController;
 use Mypleasure\Http\Requests\SendInviteRequest;
 use Mypleasure\Invite;
 use Carbon\Carbon;
@@ -32,19 +33,49 @@ class InviteController extends BaseController {
     $invite->created_at = Carbon::now();
     $invite->save();
 
-    $path = "/?c={$invite->code}&e={$invite->email}";
+    $url = "/{$invite->email}/{$invite->code}";
     $subject = 'myPleasure beta invite';
 
-    \Mail::send('emails.invite', ['body' => $invite->message, 'url' => $path], function ($m) use (&$invite, &$subject) {
+    \Mail::send('emails.invite', ['body' => $invite->message, 'url' => $url], function ($m) use (&$invite, &$subject) {
       $m->to($invite->email)->subject($subject);
     });
 
     return response()->json(['status_code' => 200, 'message' => 'Invite sent successfully.'], 200);
   }
 
-  public function claim()
+  public function claim(UserController $userController, $email, $code)
   {
+    $validator = \Validator::make([
+      'email' => $email,
+      'code'  => $code
+      ], [
+      'email' => 'required|email',
+      'code'  => 'required|min:5'
+    ]);
 
+    if ($validator->fails()) {
+      return response()->json([
+        'status_code' => 422,
+        'message' => 'Validation of parameters failed.',
+        'errors' => $validator->errors()
+      ], 422);
+    }
+
+    $invite = Invite::where('code', $code)
+                    ->where('email', $email)
+                    ->first();
+
+    if (!$invite) {
+      return response()->json([
+        'status_code' => 404,
+        'message' => 'Invite not found.',
+      ], 404);
+    }
+
+    $invite->claimed_at = Carbon::now();
+    $invite->save();
+
+    return $userController->onboardFromInvite($invite);
   }
 
 }
