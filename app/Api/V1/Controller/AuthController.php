@@ -18,6 +18,24 @@ class AuthController extends BaseController {
   public function authenticate(Request $request)
   {
     $credentials = $request->only('username', 'password');
+
+    $token = $this->createToken($credentials);
+
+    return response()->json([
+      'status_code' => 200,
+      'message' => 'Token created.',
+      'token' => $token
+    ], 200);
+  }
+
+  public function invalidate(Request $request)
+  {
+    JWTAuth::invalidate(JWTAuth::getToken());
+    return response()->json(['status_code' => 200, 'message' => 'User logged out.'], 200);
+  }
+
+  public function createToken($credentials)
+  {
     try {
       if (!$token = JWTAuth::attempt($credentials)) {
         throw new InvalidCredentialsException;
@@ -26,13 +44,7 @@ class AuthController extends BaseController {
       throw new CreateTokenFailedException('Could not create token.');
     }
 
-    return response()->json(compact('token'));
-  }
-
-  public function invalidate(Request $request)
-  {
-    JWTAuth::invalidate(JWTAuth::getToken());
-    return response()->json(['status_code' => 200, 'message' => 'User logged out.'], 200);
+    return $token;
   }
 
 }
