@@ -139,6 +139,7 @@ return [
         Dingo\Api\Provider\LaravelServiceProvider::class,
         Mypleasure\Providers\AppServiceProvider::class,
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
+        Jenssegers\Mongodb\MongodbServiceProvider::class,
 
         /*
          * Application Service Providers...
