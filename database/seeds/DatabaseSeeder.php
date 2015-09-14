@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->call(VideoTableSeeder::class);
         $this->call(TagTableSeeder::class);
         $this->call(InviteTableSeeder::class);
+        $this->call(MediaAcquisitionSeeder::class);
 
         Model::reguard();
     }
