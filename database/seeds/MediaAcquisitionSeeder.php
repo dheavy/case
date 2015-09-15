@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Mypleasure\Collection as Collection;
 use Mypleasure\User;
 use \DB;
 
@@ -25,24 +26,28 @@ class MediaAcquisitionSeeder extends Seeder
           'hash' => md5('https://www.youtube.com/watch?v=7WRFUXyVZoQ'),
           'url' => 'https://www.youtube.com/watch?v=7WRFUXyVZoQ',
           'requester' => $davy->id,
+          'collection' => $davy->collections[0]->id,
           'status' => 'ready'
         ],
         [
           'hash' => md5('https://www.youtube.com/watch?v=tAJqVfu6AqA'),
           'url' => 'https://www.youtube.com/watch?v=tAJqVfu6AqA',
           'requester' => $davy->id,
+          'collection' => $davy->collections[0]->id,
           'status' => 'ready'
         ],
         [
           'hash' => md5('https://www.youtube.com/watch?v=ZK4_O7QJ55Y'),
           'url' => 'https://www.youtube.com/watch?v=ZK4_O7QJ55Y',
           'requester' => $morgane->id,
+          'collection' => $morgane->collections[0]->id,
           'status' => 'ready'
         ],
         [
           'hash' => md5('https://www.youtube.com/watch?v=5OGTiU8AT98'),
           'url' => 'https://www.youtube.com/watch?v=5OGTiU8AT98',
           'requester' => $morgane->id,
+          'collection' => $morgane->collections[0]->id,
           'status' => 'done'
         ],
       ]);
