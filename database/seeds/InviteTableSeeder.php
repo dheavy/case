@@ -16,7 +16,7 @@ class InviteTableSeeder extends Seeder
     public function run()
     {
         $this->command->info('Deleting Invite table...');
-        DB::table('collections')->delete();
+        DB::table('invites')->delete();
 
         $this->command->info('Seeding Invite table...');
         $davy = User::where('username', 'davy')->first();
