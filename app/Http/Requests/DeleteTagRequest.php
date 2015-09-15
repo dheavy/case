@@ -2,7 +2,7 @@
 
 namespace Mypleasure\Http\Requests;
 
-use use Dingo\Api\Http\FormRequest;
+use Dingo\Api\Http\FormRequest;
 
 class DeleteTagRequest extends FormRequest
 {
