@@ -15,32 +15,33 @@ class CollectionTableSeeder extends Seeder
      */
     public function run()
     {
-        $this->command->info('Deleting Collection table...');
-        DB::table('collections')->delete();
+      $this->command->info('Deleting Collection table...');
+      DB::table('collections')->delete();
 
-        $this->command->info('Seeding Collection table...');
-        $davy = User::where('username', 'davy')->first();
-        $morgane = User::where('username', 'morgane')->first();
-        $max = User::where('username', 'max')->first();
+      $this->command->info('Seeding Collection table...');
+      $davy = User::where('username', 'davy')->first();
+      $morgane = User::where('username', 'morgane')->first();
+      $max = User::where('username', 'max')->first();
 
-        $set1 = [
-          ['name' => 'collection de davy 1', 'slug' => 'collection-de-davy-1', 'private' => false, 'user_id' => $davy->id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-          ['name' => 'collection de davy 2', 'slug' => 'collection-de-davy-2', 'private' => false, 'user_id' => $davy->id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-          ['name' => 'collection de davy 3', 'slug' => 'collection-de-davy-3', 'private' => true, 'user_id' => $davy->id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
-        ];
+      $this->createCollection('collection de davy 1', false, $davy->id);
+      $this->createCollection('collection de davy 2', false, $davy->id);
+      $this->createCollection('collection de davy 3', true, $davy->id);
 
-        $set2 = [
-          ['name' => 'collection de morgane 1', 'slug' => 'collection-de-morgane-1', 'private' => false, 'user_id' => $morgane->id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-          ['name' => 'collection de morgane 2', 'slug' => 'collection-de-morgane-2', 'private' => true, 'user_id' => $morgane->id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
-        ];
+      $this->createCollection('collection de morgane 1', false, $morgane->id);
+      $this->createCollection('collection de morgane 2', true, $morgane->id);
 
-        $set3 = [
-          ['name' => 'collection de max 1', 'slug' => 'collection-de-max-1', 'private' => false, 'user_id' => $max->id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-          ['name' => 'collection de max 2', 'slug' => 'collection-de-max-2', 'private' => true, 'user_id' => $max->id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
-        ];
+      $this->createCollection('collection de max 1', false, $max->id);
+      $this->createCollection('collection de max 2', true, $max->id);
+    }
 
-        Collection::insert($set1);
-        Collection::insert($set2);
-        Collection::insert($set3);
+    protected function createCollection($name, $private, $userId)
+    {
+      $collection = new Collection;
+      $collection->name = $name;
+      $collection->slugifyName();
+      $collection->private = $private;
+      $collection->user_id = $userId;
+      $collection->save();
+      return $collection;
     }
 }
