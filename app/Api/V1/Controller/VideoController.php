@@ -53,17 +53,7 @@ class VideoController extends BaseController {
     $duration = $request->input('duration');
     $naughty = (bool) $request->input('naughty') || false;
 
-    $video = new Video;
-    $video->hash = $hash;
-    $video->title = $title;
-    $video->slugifyTitle();
-    $video->collection_id = $collectionId;
-    $video->original_url = $originalUrl;
-    $video->embed_url = $embedUrl;
-    $video->duration = $duration;
-    $video->poster = $poster;
-    $video->naughty = $naughty;
-    $video->save();
+    $this->createVideo($hash, $title, $collectionId, $originalUrl, $embedUrl, $duration, $poster, $naughty);
 
     return response()->json(['status_code' => 200, 'message' => 'Video successfully created.'], 200);
   }
@@ -100,6 +90,22 @@ class VideoController extends BaseController {
     $video = Video::find($id);
     $video->delete();
     return response()->json(['status_code' => 200, 'message' => 'Video (id: ' . $video->id . ') was successfully deleted.'], 200);
+  }
+
+  public function createVideo($hash, $title, $cid, $oUrl, $eUrl, $duration, $poster, $naughty)
+  {
+    $video = new Video;
+    $video->hash = $hash;
+    $video->title = $title;
+    $video->slugifyTitle();
+    $video->collection_id = $cid;
+    $video->original_url = $oUrl;
+    $video->embed_url = $eUrl;
+    $video->duration = $duration;
+    $video->poster = $poster;
+    $video->naughty = $naughty;
+    $video->save();
+    return $video;
   }
 
 }
