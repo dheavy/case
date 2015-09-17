@@ -40,11 +40,12 @@ class CollectionController extends BaseController {
   public function store(StoreCollectionRequest $request)
   {
     $user = \JWTAuth::parseToken()->toUser();
-    $collection = new Collection;
-    $collection->name = $request->input('name');
-    $collection->private = (boolean) $request->input('private') || false;
-    $collection->user_id = $user->id;
-    $collection->save();
+
+    $this->createCollection(
+      $request->input('name'),
+      (boolean) $request->input('private') || false),
+      $user->id
+    );
 
     return response()->json(['status_code' => 200, 'message' => 'Collection successfully created.'], 200);
   }
@@ -111,12 +112,7 @@ class CollectionController extends BaseController {
         }
 
         // If valid, build new collection instance.
-        $newCollection = new Collection;
-        $newCollection->name = $name;
-        $newCollection->user_id = $user->id;
-        $newCollection->slugifyName();
-        $newCollection->private = $private;
-        $newCollection->save();
+        $this->createCollection($name, $private, $user->id);
 
         // Get back ID of this new instance.
         $newCollectionId = \DB::table('collections')
@@ -167,6 +163,16 @@ class CollectionController extends BaseController {
 
     $deletableCollection->delete();
     return response()->json(['status_code' => 200, 'message' => 'Collection successfully deleted.'], 200);
+  }
+
+  public function createCollection($name, $private, $userId)
+  {
+    $collection = new Collection;
+    $collection->name = $name;
+    $collection->private = $private;
+    $collection->user_id = $userId;
+    $collection->save();
+    return $collection;
   }
 
 }
