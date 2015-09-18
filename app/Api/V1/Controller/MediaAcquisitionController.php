@@ -90,8 +90,7 @@ class MediaAcquisitionController extends BaseController {
 
   protected function getPendingNumber($userId)
   {
-    return \DB::connection('mongodb')
-      ->collection('queue')
+    return \DB::table('mediaqueue')
       ->where('status', 'pending')
       ->where('requester', (int) $userId)
       ->count();
@@ -107,8 +106,7 @@ class MediaAcquisitionController extends BaseController {
    */
   protected function fetchNewAndReady($userId)
   {
-    $videosReady = \DB::connection('mongodb')
-      ->collection('queue')
+    $videosReady = \DB::table('mediaqueue')
       ->where('status', 'ready')
       ->where('requester', (int) $userId)
       ->get();
@@ -116,21 +114,19 @@ class MediaAcquisitionController extends BaseController {
     if (count($videosReady) === 0) return null;
 
     foreach ($videosReady as $video) {
-      $data = \DB::connection('mongodb')
-        ->collection('videos')
-        ->where('hash', $video['hash'])
+      $data = \DB::table('mediastore')
+        ->where('hash', $video->hash)
         ->first();
 
-      $collectionId = $video['collection'];
+      $collectionId = $video->collection_id;
 
       $created = $this->createVideoInstance($collectionId, $data);
       if (!(bool)$created) return false;
 
       // Mark as 'done'.
-      \DB::connection('mongodb')
-        ->collection('queue')
-        ->where('status', '=', 'ready')
-        ->where('requester', '=', $userId)
+      \DB::table('mediaqueue')
+        ->where('status', 'ready')
+        ->where('requester', $userId)
         ->update(array('status' => 'done'));
     }
 
@@ -140,16 +136,15 @@ class MediaAcquisitionController extends BaseController {
   protected function createVideoInstance($collectionId, $data)
   {
     return $this->videoController->createVideo(
-      $data['hash'], $data['title'], $collectionId, $data['original_url'],
-      $data['embed_url'], $data['duration'], $data['poster'], $data['naughty']
+      $data->hash, $data->title, $collectionId, $data->original_url,
+      $data->embed_url, $data->duration, $data->poster, $data->naughty
     );
   }
 
   protected function retrieveVideoInStoreFromHash($hash)
   {
-    $video = \DB::connection('mongodb')
-      ->collection('videos')
-      ->where('hash', '=', $hash)
+    $video = \DB::table('mediastore')
+      ->where('hash', $hash)
       ->get();
 
     return $video;

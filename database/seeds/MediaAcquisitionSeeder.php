@@ -16,48 +16,52 @@ class MediaAcquisitionSeeder extends Seeder
     public function run()
     {
       $this->command->info('Deleting Video Queue...');
-      $this->db('queue')->delete();
+      DB::table('mediaqueue')->delete();
 
       $this->command->info('Deleting Video Store...');
-      $this->db('videos')->delete();
+      DB::table('mediastore')->delete();
 
       $this->command->info('Seeding Video Store and Queue...');
 
       $davy = User::where('username', 'davy')->first();
       $morgane = User::where('username', 'morgane')->first();
 
-      $this->db('queue')->insert([
+      DB::table('mediaqueue')->insert([
         [
           'hash' => md5('https://www.youtube.com/watch?v=7WRFUXyVZoQ'),
           'url' => 'https://www.youtube.com/watch?v=7WRFUXyVZoQ',
           'requester' => $davy->id,
-          'collection' => $davy->collections[0]->id,
-          'status' => 'ready'
+          'collection_id' => $davy->collections[0]->id,
+          'status' => 'ready',
+          'created_at' => Carbon::now()
         ],
         [
           'hash' => md5('https://www.youtube.com/watch?v=tAJqVfu6AqA'),
           'url' => 'https://www.youtube.com/watch?v=tAJqVfu6AqA',
           'requester' => $davy->id,
-          'collection' => $davy->collections[0]->id,
-          'status' => 'pending'
+          'collection_id' => $davy->collections[0]->id,
+          'status' => 'pending',
+          'created_at' => Carbon::now()
         ],
         [
           'hash' => md5('https://www.youtube.com/watch?v=ZK4_O7QJ55Y'),
           'url' => 'https://www.youtube.com/watch?v=ZK4_O7QJ55Y',
           'requester' => $morgane->id,
-          'collection' => $morgane->collections[0]->id,
-          'status' => 'ready'
+          'collection_id' => $morgane->collections[0]->id,
+          'status' => 'ready',
+          'created_at' => Carbon::now()
         ],
         [
           'hash' => md5('https://www.youtube.com/watch?v=5OGTiU8AT98'),
           'url' => 'https://www.youtube.com/watch?v=5OGTiU8AT98',
           'requester' => $morgane->id,
-          'collection' => $morgane->collections[0]->id,
-          'status' => 'done'
+          'collection_id' => $morgane->collections[0]->id,
+          'status' => 'done',
+          'created_at' => Carbon::now()
         ],
       ]);
 
-      $this->db('videos')->insert([
+      DB::table('mediastore')->insert([
         [
           'original_url' => 'https://www.youtube.com/watch?v=7WRFUXyVZoQ',
           'poster' => 'http://img.youtube.com/vi/7WRFUXyVZoQ/mqdefault.jpg',
@@ -66,7 +70,8 @@ class MediaAcquisitionSeeder extends Seeder
           'duration' => '00:02:36',
           'embed_url' => 'https://www.youtube.com/embed/7WRFUXyVZoQ',
           'title' => 'title for https://www.youtube.com/watch?v=7WRFUXyVZoQ',
-          'naughty' => false
+          'naughty' => false,
+          'created_at' => Carbon::now()
         ],
         [
           'original_url' => 'https://www.youtube.com/watch?v=tAJqVfu6AqA',
@@ -76,7 +81,8 @@ class MediaAcquisitionSeeder extends Seeder
           'duration' => '00:02:36',
           'embed_url' => 'https://www.youtube.com/embed/tAJqVfu6AqA',
           'title' => 'title for https://www.youtube.com/watch?v=tAJqVfu6AqA',
-          'naughty' => false
+          'naughty' => false,
+          'created_at' => Carbon::now()
         ],
         [
           'original_url' => 'https://www.youtube.com/watch?v=ZK4_O7QJ55Y',
@@ -86,13 +92,9 @@ class MediaAcquisitionSeeder extends Seeder
           'duration' => '00:02:36',
           'embed_url' => 'https://www.youtube.com/embed/ZK4_O7QJ55Y',
           'title' => 'title for https://www.youtube.com/watch?v=ZK4_O7QJ55Y',
-          'naughty' => false
+          'naughty' => false,
+          'created_at' => Carbon::now()
         ]
       ]);
-    }
-
-    protected function db($collection)
-    {
-      return DB::connection('mongodb')->collection($collection);
     }
 }
