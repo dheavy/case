@@ -16,8 +16,8 @@ $api = app('Dingo\Api\Routing\Router');
 $api->version('v1', function ($api) {
 
   // Auth
-  $api->post('login', ['as' => 'auth.login',    'uses' => 'Mypleasure\Api\V1\Controller\AuthController@authenticate']);
-  $api->get('logout', ['as' => 'auth.logout',   'uses' => 'Mypleasure\Api\V1\Controller\AuthController@invalidate']);
+  $api->post('login', ['as' => 'auth.login',  'uses' => 'Mypleasure\Api\V1\Controller\AuthController@authenticate']);
+  $api->get('logout', ['as' => 'auth.logout', 'uses' => 'Mypleasure\Api\V1\Controller\AuthController@invalidate']);
 
   // Password
   $api->post('password/email',        ['as' => 'password.email',     'uses' => 'Mypleasure\Api\V1\Controller\PasswordController@postEmail']);
@@ -55,5 +55,9 @@ $api->version('v1', function ($api) {
   $api->post('tags',        ['as' => 'tags.store',   'uses' => 'Mypleasure\Api\V1\Controller\TagController@store']);
   $api->get('tags/{id}',    ['as' => 'tags.show',    'uses' => 'Mypleasure\Api\V1\Controller\TagController@show']);
   $api->delete('tags/{id}', ['as' => 'tags.destroy', 'uses' => 'Mypleasure\Api\V1\Controller\TagController@destroy']);
+
+  // Media acquisition
+  $api->get('media/fetch/{userId}', ['as' => 'media.fetch',   'uses' => 'Mypleasure\Api\V1\Controller\MediaAcquisitionController@fetch']);
+  $api->post('media/acquire',       ['as' => 'media.acquire', 'uses' => 'Mypleasure\Api\V1\Controller\MediaAcquisitionController@acquire']);
 
 });
