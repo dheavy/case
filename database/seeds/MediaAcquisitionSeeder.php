@@ -39,7 +39,7 @@ class MediaAcquisitionSeeder extends Seeder
           'url' => 'https://www.youtube.com/watch?v=tAJqVfu6AqA',
           'requester' => $davy->id,
           'collection' => $davy->collections[0]->id,
-          'status' => 'ready'
+          'status' => 'pending'
         ],
         [
           'hash' => md5('https://www.youtube.com/watch?v=ZK4_O7QJ55Y'),
