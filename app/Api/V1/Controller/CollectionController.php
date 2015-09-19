@@ -47,7 +47,7 @@ class CollectionController extends BaseController {
       $user->id
     );
 
-    return response()->json(['status_code' => 200, 'message' => 'Collection successfully created.'], 200);
+    return response()->json(['status_code' => 201, 'message' => 'Collection successfully created.'], 201);
   }
 
   public function update(UpdateCollectionRequest $request, $id)
@@ -162,7 +162,7 @@ class CollectionController extends BaseController {
     }
 
     $deletableCollection->delete();
-    return response()->json(['status_code' => 200, 'message' => 'Collection successfully deleted.'], 200);
+    return response()->json(['status_code' => 205, 'message' => 'Collection successfully deleted.'], 205);
   }
 
   public function createCollection($name, $private, $userId)
