@@ -18,7 +18,7 @@ class UserController extends BaseController {
 
   public function __construct()
   {
-    $this->middleware('api.auth', ['only' => ['index', 'update', 'delete']]);
+    $this->middleware('api.auth', ['only' => ['index', 'update', 'delete', 'hasVideoMatchingHash']]);
   }
 
   public function index()
@@ -81,7 +81,7 @@ class UserController extends BaseController {
       if (trim($email) == '') {
         $user->email = md5($user->username) . User::$EMAIL_PLACEHOLDER_SUFFIX;
         $user->save();
-        return response()->json(['status_code' => 200, 'message' => 'Email address successfully removed.'], 200);
+        return response()->json(['status_code' => 205, 'message' => 'Email address successfully removed.'], 205);
       } else {
         // New email: attempt validation.
         $validator = \Validator::make(['email' => $email], [
@@ -106,7 +106,7 @@ class UserController extends BaseController {
   {
     $user = User::find($id);
     $user->delete();
-    return response()->json(['status_code' => 200, 'message' => 'User ' . $user->username . ' (id: ' . $user->id . ') was permanently deleted.'], 200);
+    return response()->json(['status_code' => 205, 'message' => 'User ' . $user->username . ' (id: ' . $user->id . ') was permanently deleted.'], 205);
   }
 
   /**
@@ -172,10 +172,34 @@ class UserController extends BaseController {
     ]);
 
     return response()->json([
-      'status_code' => 200,
+      'status_code' => 201,
       'message' => 'Token created.',
       'token' => $token
-    ], 200);
+    ], 201);
+  }
+
+  public function hasVideoMatchingHash($hash)
+  {
+    $user = \JWTAuth::parseToken()->toUser();
+
+    // Check in media queue.
+    if (DB::table('mediaqueue')
+        ->where('requester', (int) $user->id)
+        ->where('hash', $hash))
+        ->count() > 0) {
+      return true;
+    }
+
+    // Then check deeper, in the user's own videos.
+    $hasVideo = false;
+    $user->videos->each(function ($video) use ($hash, $hasVideo) {
+      if ($video->hash == $hash) {
+        $hasVideo = true;
+        return false;
+      }
+    });
+
+    return $hasVideo;
   }
 
   protected function createUser($username, $email, $password)
