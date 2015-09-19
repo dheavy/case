@@ -10,11 +10,17 @@ use DB;
 class MediaAcquisitionController extends BaseController {
 
   protected $videoController;
+  protected $collectionController;
+  protected $userController;
 
-  public function __construct(VideoController $videoController)
+  public function __construct(VideoController $videoController,
+                              CollectionController $collectionController,
+                              UserController $userController)
   {
     $this->middleware('api.auth');
     $this->videoController = $videoController;
+    $this->collectionController = $collectionController;
+    $this->userController = $userController;
   }
 
   /**
@@ -55,23 +61,29 @@ class MediaAcquisitionController extends BaseController {
   }
 
   /**
-   * Queue proposed video URL into video store, so that
-   * it gets processed later on and hopefully added to
-   * the user's collection.
+   * Add video URL to queue, so that it gets processed later on
+   * and hopefully added to the user's collection.
    *
    * @param  AcquireMediaRequest  $request
    * @param  CollectionController $collectionController
+   * @param  UserController       $userController
    * @return Response
    */
-  public function acquire(AcquireMediaRequest $request, CollectionController $collectionController)
+  public function acquire(AcquireMediaRequest $request)
   {
     $user = \JWTAuth::parseToken()->toUser();
 
-    // Is request coming from TARS (browser add-on)?
-    $fromTars = $request->input('tars', false);
-
-    // URL to process.
+    // URL to process, and resulting hash.
     $url = $request->input('url');
+    $hash = md5(urlencode(utf8_encode($url)));
+
+    // Prevent from making a duplicate of an already collected video.
+    if ($userController->hasVideoMatchingHash($hash)) {
+      return response()->json([
+        'status_code' => 205,
+        'message' => 'Video was already added.'
+      ]);
+    }
 
     // Get the collection ID to add the video to.
     // If value is null, it means User
@@ -83,6 +95,7 @@ class MediaAcquisitionController extends BaseController {
       $collectionId = (int) $collectionId;
     }
 
+    // Effectively create the new collection.
     if ($collectionName) {
       $collectionController->createCollection($collectionName, false, $user->id);
     }
