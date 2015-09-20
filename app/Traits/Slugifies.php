@@ -2,6 +2,8 @@
 
 trait Slugifies {
 
+  protected $delimiter = '-';
+
   /**
    * Make slug from the instance's name.
    *
@@ -32,14 +34,7 @@ trait Slugifies {
    */
   protected function slugify($item)
   {
-    $item = preg_replace('~[^\\pL\d]+~u', '-', $item);
-    $item = trim($item, '-');
-    $item = iconv('utf-8', 'us-ascii//TRANSLIT', $item);
-    $item = strtolower($item);
-    $item = preg_replace('~[^-\w]+~', '', $item);
-    if (empty($item)) return 'n-a';
-
-    return $item;
+    return str_slug($item, $this->delimiter);
   }
 
 }
