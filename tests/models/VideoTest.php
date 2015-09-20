@@ -2,17 +2,12 @@
 
 use Mypleasure\Video;
 use Mypleasure\Collection;
-
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Way\Tests\Should;
 
 class VideoTest extends TestCase {
 
-  public function setUp()
-  {
-    parent::setUp();
-    $this->prepareTestDB();
-    $this->createApplication();
-  }
+  use DatabaseTransactions;
 
   public function testSavedWithSlug()
   {

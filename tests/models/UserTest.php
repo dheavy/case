@@ -4,15 +4,11 @@ use Way\Tests\Should;
 use Mypleasure\User;
 use Mypleasure\Video;
 use Mypleasure\Collection;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class UserTest extends TestCase {
 
-  public function setUp()
-  {
-    parent::setUp();
-    $this->prepareTestDB();
-    $this->createApplication();
-  }
+  use DatabaseTransactions;
 
   public function testUserIsCreatedWithDummyEmailByDefault()
   {
