@@ -3,11 +3,8 @@
 use Way\Tests\Should;
 use Mypleasure\Collection;
 use Mypleasure\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class CollectionTest extends TestCase {
-
-  use DatabaseTransactions;
 
   public function testSavedWithSlug()
   {

@@ -2,6 +2,7 @@
 
 class TestCase extends Illuminate\Foundation\Testing\TestCase
 {
+
     /**
      * The base URL to use while testing the application.
      *
@@ -19,6 +20,7 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
       $app = require __DIR__.'/../bootstrap/app.php';
       $app['Illuminate\Contracts\Console\Kernel']->call('migrate:reset', array('--env' => 'testing'));
       $app['Illuminate\Contracts\Console\Kernel']->call('migrate', array('--env' => 'testing'));
+      $app['Illuminate\Contracts\Console\Kernel']->call('db:seed', array('--env' => 'testing'));
       $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
       return $app;
@@ -42,5 +44,11 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
     }
 
     return $string;
+  }
+
+  protected function getToken()
+  {
+    $response = $this->call('POST', 'api/login', ['username' => 'davy', 'password' => 'azertyuiop']);
+    return $response->getData()->token;
   }
 }
