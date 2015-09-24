@@ -43,7 +43,7 @@ class CollectionController extends BaseController {
 
     $this->createCollection(
       $request->input('name'),
-      (boolean) $request->input('private') || false),
+      (boolean) $request->input('private') || false,
       $user->id
     );
 
