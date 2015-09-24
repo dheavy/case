@@ -183,9 +183,9 @@ class UserController extends BaseController {
     $user = \JWTAuth::parseToken()->toUser();
 
     // Check in media queue.
-    if (DB::table('mediaqueue')
+    if (\DB::table('mediaqueue')
         ->where('requester', (int) $user->id)
-        ->where('hash', $hash))
+        ->where('hash', $hash)
         ->count() > 0) {
       return true;
     }
@@ -200,6 +200,25 @@ class UserController extends BaseController {
     });
 
     return $hasVideo;
+  }
+
+  public function ownsCollection($userId, $collectionId)
+  {
+    $user = User::find($userId);
+    $isOwner = false;
+
+    if ($user) {
+      $user->collections->each(function ($collection) use (&$collectionId, &$isOwner) {
+        if ((int) $collection->id == (int) $collectionId) {
+          $isOwner = true;
+          return false;
+        }
+      });
+
+      return $isOwner;
+    }
+
+    return null;
   }
 
   protected function createUser($username, $email, $password)
