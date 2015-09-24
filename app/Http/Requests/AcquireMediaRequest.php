@@ -29,6 +29,7 @@ class AcquireMediaRequest extends FormRequest
     {
         return [
             'url' => 'required|url',
+            'collection_id' => 'sometimes|min:1',
             'name' => 'sometimes|between:2,30'
         ];
     }

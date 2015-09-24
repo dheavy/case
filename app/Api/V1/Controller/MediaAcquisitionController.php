@@ -5,7 +5,7 @@ namespace Mypleasure\Api\V1\Controller;
 use Mypleasure\Api\V1\Controller\CollectionController;
 use Mypleasure\Api\V1\Controller\VideoController;
 use Mypleasure\Http\Requests\AcquireMediaRequest;
-use DB;
+use Carbon\Carbon;
 
 class MediaAcquisitionController extends BaseController {
 
@@ -17,7 +17,7 @@ class MediaAcquisitionController extends BaseController {
                               CollectionController $collectionController,
                               UserController $userController)
   {
-    $this->middleware('api.auth');
+    $this->middleware('api.auth', ['expect' => 'acquire']);
     $this->videoController = $videoController;
     $this->collectionController = $collectionController;
     $this->userController = $userController;
@@ -61,44 +61,97 @@ class MediaAcquisitionController extends BaseController {
   }
 
   /**
-   * Add video URL to queue, so that it gets processed later on
-   * and hopefully added to the user's collection.
+   * Deal with user's request to add a video to its collections.
+   *
+   * The body of the request contains either (by order to precedence):
+   *
+   * - collection_id: the ID of the collection owned by current user
+   *                  where she'd like to place the video,
+   *
+   * - name:          the name of a new collection to create and store
+   *                  the new video at.
+   *
+   * After parsing the request, if it succeeds, this method will either:
+   *
+   * - store to media queue the requested video with related data,
+   *   to be processed by TARS,
+   *
+   * - create directly an instance of the video if matching data is
+   *   to be found in the store (i.e. when the same video has already
+   *   been scraped before in a previous request).
    *
    * @param  AcquireMediaRequest  $request
-   * @param  CollectionController $collectionController
-   * @param  UserController       $userController
    * @return Response
    */
   public function acquire(AcquireMediaRequest $request)
   {
     $user = \JWTAuth::parseToken()->toUser();
+    $collectionName = null;
 
-    // URL to process, and resulting hash.
-    $url = $request->input('url');
+    // URI to process, and resulting hash.
+    $url = $this->normalizeUrl($request->input('url'));
     $hash = md5(urlencode(utf8_encode($url)));
 
     // Prevent from making a duplicate of an already collected video.
-    if ($userController->hasVideoMatchingHash($hash)) {
+    if ($this->userController->hasVideoMatchingHash($hash)) {
       return response()->json([
         'status_code' => 205,
-        'message' => 'Video was already added.'
-      ]);
+        'message' => 'Video was already added to queue.'
+      ], 205);
     }
 
     // Get the collection ID to add the video to.
     // If value is null, it means User
     // wants to create a new collection.
-    $collectionId = trim($request->input('collection', null));
+    $collectionId = $request->input('collection_id', null);
     if (is_null($collectionId)) {
       $collectionName = $request->input('name', null);
     } else {
       $collectionId = (int) $collectionId;
+
+      // Ensure the collection ID referes to one of user's.
+      if (!$this->userController->ownsCollection($user->id, $collectionId)) {
+        return response()->json([
+          'status_code' => 422,
+          'message' => 'Collection ID is invalid.'
+        ], 422);
+      }
     }
 
-    // Effectively create the new collection.
+    // Now... create the new collection if a name was passed.
+    // Collection ID becomes the ID of the newly created collection.
     if ($collectionName) {
-      $collectionController->createCollection($collectionName, false, $user->id);
+      $newCollection = $this->collectionController->createCollection($collectionName, false, $user->id);
+      $collectionId = $newCollection->id;
     }
+
+    // No collection ID nor new collection name? Error.
+    if (!$collectionId && !$collectionName) {
+      return response()->json([
+        'status_code' => 422,
+        'message' => 'Missing existing collection ID or new collection name.'
+      ], 422);
+    }
+
+    // Check if video was already processed before, i.e. already in the media store.
+    // Create a Video instance directly if it's the case.
+    $video = $this->retrieveVideoInStoreFromHash($hash);
+    if ((bool) $video) {
+      $this->createVideoInstance($collectionId, $video[0]);
+      return response()->json([
+        'status_code' => 201,
+        'message' => 'Video instance was created from a previous occurence in the media store.'
+      ], 201);
+    }
+
+    // No previous occurence of this video
+    // was found in the media store,
+    // so add it to media queue.
+    $this->addVideoToRequestQueue($hash, $url, $collectionId);
+    return response()->json([
+        'status_code' => 201,
+        'message' => 'Requested video was added to media queue for processing.'
+      ], 201);
   }
 
   protected function getPendingNumber($userId)
@@ -140,7 +193,7 @@ class MediaAcquisitionController extends BaseController {
       \DB::table('mediaqueue')
         ->where('status', 'ready')
         ->where('requester', $userId)
-        ->update(array('status' => 'done'));
+        ->update(['status' => 'done']);
     }
 
     return true;
@@ -161,6 +214,68 @@ class MediaAcquisitionController extends BaseController {
       ->get();
 
     return $video;
+  }
+
+  protected function normalizeUrl($url)
+  {
+    $parsed = parse_url($url);
+    $host = $parsed['host'];
+    $stem = str_replace('www.', '', $host);
+    $domain = stristr($stem, '.',true);
+    $result = '';
+
+    switch ($domain) {
+      case 'youtube':
+      case 'youtu': // youtu.be
+        $result = $this->normalizeYoutubeUrl($parsed);
+        break;
+
+      default:
+        $result = $url;
+        break;
+    }
+
+    return $result;
+  }
+
+  protected function normalizeYoutubeUrl($parsedUrl)
+  {
+    $normalized = 'https://www.youtube.com/watch?';
+
+    // youtube.com
+    if (str_contains($parsedUrl['host'], 'youtube')) {
+      $query = $parsedUrl['query'];
+      $qs = explode('&', $query);
+
+      foreach ($qs as &$q) {
+        if (starts_with($q, 'v=')) {
+          $normalized .= $q;
+          break;
+        }
+      }
+      return $normalized;
+    }
+
+    // youtu.be
+    if (str_contains($parsedUrl['host'], 'youtu.be')) {
+      $normalized .= 'v=' . substr($parsedUrl['host'], 1);
+      return $normalized;
+    }
+  }
+
+  protected function addVideoToRequestQueue($hash, $url, $collectionId)
+  {
+    $user = \JWTAuth::parseToken()->toUser();
+
+    \DB::table('mediaqueue')
+      ->insert([
+        'hash' => $hash,
+        'url' => $url,
+        'requester' => (int) $user->id,
+        'collection_id' => (int) $collectionId,
+        'status' => 'pending',
+        'created_at' => Carbon::now()
+      ]);
   }
 
 }
