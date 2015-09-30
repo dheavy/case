@@ -178,7 +178,7 @@ class UserController extends BaseController {
     ], 201);
   }
 
-  public function hasVideoMatchingHash($hash)
+  public function hasVideoMatchingHash($hash, $status)
   {
     $user = \JWTAuth::parseToken()->toUser();
 
@@ -186,6 +186,7 @@ class UserController extends BaseController {
     if (\DB::table('mediaqueue')
         ->where('requester', (int) $user->id)
         ->where('hash', $hash)
+        ->where('status', $status)
         ->count() > 0) {
       return true;
     }

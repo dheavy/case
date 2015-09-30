@@ -93,7 +93,7 @@ class MediaAcquisitionController extends BaseController {
     $hash = md5(urlencode(utf8_encode($url)));
 
     // Prevent from making a duplicate of an already collected video.
-    if ($this->userController->hasVideoMatchingHash($hash)) {
+    if ($this->userController->hasVideoMatchingHash($hash, 'pending')) {
       return response()->json([
         'status_code' => 205,
         'message' => 'Video was already added to queue.'
@@ -212,7 +212,6 @@ class MediaAcquisitionController extends BaseController {
     $video = \DB::table('mediastore')
       ->where('hash', $hash)
       ->get();
-
     return $video;
   }
 
