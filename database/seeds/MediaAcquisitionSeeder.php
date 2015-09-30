@@ -74,13 +74,13 @@ class MediaAcquisitionSeeder extends Seeder
           'created_at' => Carbon::now()
         ],
         [
-          'original_url' => 'https://www.youtube.com/watch?v=tAJqVfu6AqA',
-          'poster' => 'http://img.youtube.com/vi/tAJqVfu6AqA/mqdefault.jpg',
+          'original_url' => 'https://www.youtube.com/watch?v=5OGTiU8AT98',
+          'poster' => 'http://img.youtube.com/vi/5OGTiU8AT98/mqdefault.jpg',
           'created_at' => Carbon::now(),
-          'hash' => md5('https://www.youtube.com/watch?v=tAJqVfu6AqA'),
+          'hash' => md5('https://www.youtube.com/watch?v=5OGTiU8AT98'),
           'duration' => '00:02:36',
-          'embed_url' => 'https://www.youtube.com/embed/tAJqVfu6AqA',
-          'title' => 'title for https://www.youtube.com/watch?v=tAJqVfu6AqA',
+          'embed_url' => 'https://www.youtube.com/embed/5OGTiU8AT98',
+          'title' => 'title for https://www.youtube.com/watch?v=5OGTiU8AT98',
           'naughty' => false,
           'created_at' => Carbon::now()
         ],
