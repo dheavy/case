@@ -4,7 +4,6 @@ use Illuminate\Database\Seeder;
 use Mypleasure\Collection;
 use Mypleasure\User;
 use Carbon\Carbon;
-use \DB;
 
 class CollectionTableSeeder extends Seeder
 {
@@ -16,7 +15,7 @@ class CollectionTableSeeder extends Seeder
     public function run()
     {
       $this->command->info('Deleting Collection table...');
-      DB::table('collections')->delete();
+      \DB::table('collections')->delete();
 
       $this->command->info('Seeding Collection table...');
       $davy = User::where('username', 'davy')->first();

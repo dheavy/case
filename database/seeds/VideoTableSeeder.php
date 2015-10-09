@@ -4,7 +4,6 @@ use Illuminate\Database\Seeder;
 use Mypleasure\Collection;
 use Mypleasure\Video;
 use Carbon\Carbon;
-use \DB;
 
 class VideoTableSeeder extends Seeder
 {
@@ -16,7 +15,7 @@ class VideoTableSeeder extends Seeder
     public function run()
     {
       $this->command->info('Deleting Video table...');
-      DB::table('videos')->delete();
+      \DB::table('videos')->delete();
 
       $this->command->info('Seeding Video table...');
 

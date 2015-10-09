@@ -4,7 +4,6 @@ use Illuminate\Database\Seeder;
 use Mypleasure\Collection as Collection;
 use Mypleasure\User;
 use Carbon\Carbon;
-use \DB;
 
 class MediaAcquisitionSeeder extends Seeder
 {
@@ -16,17 +15,17 @@ class MediaAcquisitionSeeder extends Seeder
     public function run()
     {
       $this->command->info('Deleting Video Queue...');
-      DB::table('mediaqueue')->delete();
+      \DB::table('mediaqueue')->delete();
 
       $this->command->info('Deleting Video Store...');
-      DB::table('mediastore')->delete();
+      \DB::table('mediastore')->delete();
 
       $this->command->info('Seeding Video Store and Queue...');
 
       $davy = User::where('username', 'davy')->first();
       $morgane = User::where('username', 'morgane')->first();
 
-      DB::table('mediaqueue')->insert([
+      \DB::table('mediaqueue')->insert([
         [
           'hash' => md5('https://www.youtube.com/watch?v=7WRFUXyVZoQ'),
           'url' => 'https://www.youtube.com/watch?v=7WRFUXyVZoQ',
@@ -61,7 +60,7 @@ class MediaAcquisitionSeeder extends Seeder
         ],
       ]);
 
-      DB::table('mediastore')->insert([
+      \DB::table('mediastore')->insert([
         [
           'original_url' => 'https://www.youtube.com/watch?v=7WRFUXyVZoQ',
           'poster' => 'http://img.youtube.com/vi/7WRFUXyVZoQ/mqdefault.jpg',

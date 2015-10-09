@@ -4,7 +4,6 @@ use Illuminate\Database\Seeder;
 use Mypleasure\Video;
 use Mypleasure\Tag;
 use Carbon\Carbon;
-use \DB;
 
 class TagTableSeeder extends Seeder
 {
@@ -16,7 +15,7 @@ class TagTableSeeder extends Seeder
     public function run()
     {
       $this->command->info('Deleting Tag table...');
-      DB::table('tags')->delete();
+      \DB::table('tags')->delete();
 
       $this->command->info('Seeding Tag table...');
 

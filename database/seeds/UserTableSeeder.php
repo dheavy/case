@@ -3,7 +3,6 @@
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
 use Mypleasure\User;
-use \DB;
 
 class UserTableSeeder extends Seeder
 {
@@ -15,7 +14,7 @@ class UserTableSeeder extends Seeder
     public function run()
     {
         $this->command->info('Deleting User table...');
-        DB::table('users')->delete();
+        \DB::table('users')->delete();
 
         $this->command->info('Seeding User table...');
         $davy = new User;

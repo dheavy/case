@@ -4,7 +4,6 @@ use Illuminate\Database\Seeder;
 use Mypleasure\Invite;
 use Mypleasure\User;
 use Carbon\Carbon;
-use \DB;
 
 class InviteTableSeeder extends Seeder
 {
@@ -16,7 +15,7 @@ class InviteTableSeeder extends Seeder
     public function run()
     {
         $this->command->info('Deleting Invite table...');
-        DB::table('invites')->delete();
+        \DB::table('invites')->delete();
 
         $this->command->info('Seeding Invite table...');
         $davy = User::where('username', 'davy')->first();
