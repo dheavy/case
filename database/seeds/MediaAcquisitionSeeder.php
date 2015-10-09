@@ -43,6 +43,14 @@ class MediaAcquisitionSeeder extends Seeder
           'created_at' => Carbon::now()
         ],
         [
+          'hash' => md5('https://www.youtube.com/watch?v=tAJqVfu6AqA'),
+          'url' => 'https://www.youtube.com/watch?v=tAJqVfu6AqA',
+          'requester' => $davy->id,
+          'collection_id' => $davy->collections[0]->id,
+          'status' => 'pending',
+          'created_at' => Carbon::now()
+        ],
+        [
           'hash' => md5('https://www.youtube.com/watch?v=ZK4_O7QJ55Y'),
           'url' => 'https://www.youtube.com/watch?v=ZK4_O7QJ55Y',
           'requester' => $morgane->id,
