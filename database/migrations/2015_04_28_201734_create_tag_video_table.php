@@ -30,7 +30,7 @@ class CreateTagVideoTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('tag_video');
+		Schema::dropIfExists('tag_video');
 	}
 
 }

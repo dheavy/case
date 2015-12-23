@@ -30,7 +30,7 @@ class CreateInvitesTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('invites');
+		Schema::dropIfExists('invites');
 	}
 
 }

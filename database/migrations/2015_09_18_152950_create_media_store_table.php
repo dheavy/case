@@ -32,6 +32,6 @@ class CreateMediaStoreTable extends Migration
      */
     public function down()
     {
-      Schema::drop('mediastore');
+      Schema::dropIfExists('mediastore');
     }
 }

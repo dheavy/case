@@ -30,6 +30,6 @@ class CreateMediaQueueTable extends Migration
    */
   public function down()
   {
-    Schema::drop('mediaqueue');
+    Schema::dropIfExists('mediaqueue');
   }
 }
