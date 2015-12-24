@@ -3,6 +3,8 @@
 class TestCase extends Illuminate\Foundation\Testing\TestCase
 {
 
+    protected $token;
+
     /**
      * The base URL to use while testing the application.
      *
@@ -18,12 +20,14 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
     public function createApplication()
     {
       $app = require __DIR__.'/../bootstrap/app.php';
-      $app['Illuminate\Contracts\Console\Kernel']->call('migrate:reset', array('--env' => 'testing'));
-      $app['Illuminate\Contracts\Console\Kernel']->call('migrate', array('--env' => 'testing'));
-      $app['Illuminate\Contracts\Console\Kernel']->call('db:seed', array('--env' => 'testing'));
       $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-
       return $app;
+    }
+
+    public function setUp()
+    {
+      parent::setUp();
+      $this->artisan('migrate:refresh', ['--env' => 'testing']);
     }
 
   /**
@@ -46,9 +50,17 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
     return $string;
   }
 
-  protected function getToken()
+  protected function signIn()
   {
-    $response = $this->call('POST', 'api/login', ['username' => 'davy', 'password' => 'azertyuiop']);
-    return $response->getData()->token;
+    if ($this->token) {
+      JWTAuth::invalidate($this->token);
+    }
+
+    $response = $this->post('api/login', ['username' => 'davy', 'password' => 'azertyuiop']);
+    $content = json_decode($this->response->getContent());
+    $this->assertObjectHasAttribute('token', $content, 'Token does not exists');
+    $this->token = $content->token;
+
+    return $this;
   }
 }
