@@ -2,6 +2,7 @@
 
 use Way\Tests\Should;
 use Mypleasure\User;
+use Carbon\Carbon;
 
 class MediaAcquisitionControllerTest extends TestCase {
 
@@ -122,7 +123,63 @@ class MediaAcquisitionControllerTest extends TestCase {
     Should::notEqual($collectionName, $this->user->collections->last()->name);
   }
 
-  public function testMissingParamsInRequestLeadToFailure()
+  public function testAcquireRetrievesExistingVideoInStoreIfExistsWhenAuthenticated()
+  {
+    $videoName = 'my video';
+    \DB::table('mediastore')->insert([
+      [
+        'original_url' => 'https://www.youtube.com/watch?v=7WRFUXyVZoQ',
+        'poster' => 'http://img.youtube.com/vi/7WRFUXyVZoQ/mqdefault.jpg',
+        'created_at' => Carbon::now(),
+        'hash' => md5(urlencode(utf8_encode('https://www.youtube.com/watch?v=7WRFUXyVZoQ'))),
+        'duration' => '00:02:36',
+        'embed_url' => 'https://www.youtube.com/embed/7WRFUXyVZoQ',
+        'title' => $videoName,
+        'naughty' => false,
+        'created_at' => Carbon::now()
+      ]
+    ]);
+
+    $data = $this->createPostData(['collectionId' => $this->user->collections->first()->id]);
+
+    $this->post(
+      '/api/media/acquire',
+      $data,
+      ['Authorization' => 'Bearer ' . $this->token]
+    )->seeJson([
+      'status_code' => 201,
+      'message' => 'Video instance was created from a previous occurence in the media store.'
+    ]);
+  }
+
+  public function testAcquireRetrievesExistingVideoInStoreIfExistsWhenUnauthenticated()
+  {
+    $videoName = 'my video';
+    \DB::table('mediastore')->insert([
+      [
+        'original_url' => 'https://www.youtube.com/watch?v=7WRFUXyVZoQ',
+        'poster' => 'http://img.youtube.com/vi/7WRFUXyVZoQ/mqdefault.jpg',
+        'created_at' => Carbon::now(),
+        'hash' => md5(urlencode(utf8_encode('https://www.youtube.com/watch?v=7WRFUXyVZoQ'))),
+        'duration' => '00:02:36',
+        'embed_url' => 'https://www.youtube.com/embed/7WRFUXyVZoQ',
+        'title' => $videoName,
+        'naughty' => false,
+        'created_at' => Carbon::now()
+      ]
+    ]);
+
+    $data = $this->createPostData(['collectionId' => $this->user->collections->first()->id]);
+
+    $this->post(
+      '/api/media/acquire',
+      $data
+    )->seeJson([
+      'status_code' => 401
+    ]);
+  }
+
+  public function testMissingParamsInAcquireRequestLeadToFailure()
   {
     $data = $this->createPostData();
 
