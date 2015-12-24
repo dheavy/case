@@ -58,13 +58,10 @@ class MediaAcquisitionControllerTest extends TestCase {
     Should::equal(401, $result->status_code);
   }
 
-  public function testCanAcquireNewInExistingCollectionWhenAuthenticated()
+  public function testCanAcquireNewMediaInExistingCollectionWhenAuthenticated()
   {
     // Create POST data.
-    $data = [
-      'url' => 'https://www.youtube.com/watch?v=7WRFUXyVZoQ',
-      'collection_id' => $this->user->collections->first()->id
-    ];
+    $data = $this->createPostData(['collectionId' => $this->user->collections->first()->id]);
 
     // Add a new video to Davy's first collection.
     $this->post(
@@ -77,13 +74,10 @@ class MediaAcquisitionControllerTest extends TestCase {
     ]);
   }
 
-  public function testCanNotAcquireNewInExistingCollectionWhenUnauthenticated()
+  public function testCanNotAcquireNewMediaInExistingCollectionWhenUnauthenticated()
   {
     // Create POST data.
-    $data = [
-      'url' => 'https://www.youtube.com/watch?v=7WRFUXyVZoQ',
-      'collection_id' => $this->user->collections->first()->id
-    ];
+    $data = $this->createPostData(['collectionId' => $this->user->collections->first()->id]);
 
     // Add a new video to Davy's first collection.
     $this->post(
@@ -92,6 +86,40 @@ class MediaAcquisitionControllerTest extends TestCase {
     )->seeJson([
       'status_code' => 401
     ]);
+  }
+
+  public function testCanAcquireNewMediaInNewCollectionWhenAuthenticated()
+  {
+    $collectionName = 'my collection';
+
+    $data = $this->createPostData(['name' => $collectionName]);
+
+    $this->post(
+      '/api/media/acquire',
+      $data,
+      ['Authorization' => 'Bearer ' . $this->token]
+    )->seeJson([
+      'status_code' => 201,
+      'message' => 'Requested video was added to media queue for processing.'
+    ]);
+
+    Should::equal($collectionName, $this->user->collections->last()->name);
+  }
+
+  public function testCanNotAcquireNewMediaInNewCollectionWhenUnauthenticated()
+  {
+    $collectionName = 'my collection';
+
+    $data = $this->createPostData(['name' => $collectionName]);
+
+    $this->post(
+      '/api/media/acquire',
+      $data
+    )->seeJson([
+      'status_code' => 401,
+    ]);
+
+    Should::notEqual($collectionName, $this->user->collections->last()->name);
   }
 
   protected function fetch1($token = null)
@@ -148,6 +176,19 @@ class MediaAcquisitionControllerTest extends TestCase {
       'result' => json_decode($response->content()),
       'refreshPending' => $refreshPending
     ];
+  }
+
+  protected function createPostData($args = [])
+  {
+    $data = ['url' => 'https://www.youtube.com/watch?v=7WRFUXyVZoQ'];
+
+    if (array_key_exists('name', $args)) {
+      $data['name'] = $args['name'];
+    } elseif (array_key_exists('collectionId', $args)) {
+      $data['collection_id'] = $args['collectionId'];
+    }
+
+    return $data;
   }
 
 }
