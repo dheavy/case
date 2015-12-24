@@ -122,6 +122,19 @@ class MediaAcquisitionControllerTest extends TestCase {
     Should::notEqual($collectionName, $this->user->collections->last()->name);
   }
 
+  public function testMissingParamsInRequestLeadToFailure()
+  {
+    $data = $this->createPostData();
+
+    $this->post(
+      '/api/media/acquire',
+      $data,
+      ['Authorization' => 'Bearer ' . $this->token]
+    )->seeJson([
+      'status_code' => 422,
+    ]);
+  }
+
   protected function fetch1($token = null)
   {
     // Prepare comparable values based on seeding.
