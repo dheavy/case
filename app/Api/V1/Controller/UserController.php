@@ -18,7 +18,7 @@ class UserController extends BaseController {
 
   public function __construct()
   {
-    $this->middleware('api.auth', ['only' => ['index', 'update', 'delete', 'hasVideoMatchingHash']]);
+    $this->middleware('api.auth', ['only' => ['index', 'show', 'update', 'delete', 'hasVideoMatchingHash']]);
   }
 
   public function index()
