@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+import dotenv
+
+dotenv.read_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__ + '../../')), '.env'))
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,12 +23,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '7zn*(s+p)1jyuiiuzzu=5dyx9x&wg#ns(!v$uif5kz35@^3o(o'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [os.environ.get('ALLOWED_HOSTS')]
 
 
 # Application definition
@@ -76,8 +79,20 @@ WSGI_APPLICATION = 'mypleasure.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': os.environ.get('DATABASES_DEFAULT_ENGINE'),
+        'NAME': os.environ.get('DATABASES_DEFAULT_NAME'),
+        'USER': os.environ.get('DATABASES_DEFAULT_USER'),
+        'PASSWORD': os.environ.get('DATABASES_DEFAULT_PASSWORD'),
+        'HOST': os.environ.get('DATABASES_DEFAULT_HOST'),
+        'PORT': os.environ.get('DATABASES_DEFAULT_PORT'),
+        'TEST': {
+            'ENGINE': os.environ.get('DATABASES_DEFAULT_TEST_ENGINE'),
+            'NAME': os.environ.get('DATABASES_DEFAULT_TEST_NAME'),
+            'USER': os.environ.get('DATABASES_DEFAULT_TEST_USER'),
+            'PASSWORD': os.environ.get('DATABASES_DEFAULT_TEST_PASSWORD'),
+            'HOST': os.environ.get('DATABASES_DEFAULT_TEST_HOST'),
+            'PORT': os.environ.get('DATABASES_DEFAULT_TEST_PORT'),
+        }
     }
 }
 
@@ -106,7 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = os.environ.get('TIME_ZONE')
 
 USE_I18N = True
 
