@@ -33,7 +33,7 @@ class Video(models.Model):
 
     collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
     tags = models.ManyToManyField('Tag')
-    hash = models.CharField(max_length=100)
+    hash = models.CharField(max_length=100, db_index=True)
     title = models.CharField(max_length=100)
     slug = models.CharField(max_length=100)
     poster = models.CharField(max_length=100)
