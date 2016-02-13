@@ -119,6 +119,10 @@ class Invite(models.Model):
     """
 
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    email = models.CharField(max_length='50')
+    code = models.CharField(max_length='100')
+    created_at = models.DateTimeField(auto_now_add=True)
+    claimed_at = models.DateTimeField(auto_now=True)
 
 
 class RememberToken(models.Model):
