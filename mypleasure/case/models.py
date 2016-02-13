@@ -22,6 +22,15 @@ class Collection(models.Model):
         """True if it's the default (first) collection assigned to User."""
         return self.id == self.owner.collection_set.first().id
 
+    def __str__(self):
+        """Render string representation of instance."""
+        return (
+            "Collection (id: %s, owner: %s, name: %s, slug: %s, private: %s)" %
+            (
+                self.id, self.owner.id, self.name, self.slug, self.is_private
+            )
+        )
+
 
 class Video(models.Model):
     """
@@ -56,7 +65,7 @@ class Video(models.Model):
         """Render string representation of instance."""
         return (
             "Video (id: %s, collectionid: %s, title: %s, slug: %s, poster: %s \
-            originalurl: %s, embedurl: %s, duration: %s, isnaughty: %s)" %
+            originalurl: %s, embedurl: %s, duration: %s, isnaughty: %s))" %
             (
                 self.id, self.collection.id, self.title, self.slug,
                 self.poster, self.original_url, self.embed_url,
@@ -81,7 +90,7 @@ class Tag(models.Model):
     def __str__(self):
         """Render string representation of instance."""
         return (
-            "Tag (id: %s, name: %s, slug: %s)" %
+            "Tag (id: %s, name: %s, slug: %s))" %
             (self.id, self.name, self.slug)
         )
 
@@ -109,6 +118,6 @@ class RememberToken(models.Model):
     def __str__(self):
         """Render string representation of instance."""
         return (
-            "RememberToken (id: %s, userid: %s, username: %s" %
+            "RememberToken (id: %s, userid: %s, username: %s)" %
             (self.id, self.user.id, self.user.username)
         )
