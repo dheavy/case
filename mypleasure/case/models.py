@@ -57,7 +57,7 @@ class Video(models.Model):
     """
 
     collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
-    tags = models.ManyToManyField('Tag', null=True, blank=True)
+    tags = models.ManyToManyField('Tag', blank=True)
     hash = models.CharField(max_length=100, db_index=True)
     title = models.CharField(max_length=100)
     slug = models.CharField(max_length=100)
@@ -97,7 +97,7 @@ class Tag(models.Model):
     'Has Many' and 'Belongs To Many' Videos.
     """
 
-    videos = models.ManyToManyField('Video', null=True, blank=True)
+    videos = models.ManyToManyField('Video', blank=True)
     name = models.CharField(max_length=20)
     slug = models.CharField(max_length=20)
     created_at = models.DateTimeField(auto_now_add=True)
