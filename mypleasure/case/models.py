@@ -3,6 +3,22 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class MPUser(User):
+    """Proxy class enhancing User with custom methods."""
+
+    def videos(self):
+        """Return all videos belonging to User."""
+        return [
+            v for c in self.collection_set.all() for v in c.video_set.all()
+        ]
+
+    class Meta:
+        """Set this class as a proxy of User."""
+
+        proxy = True
+        verbose_name = 'MyPleasure User'
+
+
 class Collection(models.Model):
     """
     Collection (of Videos).
@@ -41,11 +57,11 @@ class Video(models.Model):
     """
 
     collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
-    tags = models.ManyToManyField('Tag')
+    tags = models.ManyToManyField('Tag', null=True, blank=True)
     hash = models.CharField(max_length=100, db_index=True)
     title = models.CharField(max_length=100)
     slug = models.CharField(max_length=100)
-    poster = models.CharField(max_length=100)
+    poster = models.CharField(max_length=100, null=True, blank=True)
     original_url = models.CharField(max_length=100)
     embed_url = models.CharField(max_length=100)
     duration = models.CharField(max_length=8, default='--:--:--')
@@ -81,7 +97,7 @@ class Tag(models.Model):
     'Has Many' and 'Belongs To Many' Videos.
     """
 
-    videos = models.ManyToManyField('Video')
+    videos = models.ManyToManyField('Video', null=True, blank=True)
     name = models.CharField(max_length=20)
     slug = models.CharField(max_length=20)
     created_at = models.DateTimeField(auto_now_add=True)
