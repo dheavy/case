@@ -134,6 +134,8 @@ class RememberToken(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     token = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+    claimed_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         """Render string representation of instance."""
