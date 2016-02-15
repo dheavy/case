@@ -3,22 +3,6 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-class MPUser(User):
-    """Proxy class enhancing User with custom methods."""
-
-    def videos(self):
-        """Return all videos belonging to User."""
-        return [
-            v for c in self.collection_set.all() for v in c.video_set.all()
-        ]
-
-    class Meta:
-        """Set this class as a proxy of User."""
-
-        proxy = True
-        verbose_name = 'MyPleasure User'
-
-
 class Collection(models.Model):
     """
     Collection (of Videos).
@@ -27,7 +11,9 @@ class Collection(models.Model):
     'Has Many' Videos.
     """
 
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(
+        User, related_name='collections', on_delete=models.CASCADE
+    )
     name = models.CharField(max_length=30)
     slug = models.CharField(max_length=30)
     is_private = models.BooleanField(default=False)
@@ -36,7 +22,7 @@ class Collection(models.Model):
 
     def is_default(self):
         """True if it's the default (first) collection assigned to User."""
-        return self.id == self.owner.collection_set.first().id
+        return self.id == self.owner.collections.first().id
 
     def __str__(self):
         """Render string representation of instance."""
@@ -56,7 +42,9 @@ class Video(models.Model):
     'Has Many' and 'Belongs To Many' Tags.
     """
 
-    collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
+    collection = models.ForeignKey(
+        Collection, related_name='videos', on_delete=models.CASCADE
+    )
     tags = models.ManyToManyField('Tag', blank=True)
     hash = models.CharField(max_length=100, db_index=True)
     title = models.CharField(max_length=100)
@@ -69,10 +57,12 @@ class Video(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def get_owner(self):
+    @property
+    def owner(self):
         """Return User owning the Collection."""
         return self.collection.owner
 
+    @property
     def is_private(self):
         """Return privacy status based on the collection it belongs to."""
         return self.collection.is_private
