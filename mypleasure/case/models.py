@@ -108,9 +108,12 @@ class Invite(models.Model):
     'Belongs To' one User.
     """
 
-    sender = models.ForeignKey(User, on_delete=models.CASCADE)
-    email = models.CharField(max_length=50)
-    code = models.CharField(max_length=100)
+    sender = models.ForeignKey(
+        User, related_name='sender', on_delete=models.CASCADE, null=True)
+    email = models.CharField(max_length=50, null=True)
+    code = models.CharField(max_length=100, null=True)
+    user_created = models.ForeignKey(
+        User, related_name='user_created', on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     claimed_at = models.DateTimeField(auto_now=True)
 
