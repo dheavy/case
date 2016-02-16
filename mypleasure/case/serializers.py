@@ -13,11 +13,12 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         model = User
         fields = (
             'id', 'username', 'email', 'password', 'is_staff',
-            'is_superuser', 'date_joined', 'collections'
+            'is_superuser', 'date_joined', 'last_login', 'collections'
         )
         write_only_fields = ('password', 'confirm_password')
         read_only_fields = (
-            'is_staff', 'is_superuser', 'is_active', 'date_joined', ''
+            'is_staff', 'is_superuser', 'is_active',
+            'date_joined', 'last_login'
         )
 
     def validate(self, data):
@@ -40,23 +41,27 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class CollectionSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer for Collection model."""
 
-    owner = serializers.ReadOnlyField(source='owner.username')
-
     class Meta:
         """Meta for Collection serializer."""
 
         model = Collection
         fields = (
-            'id', 'name', 'owner', 'slug', 'videos',
-            'is_private', 'created_at', 'updated_at'
+            'id', 'name', 'owner', 'slug', 'videos', 'is_private',
+            'is_default', 'created_at', 'updated_at'
         )
 
 
 class VideoSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer for Video model."""
 
+    owner = serializers.ReadOnlyField()
+
     class Meta:
         """Meta for Video serializer."""
 
         model = Video
-        fields = ('id', 'title')
+        fields = (
+            'id', 'title', 'hash', 'slug', 'poster', 'original_url',
+            'embed_url', 'duration', 'is_naughty', 'created_at',
+            'updated_at', 'collection', 'owner'
+        )
