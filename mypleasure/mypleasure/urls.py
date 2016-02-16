@@ -75,7 +75,8 @@ urlpatterns = [
     # User detail is available to any authenticated user.
     # User list is available to admin user only.
     url(r'^api/v1/users/?$', UserList.as_view(), name='user-list'),
-    url(r'^api/v1/users/?$', UserDetail.as_view(), name='user-detail'),
+    url(r'^api/v1/users/(?P<pk>[0-9]+)/?$',
+        UserDetail.as_view(), name='user-detail'),
 
     # Collections
     # -----------
