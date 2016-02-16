@@ -15,7 +15,10 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             'id', 'username', 'email', 'password', 'is_staff',
             'is_superuser', 'date_joined', 'last_login', 'collections'
         )
-        write_only_fields = ('password', 'confirm_password')
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'confirm_password': {'write_only': True},
+        }
         read_only_fields = (
             'is_staff', 'is_superuser', 'is_active',
             'date_joined', 'last_login'
