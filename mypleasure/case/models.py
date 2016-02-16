@@ -20,6 +20,7 @@ class Collection(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    @property
     def is_default(self):
         """True if it's the default (first) collection assigned to User."""
         return self.id == self.owner.collections.first().id
