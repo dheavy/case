@@ -61,7 +61,12 @@ class Video(models.Model):
     @property
     def owner(self):
         """Return User owning the Collection."""
-        return self.collection.owner
+        u = self.collection.owner
+        return {
+            'username': u.username, 'email': u.email, 'is_staff': u.is_staff,
+            'is_superuser': u.is_superuser, 'last_login': u.last_login,
+            'id': u.id
+        }
 
     @property
     def is_private(self):
