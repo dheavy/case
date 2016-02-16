@@ -3,6 +3,28 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class CustomUser(User):
+    """Proxy class for enhancing User model."""
+
+    @property
+    def videos(self):
+        """
+        Aggregate and return User's videos.
+
+        Ensure aggregation is respectful of privacy prerogative.
+        """
+        return [
+            v for c in self.collections.all()
+            for v in c.videos.all()
+            if (not c.is_private or c.owner.id == self.id)
+        ]
+
+    class Meta:
+        """Meta for CustomUser class. Specify this is a proxy."""
+
+        proxy = True
+
+
 class Collection(models.Model):
     """
     Collection (of Videos).
