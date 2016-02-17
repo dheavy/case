@@ -1,6 +1,5 @@
 """MyPleasure API Views."""
 
-from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
 from rest_framework.generics import (
@@ -8,7 +7,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
-from .models import Collection, Video
+from .models import Collection, Video, CustomUser
 from .serializers import FullUserSerializer, BasicUserSerializer
 from .serializers import CollectionSerializer
 from .serializers import VideoSerializer
@@ -23,7 +22,7 @@ def filter_private_obj_by_ownership(obj, user):
 class UserMixin(object):
     """Mixin for User viewsets."""
 
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     permission_classes = (IsAuthenticated,)
 
     def get_serializer_class(self):
@@ -50,7 +49,7 @@ class ProfileView(UserDetail):
 
     def get_queryset(self):
         """Filter queryset to return current user's data."""
-        return User.objects.filter(pk=self.request.user.id)
+        return CustomUser.objects.filter(pk=self.request.user.id)
 
     def get_object(self):
         """Return data after basic checkup."""

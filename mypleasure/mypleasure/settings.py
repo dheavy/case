@@ -143,6 +143,9 @@ STATIC_URL = '/static/'
 
 APPEND_SLASH = False
 
+# Custom User model
+AUTH_USER_MODEL = 'case.CustomUser'
+
 # REST framework
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [],

@@ -1,10 +1,29 @@
 """CASE (MyPleasure API) models."""
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
+from django.contrib.auth.models import UserManager, AbstractBaseUser
+from django.contrib.auth.models import PermissionsMixin
 
 
-class CustomUser(User):
-    """Proxy class for enhancing User model."""
+class CustomUser(PermissionsMixin, AbstractBaseUser):
+    """Custom User class, enhancing User model."""
+
+    objects = UserManager()
+    username = models.CharField(max_length=40, unique=True, db_index=True)
+    email = models.EmailField(max_length=254, unique=True, blank=True)
+    last_access = models.DateTimeField(auto_now_add=True)
+    date_joined = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
+
+    def get_short_name(self):
+        return self.username
+
+    def __str__(self):
+        return self.username
 
     @property
     def videos(self):
@@ -19,11 +38,6 @@ class CustomUser(User):
             if (not c.is_private or c.owner.id == self.id)
         ]
 
-    class Meta:
-        """Meta for CustomUser class. Specify this is a proxy."""
-
-        proxy = True
-
 
 class Collection(models.Model):
     """
@@ -34,7 +48,7 @@ class Collection(models.Model):
     """
 
     owner = models.ForeignKey(
-        User, related_name='collections', on_delete=models.CASCADE
+        settings.AUTH_USER_MODEL, related_name='collections', on_delete=models.CASCADE
     )
     name = models.CharField(max_length=30)
     slug = models.CharField(max_length=30)
@@ -137,11 +151,11 @@ class Invite(models.Model):
     """
 
     sender = models.ForeignKey(
-        User, related_name='sender', on_delete=models.CASCADE, null=True)
+        settings.AUTH_USER_MODEL, related_name='sender', on_delete=models.CASCADE, null=True)
     email = models.CharField(max_length=50, null=True)
     code = models.CharField(max_length=100, null=True)
     user_created = models.ForeignKey(
-        User, related_name='user_created', on_delete=models.CASCADE, null=True)
+        settings.AUTH_USER_MODEL, related_name='user_created', on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     claimed_at = models.DateTimeField(auto_now=True)
 
@@ -153,7 +167,7 @@ class RememberToken(models.Model):
     Note: it's irrelevent if User did not give her email address.
     """
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     token = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     claimed_at = models.DateTimeField(auto_now=True)
