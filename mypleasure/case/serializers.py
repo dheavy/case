@@ -6,11 +6,25 @@ from case.models import Collection, Video, CustomUser
 class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer class for User, as seen by regular Users."""
 
+    videos = serializers.SerializerMethodField()
+
+    def get_videos(self, obj):
+        request = self.context['request']
+        return [
+            VideoSerializer(
+                v, context={'request': request}
+            ).data for v in obj.videos
+            if not v.is_private or v.owner['id'] == request.user.id
+        ]
+
     class Meta:
         """Meta for BasicUserSerializer."""
 
         model = CustomUser
-        fields = ('id', 'username', 'last_login', 'last_access', 'collections')
+        fields = (
+            'id', 'username', 'last_login', 'last_access',
+            'collections', 'videos'
+        )
         extra_kwargs = {
             'password': {'write_only': True},
             'confirm_password': {'write_only': True},
@@ -69,5 +83,5 @@ class VideoSerializer(serializers.HyperlinkedModelSerializer):
         fields = (
             'id', 'title', 'hash', 'slug', 'poster', 'original_url',
             'embed_url', 'duration', 'is_naughty', 'created_at',
-            'updated_at', 'collection', 'owner'
+            'updated_at', 'collection', 'owner', 'is_private'
         )
