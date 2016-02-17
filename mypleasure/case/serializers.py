@@ -1,6 +1,6 @@
 """CASE (MyPleasure API) serializers."""
 from rest_framework import serializers
-from case.models import Collection, Video, CustomUser
+from case.models import Collection, Video, CustomUser, Tag
 
 
 class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
@@ -86,3 +86,13 @@ class VideoSerializer(serializers.HyperlinkedModelSerializer):
             'embed_url', 'duration', 'is_naughty', 'created_at',
             'updated_at', 'collection', 'owner', 'is_private'
         )
+
+
+class TagSerializer(serializers.HyperlinkedModelSerializer):
+    """Serializer for Tag model."""
+
+    class Meta:
+        """Meta for Tag serializer."""
+
+        model = Tag
+        fields = ('id', 'videos', 'slug')
