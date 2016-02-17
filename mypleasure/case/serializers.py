@@ -1,5 +1,4 @@
 """CASE (MyPleasure API) serializers."""
-# from django.contrib.auth.models import User
 from rest_framework import serializers
 from case.models import Collection, Video, CustomUser
 
@@ -11,7 +10,7 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
         """Meta for BasicUserSerializer."""
 
         model = CustomUser
-        fields = ('id', 'username', 'last_login', 'collections')
+        fields = ('id', 'username', 'last_login', 'last_access', 'collections')
         extra_kwargs = {
             'password': {'write_only': True},
             'confirm_password': {'write_only': True},
