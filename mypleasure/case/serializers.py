@@ -9,6 +9,7 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
     videos = serializers.SerializerMethodField()
 
     def get_videos(self, obj):
+        """Get filtered list of serialized Videos."""
         request = self.context['request']
         return [
             VideoSerializer(
