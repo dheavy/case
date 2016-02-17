@@ -50,7 +50,9 @@ class Collection(models.Model):
     """
 
     owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name='collections', on_delete=models.CASCADE
+        settings.AUTH_USER_MODEL,
+        related_name='collections',
+        on_delete=models.CASCADE
     )
     name = models.CharField(max_length=30)
     slug = models.CharField(max_length=30)
@@ -60,7 +62,7 @@ class Collection(models.Model):
 
     @property
     def is_default(self):
-        """True if it's the default (first) collection assigned to CustomUser."""
+        """Whether it's default (first) collection assigned to CustomUser."""
         return self.id == self.owner.collections.first().id
 
     def __str__(self):
@@ -153,11 +155,17 @@ class Invite(models.Model):
     """
 
     sender = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name='sender', on_delete=models.CASCADE, null=True)
+        settings.AUTH_USER_MODEL,
+        related_name='sender',
+        on_delete=models.CASCADE, null=True
+    )
     email = models.CharField(max_length=50, null=True)
     code = models.CharField(max_length=100, null=True)
     user_created = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name='user_created', on_delete=models.CASCADE, null=True)
+        settings.AUTH_USER_MODEL,
+        related_name='user_created',
+        on_delete=models.CASCADE, null=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     claimed_at = models.DateTimeField(auto_now=True)
 
@@ -169,7 +177,10 @@ class RememberToken(models.Model):
     Note: it's irrelevent if User did not give her email address.
     """
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
     token = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     claimed_at = models.DateTimeField(auto_now=True)
