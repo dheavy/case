@@ -3,6 +3,9 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import UserManager, AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
+from django.db.models.signals import pre_save
+from django.template.defaultfilters import slugify
+from django.dispatch import receiver
 
 
 class CustomUser(PermissionsMixin, AbstractBaseUser):
@@ -37,7 +40,7 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
         return [
             v for c in self.collections.all()
             for v in c.videos.all()
-            if (not c.is_private or c.owner.id == self.id)
+            if (not v.is_private or c.owner.id == self.id)
         ]
 
 
@@ -191,3 +194,26 @@ class RememberToken(models.Model):
             "RememberToken (id: %s, userid: %s, username: %s)" %
             (self.id, self.user.id, self.user.username)
         )
+
+
+@receiver(pre_save, sender=Collection)
+@receiver(pre_save, sender=Video)
+@receiver(pre_save, sender=Tag)
+def slugify_title_or_name(sender, instance, *args, **kwargs):
+    """Slugify name/title before saving a model instance."""
+    try:
+        instance.slug = slugify(instance.title)
+    except:
+        pass
+
+    try:
+        instance.slug = slugify(instance.name)
+    except:
+        pass
+
+
+@receiver(pre_save, sender=CustomUser)
+def set_default_email(sender, instance, *args, **kwargs):
+    """Set default email address when a User did not provide it."""
+    if instance.email == '' or instance.email is None:
+        instance.email = instance.username + 'no.email.provided@mypleasu.re'
