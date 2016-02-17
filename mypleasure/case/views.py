@@ -1,4 +1,4 @@
-"""MyPleasure API Views."""
+"""CASE (MyPleasure API) Views."""
 
 from django.shortcuts import get_object_or_404
 
