@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls import url
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
-from case.views import UserList, UserDetail
+from case.views import UserList, UserDetail, ProfileView
 from case.views import CollectionList, CollectionDetail
 from case.views import VideoList, VideoDetail
 
@@ -77,6 +77,7 @@ urlpatterns = [
     url(r'^api/v1/users/?$', UserList.as_view(), name='user-list'),
     url(r'^api/v1/users/(?P<pk>[0-9]+)/?$',
         UserDetail.as_view(), name='user-detail'),
+    url(r'^api/v1/me/?$', ProfileView.as_view(), name='me'),
 
     # Collections
     # -----------

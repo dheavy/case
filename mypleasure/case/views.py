@@ -1,6 +1,7 @@
 """MyPleasure API Views."""
 
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 
 from rest_framework.generics import (
     ListCreateAPIView, RetrieveUpdateDestroyAPIView
@@ -42,6 +43,21 @@ class UserDetail(UserMixin, RetrieveUpdateDestroyAPIView):
     """Viewset for User detail."""
 
     pass
+
+
+class ProfileView(UserDetail):
+    """View for directly accessing current User's info."""
+
+    def get_queryset(self):
+        """Filter queryset to return current user's data."""
+        return User.objects.filter(pk=self.request.user.id)
+
+    def get_object(self):
+        """Return data after basic checkup."""
+        queryset = self.get_queryset()
+        obj = get_object_or_404(queryset)
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 
 class CollectionMixin(object):
