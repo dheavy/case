@@ -20,9 +20,11 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
     REQUIRED_FIELDS = ['email']
 
     def get_short_name(self):
+        """Return 'short name' representation of model."""
         return self.username
 
     def __str__(self):
+        """Return string representation of model."""
         return self.username
 
     @property
@@ -43,7 +45,7 @@ class Collection(models.Model):
     """
     Collection (of Videos).
 
-    'Belongs To' one User.
+    'Belongs To' one CustomUser.
     'Has Many' Videos.
     """
 
@@ -58,7 +60,7 @@ class Collection(models.Model):
 
     @property
     def is_default(self):
-        """True if it's the default (first) collection assigned to User."""
+        """True if it's the default (first) collection assigned to CustomUser."""
         return self.id == self.owner.collections.first().id
 
     def __str__(self):
@@ -147,7 +149,7 @@ class Invite(models.Model):
     """
     Invite, sent from a User to a prospect via email.
 
-    'Belongs To' one User.
+    'Belongs To' one CustomUser.
     """
 
     sender = models.ForeignKey(
