@@ -1,28 +1,21 @@
 """CASE (MyPleasure API) serializers."""
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from rest_framework import serializers
-from case.models import Collection, Video
+from case.models import Collection, Video, CustomUser
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    """Serializer for User model."""
+class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
+    """Serializer class for User, as seen by regular Users."""
 
     class Meta:
-        """Meta for User serializer."""
+        """Meta for BasicUserSerializer."""
 
-        model = User
-        fields = (
-            'id', 'username', 'email', 'password', 'is_staff',
-            'is_superuser', 'date_joined', 'last_login', 'collections'
-        )
+        model = CustomUser
+        fields = ('id', 'username', 'last_login', 'collections')
         extra_kwargs = {
             'password': {'write_only': True},
             'confirm_password': {'write_only': True},
         }
-        read_only_fields = (
-            'is_staff', 'is_superuser', 'is_active',
-            'date_joined', 'last_login'
-        )
 
     def validate(self, data):
         """Compare password and password confirmation."""
@@ -39,6 +32,17 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         user.set_password(password)
         user.save()
         return user
+
+
+class FullUserSerializer(BasicUserSerializer):
+    """Serializer for User model as seen by staff members."""
+
+    class Meta(BasicUserSerializer.Meta):
+        """Meta for FullUserSerializer."""
+
+        fields = BasicUserSerializer.Meta.fields + (
+            'email', 'is_staff', 'is_active', 'is_superuser', 'date_joined'
+        )
 
 
 class CollectionSerializer(serializers.HyperlinkedModelSerializer):

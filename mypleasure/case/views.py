@@ -8,7 +8,7 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from .models import Collection, Video
-from .serializers import UserSerializer
+from .serializers import FullUserSerializer, BasicUserSerializer
 from .serializers import CollectionSerializer
 from .serializers import VideoSerializer
 
@@ -23,8 +23,13 @@ class UserMixin(object):
     """Mixin for User viewsets."""
 
     queryset = User.objects.all()
-    serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,)
+
+    def get_serializer_class(self):
+        """Different levels of serialized content based on user's status."""
+        if self.request.user.is_staff:
+            return FullUserSerializer
+        return BasicUserSerializer
 
 
 class UserList(UserMixin, ListCreateAPIView):
@@ -36,7 +41,7 @@ class UserList(UserMixin, ListCreateAPIView):
 class UserDetail(UserMixin, RetrieveUpdateDestroyAPIView):
     """Viewset for User detail."""
 
-    permission_classes = (IsAuthenticated,)
+    pass
 
 
 class CollectionMixin(object):
