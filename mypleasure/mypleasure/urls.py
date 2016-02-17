@@ -19,6 +19,7 @@ from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from case.views import UserList, UserDetail, ProfileView
 from case.views import CollectionList, CollectionDetail
 from case.views import VideoList, VideoDetail
+from case.views import TagList, TagDetail
 
 
 urlpatterns = [
@@ -96,4 +97,12 @@ urlpatterns = [
         VideoList.as_view(), name='video-list'),
     url(r'^api/v1/videos/(?P<pk>[0-9]+)/?$',
         VideoDetail.as_view(), name='video-detail'),
+
+    # Tags
+    # ----
+    # Available to authenticated users only.
+    url(r'^api/v1/tags/?$',
+        TagList.as_view(), name='tag-list'),
+    url(r'^api/v1/tags/(?P<pk>[0-9]+)/?$',
+        TagDetail.as_view(), name='tag-detail'),
 ]
