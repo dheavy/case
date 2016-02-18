@@ -24,13 +24,23 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer class for User, as seen by regular Users."""
 
     videos = serializers.SerializerMethodField()
-    collections = serializers.ReadOnlyField()
+    collections = serializers.SerializerMethodField()
 
     def get_videos(self, obj):
         """Get filtered list of serialized Videos."""
         return get_videos_filtered_by_ownership_for_privacy(
             self.context['request'], obj
         )
+
+    def get_collections(self, obj):
+        """Get filtered list of serialized Collections."""
+        request = self.context['request']
+        return [
+            CollectionSerializer(
+                c, context={'request': request}
+            ).data for c in obj.collections.all()
+            if not c.is_private or c.owner.id == request.user.id
+        ]
 
     def create(self, validated_data):
         """Create User if validation succeeds."""
