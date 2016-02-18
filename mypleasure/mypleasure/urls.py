@@ -37,7 +37,7 @@ urlpatterns = [
     # -----
     # Uses JWT. After obtaining JSON Web Token from login request, set a header
     # `Authorization: Bearer <jwt_token>` on each request to authenticate it.
-    url(r'^api/v1/auth/login?$', obtain_jwt_token, name='login'),
+    url(r'^api/v1/auth/login/?$', obtain_jwt_token, name='login'),
 
     # Refresh token
     # -------------
