@@ -3,6 +3,23 @@ from rest_framework import serializers
 from case.models import Collection, Video, CustomUser, Tag
 
 
+def get_videos_filtered_by_ownership_for_privacy(request, obj):
+    """
+    Filter videos before passing them down to serializers.
+
+    Private videos are excluded if current user don't own them.
+    """
+    # Either a list, or a ManyRelatedManager.
+    videos = type(obj.videos) == list and obj.videos or obj.videos.all()
+
+    return [
+        VideoSerializer(
+            v, context={'request': request}
+        ).data for v in videos
+        if not v.is_private or v.owner['id'] == request.user.id
+    ]
+
+
 class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer class for User, as seen by regular Users."""
 
@@ -10,13 +27,9 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_videos(self, obj):
         """Get filtered list of serialized Videos."""
-        request = self.context['request']
-        return [
-            VideoSerializer(
-                v, context={'request': request}
-            ).data for v in obj.videos
-            if not v.is_private or v.owner['id'] == request.user.id
-        ]
+        return get_videos_filtered_by_ownership_for_privacy(
+            self.context['request'], obj
+        )
 
     class Meta:
         """Meta for BasicUserSerializer."""
@@ -90,6 +103,14 @@ class VideoSerializer(serializers.HyperlinkedModelSerializer):
 
 class TagSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer for Tag model."""
+
+    videos = serializers.SerializerMethodField()
+
+    def get_videos(self, obj):
+        """Get filtered list of serialized Videos."""
+        return get_videos_filtered_by_ownership_for_privacy(
+            self.context['request'], obj
+        )
 
     class Meta:
         """Meta for Tag serializer."""
