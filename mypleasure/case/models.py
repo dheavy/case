@@ -1,17 +1,44 @@
 """CASE (MyPleasure API) models."""
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import UserManager, AbstractBaseUser
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.db.models.signals import pre_save
 from django.template.defaultfilters import slugify
 from django.dispatch import receiver
 
 
+class CustomUserManager(BaseUserManager):
+    """Manager object for CustomUser."""
+
+    def create_user(self, username, password, email=None):
+        """Create user."""
+        if not email:
+            raise ValueError('Users must have a username.')
+
+        user = self.model(
+            username=username.lower(),
+            email=self.normalize_email(email)
+        )
+
+        user.set_password(password)
+        user.is_active = True
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, username, password, email):
+        """Create superuser."""
+        user = self.create_user(username, password=password, email=email)
+        user.is_staff = True
+        user.is_superuser = True
+        user.save(using=self._db)
+        return user
+
+
 class CustomUser(PermissionsMixin, AbstractBaseUser):
     """Custom User class, enhancing User model."""
 
-    objects = UserManager()
+    objects = CustomUserManager()
     username = models.CharField(max_length=40, unique=True, db_index=True)
     email = models.EmailField(max_length=254, unique=True, blank=True)
     last_access = models.DateTimeField(auto_now_add=True)
@@ -21,6 +48,10 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
+
+    def get_full_name(self):
+        """Return 'short name' representation of model."""
+        return self.username
 
     def get_short_name(self):
         """Return 'short name' representation of model."""
@@ -217,4 +248,4 @@ def slugify_title_or_name(sender, instance, *args, **kwargs):
 def set_default_email(sender, instance, *args, **kwargs):
     """Set default email address when a User did not provide it."""
     if instance.email == '' or instance.email is None:
-        instance.email = instance.username + 'no.email.provided@mypleasu.re'
+        instance.email = instance.username + '.no.email.provided@mypleasu.re'
