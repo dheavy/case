@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls import url
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
-from case.views import UserList, UserDetail, ProfileView
+from case.views import UserList, UserDetail, ProfileView, RegistrationViewSet
 from case.views import CollectionList, CollectionDetail
 from case.views import VideoList, VideoDetail
 from case.views import TagList, TagDetail
@@ -32,6 +32,14 @@ urlpatterns = [
     ##################
     # Authentication #
     ##################
+
+    # Registration
+    # ------------
+    url(
+        r'^api/v1/register/?$',
+        RegistrationViewSet.as_view({'post': 'register'}),
+        name='register'
+    ),
 
     # Login
     # -----

@@ -5,13 +5,18 @@ from django.shortcuts import get_object_or_404
 from rest_framework.generics import (
     ListCreateAPIView, RetrieveUpdateDestroyAPIView
 )
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.viewsets import ViewSet
+from rest_framework.response import Response
+from rest_framework.decorators import list_route
+
+from rest_framework_jwt.settings import api_settings
 
 from .models import Collection, Video, CustomUser, Tag
 from .serializers import FullUserSerializer, BasicUserSerializer
 from .serializers import CollectionSerializer, VideoSerializer
-from .serializers import TagSerializer
+from .serializers import TagSerializer, UserRegistrationSerializer
 
 
 def filter_private_obj_list_by_ownership(obj, user):
@@ -61,6 +66,33 @@ class UserDetail(UserMixin, RetrieveUpdateDestroyAPIView):
     """Viewset for User detail."""
 
     pass
+
+
+class RegistrationViewSet(ViewSet):
+    """Viewset for User registration."""
+
+    @list_route(methods=['post'], permission_classes=[AllowAny])
+    def register(self, request):
+        """Register new User."""
+        serializer = UserRegistrationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user_serializer = BasicUserSerializer(
+            data=serializer.data, context={'request': request}
+        )
+        user_serializer.is_valid(raise_exception=True)
+        user_serializer.save()
+
+        # Return authentication token as response to log in user immediately.
+        user = CustomUser.objects.get(username=request.data['username'])
+
+        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+
+        payload = jwt_payload_handler(user)
+        token = jwt_encode_handler(payload)
+
+        return Response({'success': True, 'token': token})
 
 
 class CollectionMixin(object):

@@ -24,12 +24,21 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer class for User, as seen by regular Users."""
 
     videos = serializers.SerializerMethodField()
+    collections = serializers.ReadOnlyField()
 
     def get_videos(self, obj):
         """Get filtered list of serialized Videos."""
         return get_videos_filtered_by_ownership_for_privacy(
             self.context['request'], obj
         )
+
+    def create(self, validated_data):
+        """Create User if validation succeeds."""
+        password = validated_data.pop('password', None)
+        user = self.Meta.model(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user
 
     class Meta:
         """Meta for BasicUserSerializer."""
@@ -43,22 +52,6 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
             'password': {'write_only': True},
             'confirm_password': {'write_only': True},
         }
-
-    def validate(self, data):
-        """Compare password and password confirmation."""
-        if 'password' not in data.keys() or (
-            data['password'] != data.pop('confirm_password')
-        ):
-            raise serializers.ValidationError('Password do not match')
-        return data
-
-    def create(self, validated_data):
-        """Create User if validation succeeds."""
-        password = validated_data.pop('password', None)
-        user = self.Meta.model(**validated_data)
-        user.set_password(password)
-        user.save()
-        return user
 
 
 class FullUserSerializer(BasicUserSerializer):
@@ -117,3 +110,32 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
 
         model = Tag
         fields = ('id', 'videos', 'slug')
+
+
+class UserRegistrationSerializer(serializers.Serializer):
+    """Serializer for User registration."""
+
+    username = serializers.CharField(max_length=40)
+    email = serializers.EmailField(required=False)
+    password = serializers.CharField()
+    confirm_password = serializers.CharField()
+
+    def validate_email(self, email):
+        existing = CustomUser.objects.filter(email=email).first()
+        if existing:
+            raise serializers.ValidationError(
+                "Someone with that email address has already registered."
+            )
+
+        return email
+
+    def validate(self, data):
+        if not data.get('password') or not data.get('confirm_password'):
+            raise serializers.ValidationError(
+                "Please enter a password and confirm it."
+            )
+
+        if data.get('password') != data.get('confirm_password'):
+            raise serializers.ValidationError("Passwords don't match.")
+
+        return data
