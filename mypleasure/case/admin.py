@@ -18,7 +18,10 @@ class CustomUserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base BaseUserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('username', 'email', 'is_superuser', 'is_staff')
+    list_display = (
+        'username', 'email', 'is_superuser', 'is_staff',
+        'date_joined', 'last_access'
+    )
     list_filter = ('is_superuser', 'is_staff',)
     fieldsets = (
         (None, {'fields': ('username', 'password',)}),
@@ -29,10 +32,10 @@ class CustomUserAdmin(BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'date_of_birth', 'password1', 'password2')}),
+            'fields': ('username', 'email', 'password1', 'password2')}),
     )
-    search_fields = ('email',)
-    ordering = ('email',)
+    search_fields = ('username',)
+    ordering = ('username',)
     filter_horizontal = ()
 
 
