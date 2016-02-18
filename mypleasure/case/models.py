@@ -205,29 +205,6 @@ class Invite(models.Model):
     claimed_at = models.DateTimeField(auto_now=True)
 
 
-class RememberToken(models.Model):
-    """
-    Token generated and used when User requires a password reset link.
-
-    Note: it's irrelevent if User did not give her email address.
-    """
-
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
-    )
-    token = models.CharField(max_length=50)
-    created_at = models.DateTimeField(auto_now_add=True)
-    claimed_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        """Render string representation of instance."""
-        return (
-            "RememberToken (id: %s, userid: %s, username: %s)" %
-            (self.id, self.user.id, self.user.username)
-        )
-
-
 @receiver(pre_save, sender=Collection)
 @receiver(pre_save, sender=Video)
 @receiver(pre_save, sender=Tag)

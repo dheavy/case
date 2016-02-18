@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import AdminPasswordChangeForm
 
-from .models import Collection, Video, Invite, RememberToken, Tag, CustomUser
+from .models import Collection, Video, Invite, Tag, CustomUser
 from .forms import TagForm, CustomUserForm, CustomUserChangeForm
 
 
@@ -50,7 +50,6 @@ class TagAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(RememberToken)
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Collection)
 admin.site.register(Invite)
