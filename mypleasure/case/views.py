@@ -63,21 +63,6 @@ class UserDetail(UserMixin, RetrieveUpdateDestroyAPIView):
     pass
 
 
-class ProfileView(UserDetail):
-    """View for directly accessing current User's info."""
-
-    def get_queryset(self):
-        """Filter queryset to return current user's data."""
-        return CustomUser.objects.filter(pk=self.request.user.id)
-
-    def get_object(self):
-        """Return data after basic checkup."""
-        queryset = self.get_queryset()
-        obj = get_object_or_404(queryset)
-        self.check_object_permissions(self.request, obj)
-        return obj
-
-
 class CollectionMixin(object):
     """Mixin for Collection viewsets."""
 
@@ -162,3 +147,18 @@ class TagDetail(TagMixin, RetrieveUpdateDestroyAPIView):
     """Viewset for Tag detail."""
 
     pass
+
+
+class ProfileView(UserDetail):
+    """View for directly accessing current User's info."""
+
+    def get_queryset(self):
+        """Filter queryset to return current user's data."""
+        return CustomUser.objects.filter(pk=self.request.user.id)
+
+    def get_object(self):
+        """Return data after basic checkup."""
+        queryset = self.get_queryset()
+        obj = get_object_or_404(queryset)
+        self.check_object_permissions(self.request, obj)
+        return obj
