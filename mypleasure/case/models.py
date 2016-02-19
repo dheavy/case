@@ -47,7 +47,7 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email']
+    REQUIRED_FIELDS = ['email', 'password']
 
     def get_full_name(self):
         """Return 'short name' representation of model."""
@@ -59,7 +59,12 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
 
     def __str__(self):
         """Return string representation of model."""
-        return self.username
+        return (
+            "CustomUser (id: %s, username: %s, staff: %s, superuser: %s)" %
+            (
+                self.id, self.username, self.is_staff, self.is_superuser
+            )
+        )
 
     @property
     def videos(self):
