@@ -26,7 +26,10 @@ def get_videos_filtered_by_ownership_for_privacy(request, obj):
 class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer class for User, as seen by regular Users."""
 
-    videos = serializers.SerializerMethodField()
+    # Do not include videos as they are already passed in the
+    # attached collections payload. Leave it commented just in case
+    # we want this feature back.
+    # videos = serializers.SerializerMethodField()
     collections = serializers.SerializerMethodField()
 
     def get_videos(self, obj):
@@ -39,13 +42,12 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
         """Get filtered list of serialized Collections."""
         try:
             request = self.context['request']
-            if 'collections' in obj:
-                return [
-                    CollectionSerializer(
-                        c, context={'request': request}
-                    ).data for c in obj.collections.all()
-                    if not c.is_private or c.owner.id == request.user.id
-                ]
+            return [
+                CollectionSerializer(
+                    c, context={'request': request}
+                ).data for c in obj.collections.all()
+                if not c.is_private or c.owner.id == request.user.id
+            ]
         except:
             return []
 
@@ -71,9 +73,13 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
         """Meta for BasicUserSerializer."""
 
         model = CustomUser
+
+        # Do not include videos as they are already passed in the
+        # attached collections payload
         fields = (
             'id', 'username', 'password', 'last_login', 'last_access',
-            'collections', 'videos'
+            'collections',
+            # 'videos'
         )
         extra_kwargs = {
             'password': {'write_only': True},
@@ -103,6 +109,18 @@ class FullUserSerializer(BasicUserSerializer):
 
 class CollectionSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer for Collection model."""
+
+    owner = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all()
+    )
+
+    videos = serializers.SerializerMethodField()
+
+    def get_videos(self, obj):
+        """Get filtered list of serialized Videos."""
+        return get_videos_filtered_by_ownership_for_privacy(
+            self.context['request'], obj
+        )
 
     class Meta:
         """Meta for Collection serializer."""
