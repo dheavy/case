@@ -174,7 +174,7 @@ class CollectionDetail(CollectionMixin, APIView):
         serializer = self.serializer_class(
             collection, context={'request': request}
         )
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, pk, format=None):
         """PUT operation on Collection."""
