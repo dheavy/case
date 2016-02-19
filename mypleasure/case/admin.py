@@ -20,11 +20,11 @@ class CustomUserAdmin(BaseUserAdmin):
     # that reference specific fields on auth.User.
     list_display = (
         'id', 'username', 'email', 'is_superuser', 'is_staff', 'is_active',
-        'date_joined', 'last_access'
+        'date_joined', 'last_access', 'updated_at'
     )
     list_filter = ('is_superuser', 'is_staff', 'is_active')
     fieldsets = (
-        (None, {'fields': ('username', 'password',)}),
+        (None, {'fields': ('username', 'email', 'password',)}),
         ('Account status', {'fields': ('is_active',)}),
         ('Permissions', {'fields': ('is_superuser', 'is_staff',)}),
     )
