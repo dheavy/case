@@ -111,7 +111,8 @@ class CollectionSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer for Collection model."""
 
     owner = serializers.PrimaryKeyRelatedField(
-        queryset=CustomUser.objects.all()
+        queryset=CustomUser.objects.all(),
+        required=True
     )
 
     videos = serializers.SerializerMethodField()
