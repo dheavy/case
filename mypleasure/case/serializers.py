@@ -177,7 +177,7 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
         """Meta for Tag serializer."""
 
         model = Tag
-        fields = ('id', 'videos', 'slug')
+        fields = ('id', 'name', 'videos', 'slug')
 
 
 class UserRegistrationSerializer(serializers.Serializer):
