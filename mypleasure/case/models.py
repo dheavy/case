@@ -43,11 +43,18 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
     email = models.EmailField(max_length=254, unique=True, blank=True)
     last_access = models.DateTimeField(auto_now_add=True)
     date_joined = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'password']
+
+    def disable_account(self):
+        """Disable User account."""
+        self.is_active = False
+        self.email = "%s.user.inactive@mypleasu.re" % (self.username)
+        self.save()
 
     def get_full_name(self):
         """Return 'short name' representation of model."""
