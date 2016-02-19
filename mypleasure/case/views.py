@@ -1,12 +1,14 @@
-"""CASE (MyPleasure API) Views."""
+"""CASE (MyPleasure API) views."""
 
 from django.shortcuts import get_object_or_404
 
+from rest_framework import status
 from rest_framework.generics import (
-    ListCreateAPIView, RetrieveUpdateDestroyAPIView
+    ListCreateAPIView, RetrieveUpdateDestroyAPIView,
 )
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import list_route
@@ -14,6 +16,7 @@ from rest_framework.decorators import list_route
 from rest_framework_jwt.settings import api_settings
 
 from .models import Collection, Video, CustomUser, Tag
+from .permissions import IsCurrentUserOrReadOnly
 from .serializers import FullUserSerializer, BasicUserSerializer
 from .serializers import CollectionSerializer, VideoSerializer
 from .serializers import TagSerializer, UserRegistrationSerializer
@@ -47,7 +50,7 @@ class UserMixin(object):
     """Mixin for User viewsets."""
 
     queryset = CustomUser.objects.all()
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsCurrentUserOrReadOnly,)
 
     def get_serializer_class(self):
         """Different levels of serialized content based on user's status."""
@@ -62,10 +65,46 @@ class UserList(UserMixin, ListCreateAPIView):
     permission_classes = (IsAdminUser,)
 
 
-class UserDetail(UserMixin, RetrieveUpdateDestroyAPIView):
+class UserDetail(UserMixin, APIView):
     """Viewset for User detail."""
 
-    pass
+    def get_serializer_class(self):
+        """Return two flavors of serializer classes based on user status."""
+        if self.request.user.is_staff:
+            return FullUserSerializer
+        return BasicUserSerializer
+
+    def get_object(self, pk):
+        """Return CustomUser object or 404."""
+        return get_object_or_404(CustomUser, pk=pk)
+
+    def get(self, request, pk, format=None):
+        """GET operation on user."""
+        user = self.get_object(pk)
+        self.check_object_permissions(request, user)
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(user, context={'request': request})
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        """PUT operation on user."""
+        user = self.get_object(pk)
+        self.check_object_permissions(request, user)
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(
+            user, context={'request': request}, data=request.data, partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        """DELETE operation on user."""
+        user = self.get_object(pk=pk)
+        self.check_object_permissions(request, user)
+        user.disable_account()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class RegistrationViewSet(ViewSet):
@@ -185,13 +224,6 @@ class TagDetail(TagMixin, RetrieveUpdateDestroyAPIView):
 class ProfileView(UserDetail):
     """View for directly accessing current User's info."""
 
-    def get_queryset(self):
-        """Filter queryset to return current user's data."""
-        return CustomUser.objects.filter(pk=self.request.user.id)
-
-    def get_object(self):
-        """Return data after basic checkup."""
-        queryset = self.get_queryset()
-        obj = get_object_or_404(queryset)
-        self.check_object_permissions(self.request, obj)
-        return obj
+    def get(self, request, pk=None, format=None):
+        """Return current user."""
+        return super(ProfileView, self).get(request, self.request.user.id)
