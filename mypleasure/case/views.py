@@ -71,17 +71,18 @@ class UserDetail(UserMixin, RetrieveUpdateDestroyAPIView):
 class RegistrationViewSet(ViewSet):
     """Viewset for User registration."""
 
+    queryset = CustomUser.objects.all()
+
     @list_route(methods=['post'], permission_classes=[AllowAny])
     def register(self, request):
-        """Register new User."""
+        """Validating our serializer from the UserRegistrationSerializer."""
         serializer = UserRegistrationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user_serializer = BasicUserSerializer(
-            data=serializer.data, context={'request': request}
-        )
-        user_serializer.is_valid(raise_exception=True)
-        user_serializer.save()
+        # Everything's valid, so send it to the BasicUserSerializer
+        model_serializer = BasicUserSerializer(data=serializer.data)
+        model_serializer.is_valid(raise_exception=True)
+        model_serializer.save()
 
         # Return authentication token as response to log in user immediately.
         user = CustomUser.objects.get(username=request.data['username'])
