@@ -7,7 +7,6 @@ from rest_framework.generics import (
     ListCreateAPIView, RetrieveUpdateDestroyAPIView,
 )
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -16,36 +15,16 @@ from rest_framework.decorators import list_route
 from rest_framework_jwt.settings import api_settings
 
 from .models import Collection, Video, CustomUser, Tag
-from .permissions import IsCurrentUserOrReadOnly
+from .permissions import IsCurrentUserOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (
     FullUserSerializer, BasicUserSerializer, ProfileUserSerializer
 )
 from .serializers import CollectionSerializer, VideoSerializer
 from .serializers import TagSerializer, UserRegistrationSerializer
-
-
-def filter_private_obj_list_by_ownership(obj, user):
-    """Filter a QuerySet based on whether user owns the object if private."""
-    qsets = obj.objects.all()
-    return [o for o in qsets if (not o.is_private or o.owner == user)]
-
-
-def filter_private_obj_detail_by_ownership(
-    queryset,
-    check_object_permissions,
-    request
-):
-    """Filter detail view object based on whether user owns it if private."""
-    obj = get_object_or_404(queryset)
-    check_object_permissions(request, obj)
-    id = None
-    try:
-        id = obj.owner['id']
-    except:
-        id = obj.owner.id
-    if obj.is_private and id != request.user.id:
-        raise PermissionDenied(detail='Item is private.')
-    return obj
+from .filters import (
+    filter_private_obj_list_by_ownership,
+    filter_private_obj_detail_by_ownership
+)
 
 
 class UserMixin(object):
@@ -72,9 +51,10 @@ class UserDetail(UserMixin, APIView):
 
     def get_serializer_class(self, pk=None):
         """Return three flavors of serializer classes based on user status."""
-        if self.request.user.is_staff:    # Full if user is staff member
+        user = CustomUser.objects.get(pk=pk)
+        if user.is_staff:    # Full if user is staff member
             return FullUserSerializer
-        elif self.request.user.id is pk:  # Basic, with email, if self
+        elif user.id is pk:  # Basic, with email, if self
             return ProfileUserSerializer
         return BasicUserSerializer        # Basic, by default
 
@@ -83,7 +63,7 @@ class UserDetail(UserMixin, APIView):
         return get_object_or_404(CustomUser, pk=pk)
 
     def get(self, request, pk, format=None):
-        """GET operation on user."""
+        """GET operation on User."""
         user = self.get_object(pk)
         self.check_object_permissions(request, user)
         serializer_class = self.get_serializer_class(pk=user.id)
@@ -91,7 +71,7 @@ class UserDetail(UserMixin, APIView):
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):
-        """PUT operation on user."""
+        """PUT operation on User."""
         user = self.get_object(pk)
         self.check_object_permissions(request, user)
         serializer_class = self.get_serializer_class()
@@ -104,7 +84,7 @@ class UserDetail(UserMixin, APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
-        """DELETE operation on user."""
+        """DELETE operation on User."""
         user = self.get_object(pk=pk)
         self.check_object_permissions(request, user)
         user.disable_account()
@@ -127,9 +107,15 @@ class RegistrationViewSet(ViewSet):
         model_serializer.is_valid(raise_exception=True)
         model_serializer.save()
 
-        # Return authentication token as response to log in user immediately.
+        # Create default collection for User.
         user = CustomUser.objects.get(username=request.data['username'])
+        collection_serializer = CollectionSerializer(
+            data={'owner': user.id, 'name': 'my first collection'}
+        )
+        collection_serializer.is_valid(raise_exception=True)
+        collection_serializer.save()
 
+        # Return authentication token as response to log in user immediately.
         jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
         jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
@@ -144,7 +130,7 @@ class CollectionMixin(object):
 
     queryset = Collection.objects.all()
     serializer_class = CollectionSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly,)
 
 
 class CollectionList(CollectionMixin, ListCreateAPIView):
@@ -156,12 +142,29 @@ class CollectionList(CollectionMixin, ListCreateAPIView):
             Collection, self.request.user
         )
 
+    def perform_create(self, serializer):
+        """Effectively save instance."""
+        serializer.save()
 
-class CollectionDetail(CollectionMixin, RetrieveUpdateDestroyAPIView):
+    def create(self, request, *args, **kwargs):
+        """GET operation on Collection."""
+        data = request.data.copy()
+        data.update({'owner': self.request.user.id})
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class CollectionDetail(CollectionMixin, APIView):
     """Viewset for Collection detail."""
 
     def get_queryset(self):
-        """Private videos can only be seen by owner."""
+        """
+        Collection queryset.
+
+        Private videos attached to this collection can only be seen by owner.
+        """
         return Collection.objects.filter(pk=self.kwargs['pk'])
 
     def get_object(self):
@@ -171,6 +174,46 @@ class CollectionDetail(CollectionMixin, RetrieveUpdateDestroyAPIView):
             self.check_object_permissions,
             self.request
         )
+
+    def get(self, request, pk, format=None):
+        """GET operation on Collection."""
+        collection = self.get_object()
+        self.check_object_permissions(request, collection)
+        serializer = self.serializer_class(
+            collection, context={'request': request}
+        )
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        """PUT operation on Collection."""
+        collection = self.get_object(pk)
+        self.check_object_permissions(request, collection)
+        serializer = self.serializer_class(
+            collection, context={'request': request}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        """
+        DELETE operation on Collection.
+
+        User can NOT delete her default collection.
+        """
+        collection = self.get_object()
+        self.check_object_permissions(request, collection)
+        if collection.is_default and (
+            'force_deletion' not in request.data or
+            request.data['force_deletion'] is False
+        ):
+            return Response(
+                {'detail': 'Default collection cannot be deleted.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        collection.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class VideoMixin(object):
@@ -225,9 +268,10 @@ class TagDetail(TagMixin, RetrieveUpdateDestroyAPIView):
     pass
 
 
-class ProfileView(UserDetail):
+class ProfileView(APIView):
     """View for directly accessing current User's info."""
 
     def get(self, request, pk=None, format=None):
         """Return current user."""
-        return super(ProfileView, self).get(request, self.request.user.id)
+        user_serializer = UserDetail(data=request.data)
+        return user_serializer.get(request, pk=self.request.user.id)
