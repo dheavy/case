@@ -1,5 +1,7 @@
 """Make CASE modifiable in the admin."""
 from django.contrib import admin
+from django.contrib.admin import AdminSite
+from django.utils.translation import ugettext_lazy
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import AdminPasswordChangeForm
 
@@ -51,8 +53,23 @@ class TagAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(CustomUser, CustomUserAdmin)
-admin.site.register(Collection)
-admin.site.register(Invite)
-admin.site.register(Video)
-admin.site.register(Tag, TagAdmin)
+class MyPleasureAdmin(AdminSite):
+    """Customize elements from the admin panel itself."""
+
+    # Text to put at the end of each page's <title>.
+    site_title = ugettext_lazy('MyPleasure Admin Panel')
+
+    # Text to put in each page's <h1>.
+    site_header = ugettext_lazy('MyPleasure')
+
+    # Text to put at the top of the admin index page.
+    index_title = ugettext_lazy('Site administration')
+
+
+mp_admin = MyPleasureAdmin()
+
+mp_admin.register(CustomUser, CustomUserAdmin)
+mp_admin.register(Collection)
+mp_admin.register(Invite)
+mp_admin.register(Video)
+mp_admin.register(Tag, TagAdmin)
