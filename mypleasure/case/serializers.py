@@ -3,6 +3,15 @@ from rest_framework import serializers
 from case.models import Collection, Video, CustomUser, Tag
 
 
+def get_user_serializer(user, pk=None):
+    """Return user serializer matching user's level of power."""
+    if user.is_staff:    # Full if user is staff member
+        return FullUserSerializer
+    elif user.id is pk:  # Basic, with email, if self
+        return ProfileUserSerializer
+    return BasicUserSerializer
+
+
 def get_videos_filtered_by_ownership_for_privacy(request, obj):
     """
     Filter videos before passing them down to serializers.
@@ -136,7 +145,11 @@ class CollectionSerializer(serializers.HyperlinkedModelSerializer):
 class VideoSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer for Video model."""
 
-    owner = serializers.ReadOnlyField()
+    owner = serializers.SerializerMethodField()
+
+    def get_owner(self, obj):
+        """Returned serialized owner of the Video."""
+        return BasicUserSerializer(obj.collection.owner).data
 
     class Meta:
         """Meta for Video serializer."""
