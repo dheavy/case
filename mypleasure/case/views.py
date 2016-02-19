@@ -204,14 +204,30 @@ class CollectionDetail(CollectionMixin, APIView):
         """
         collection = self.get_object()
         self.check_object_permissions(request, collection)
-        if collection.is_default and (
-            'force_deletion' not in request.data or
-            request.data['force_deletion'] is False
-        ):
+
+        # Ensure default collection cannot be deleted without special consent.
+        if collection.is_default and 'force_deletion' not in request.data:
             return Response(
                 {'detail': 'Default collection cannot be deleted.'},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        # If a replacement collection ID was passed, move the videos there.
+        if 'replacement' in request.data:
+            try:
+                replacement_collection = Collection.objects.get(
+                    pk=request.data['replacement'],
+                    owner=CustomUser.objects.get(pk=request.user.id)
+                )
+                for v in collection.videos.all():
+                    v.collection = replacement_collection
+                    v.save()
+            except Exception:
+                return Response(
+                    {'detail': 'Collection could not be deleted.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
         collection.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
