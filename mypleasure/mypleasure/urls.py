@@ -13,20 +13,20 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.conf.urls import url
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from case.views import UserList, UserDetail, ProfileView, RegistrationViewSet
 from case.views import CollectionList, CollectionDetail
 from case.views import VideoList, VideoDetail
 from case.views import TagList, TagDetail
+from case.admin import mp_admin
 
 
 urlpatterns = [
     ##################
     #      Admin     #
     ##################
-    url(r'^admin/', admin.site.urls),
+    url(r'^admin/', mp_admin.urls),
 
 
     ##################
