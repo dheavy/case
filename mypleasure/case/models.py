@@ -98,10 +98,11 @@ class Collection(models.Model):
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='collections',
+        blank=True,
         on_delete=models.CASCADE
     )
     name = models.CharField(max_length=30)
-    slug = models.CharField(max_length=30)
+    slug = models.CharField(max_length=30, blank=True)
     is_private = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -137,7 +138,7 @@ class Video(models.Model):
     )
     hash = models.CharField(max_length=100, db_index=True)
     title = models.CharField(max_length=100)
-    slug = models.CharField(max_length=100)
+    slug = models.CharField(max_length=100, blank=True)
     poster = models.CharField(max_length=100, null=True, blank=True)
     original_url = models.CharField(max_length=100)
     embed_url = models.CharField(max_length=100)
