@@ -86,6 +86,12 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
             if (not v.is_private or c.owner.id == self.id)
         ]
 
+    class Meta:
+        """Normalize CustomUser name to "User" in admin panel."""
+
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
+
 
 class Collection(models.Model):
     """
