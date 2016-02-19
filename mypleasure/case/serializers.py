@@ -150,7 +150,7 @@ class UserRegistrationSerializer(serializers.Serializer):
         """
         email = data.get('email', None)
         existing_email = CustomUser.objects.filter(email=email).first()
-        if existing_email:
+        if existing_email and existing_email != '':
             raise serializers.ValidationError(
                 "Someone with that email address has already registered."
             )
