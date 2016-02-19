@@ -146,6 +146,9 @@ class VideoSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer for Video model."""
 
     owner = serializers.SerializerMethodField()
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(), many=True
+    )
 
     def get_owner(self, obj):
         """Returned serialized owner of the Video."""
@@ -157,8 +160,8 @@ class VideoSerializer(serializers.HyperlinkedModelSerializer):
         model = Video
         fields = (
             'id', 'title', 'hash', 'slug', 'poster', 'original_url',
-            'embed_url', 'duration', 'is_naughty', 'created_at',
-            'updated_at', 'collection', 'owner', 'is_private'
+            'embed_url', 'duration', 'is_naughty', 'created_at', 'tags',
+            'updated_at', 'collection', 'owner', 'is_private',
         )
 
 
