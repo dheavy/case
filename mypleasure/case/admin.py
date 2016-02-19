@@ -19,12 +19,13 @@ class CustomUserAdmin(BaseUserAdmin):
     # These override the definitions on the base BaseUserAdmin
     # that reference specific fields on auth.User.
     list_display = (
-        'username', 'email', 'is_superuser', 'is_staff',
+        'id', 'username', 'email', 'is_superuser', 'is_staff', 'is_active',
         'date_joined', 'last_access'
     )
-    list_filter = ('is_superuser', 'is_staff',)
+    list_filter = ('is_superuser', 'is_staff', 'is_active')
     fieldsets = (
         (None, {'fields': ('username', 'password',)}),
+        ('Account status', {'fields': ('is_active',)}),
         ('Permissions', {'fields': ('is_superuser', 'is_staff',)}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. BaseUserAdmin

@@ -49,11 +49,22 @@ class CustomUserChangeForm(forms.ModelForm):
     """
 
     password = ReadOnlyPasswordHashField(
-        label=("Password"),
+        label=('Password'),
         help_text=(
             "Raw passwords are not stored, so there is no way to see "
             "this user's password, but you can change the password "
             "using <a href=\'../password/\'>this form</a>."
+        )
+    )
+
+    is_active = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=((True, 'Active'), (False, 'Deactivated'),),
+        label=('Active status'),
+        help_text=(
+            "Setting an account to inactive makes the user <strong>unable "
+            "to use her account.</strong> It's what happens when user chooses "
+            "to deactivate her account. So be careful!."
         )
     )
 
