@@ -189,7 +189,7 @@ class Tag(models.Model):
     """
 
     name = models.CharField(max_length=20)
-    slug = models.CharField(max_length=20)
+    slug = models.CharField(max_length=20, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
