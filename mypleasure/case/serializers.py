@@ -57,6 +57,16 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
         user.save()
         return user
 
+    def update(self, instance, validated_data):
+        """Process update on User."""
+        instance.username = validated_data.pop('username', instance.username)
+        instance.email = validated_data.pop('email', instance.email)
+        password = validated_data.pop('password', None)
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
+
     class Meta:
         """Meta for BasicUserSerializer."""
 
