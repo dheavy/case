@@ -16,9 +16,7 @@ from rest_framework_jwt.settings import api_settings
 
 from .models import Collection, Video, CustomUser, Tag
 from .permissions import IsCurrentUserOrReadOnly, IsOwnerOrReadOnly
-from .serializers import (
-    FullUserSerializer, BasicUserSerializer, ProfileUserSerializer
-)
+from .serializers import BasicUserSerializer, get_user_serializer
 from .serializers import CollectionSerializer, VideoSerializer
 from .serializers import TagSerializer, UserRegistrationSerializer
 from .filters import (
@@ -35,9 +33,7 @@ class UserMixin(object):
 
     def get_serializer_class(self):
         """Different levels of serialized content based on user's status."""
-        if self.request.user.is_staff:
-            return FullUserSerializer
-        return BasicUserSerializer
+        return get_user_serializer(self.request.user)
 
 
 class UserList(UserMixin, ListCreateAPIView):
@@ -52,11 +48,7 @@ class UserDetail(UserMixin, APIView):
     def get_serializer_class(self, pk=None):
         """Return three flavors of serializer classes based on user status."""
         user = CustomUser.objects.get(pk=pk)
-        if user.is_staff:    # Full if user is staff member
-            return FullUserSerializer
-        elif user.id is pk:  # Basic, with email, if self
-            return ProfileUserSerializer
-        return BasicUserSerializer        # Basic, by default
+        return get_user_serializer(user, pk)
 
     def get_object(self, pk):
         """Return CustomUser object or 404."""
