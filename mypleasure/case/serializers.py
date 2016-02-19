@@ -9,15 +9,18 @@ def get_videos_filtered_by_ownership_for_privacy(request, obj):
 
     Private videos are excluded if current user don't own them.
     """
-    # Either a list, or a ManyRelatedManager.
-    videos = type(obj.videos) == list and obj.videos or obj.videos.all()
+    try:
+        # Either a list, or a ManyRelatedManager.
+        videos = type(obj.videos) == list and obj.videos or obj.videos.all()
 
-    return [
-        VideoSerializer(
-            v, context={'request': request}
-        ).data for v in videos
-        if not v.is_private or v.owner['id'] == request.user.id
-    ]
+        return [
+            VideoSerializer(
+                v, context={'request': request}
+            ).data for v in videos
+            if not v.is_private or v.owner['id'] == request.user.id
+        ]
+    except:
+        return []
 
 
 class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
@@ -34,13 +37,17 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_collections(self, obj):
         """Get filtered list of serialized Collections."""
-        request = self.context['request']
-        return [
-            CollectionSerializer(
-                c, context={'request': request}
-            ).data for c in obj.collections.all()
-            if not c.is_private or c.owner.id == request.user.id
-        ]
+        try:
+            request = self.context['request']
+            if 'collections' in obj:
+                return [
+                    CollectionSerializer(
+                        c, context={'request': request}
+                    ).data for c in obj.collections.all()
+                    if not c.is_private or c.owner.id == request.user.id
+                ]
+        except:
+            return []
 
     def create(self, validated_data):
         """Create User if validation succeeds."""
@@ -55,7 +62,7 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
 
         model = CustomUser
         fields = (
-            'id', 'username', 'last_login', 'last_access',
+            'id', 'username', 'password', 'last_login', 'last_access',
             'collections', 'videos'
         )
         extra_kwargs = {
@@ -123,29 +130,41 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class UserRegistrationSerializer(serializers.Serializer):
-    """Serializer for User registration."""
+    """
+    Serializer used for registering process.
 
-    username = serializers.CharField(max_length=40)
+    It does not create the user (that's left to the CustomUserSerializer).
+    It just validates the necessary data beforehand.
+    """
+
+    username = serializers.CharField()
     email = serializers.EmailField(required=False)
     password = serializers.CharField()
     confirm_password = serializers.CharField()
 
-    def validate_email(self, email):
-        existing = CustomUser.objects.filter(email=email).first()
-        if existing:
+    def validate(self, data):
+        """
+        Validate incoming data.
+
+        Email uniqueness if provided, password and confirmation.
+        """
+        email = data.get('email', None)
+        existing_email = CustomUser.objects.filter(email=email).first()
+        if existing_email:
             raise serializers.ValidationError(
                 "Someone with that email address has already registered."
             )
 
-        return email
-
-    def validate(self, data):
         if not data.get('password') or not data.get('confirm_password'):
             raise serializers.ValidationError(
                 "Please enter a password and confirm it."
             )
 
         if data.get('password') != data.get('confirm_password'):
-            raise serializers.ValidationError("Passwords don't match.")
-
+            raise serializers.ValidationError("Those passwords don't match.")
         return data
+
+    class Meta:
+        """Meta for Tag serializer."""
+
+        fields = ('username', 'email', 'password', 'confirm_password')
