@@ -81,6 +81,15 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
         }
 
 
+class ProfileUserSerializer(BasicUserSerializer):
+    """Serializer for User used when displaying own profile."""
+
+    class Meta(BasicUserSerializer.Meta):
+        """Meta for ProfileUserSerializer."""
+
+        fields = BasicUserSerializer.Meta.fields + ('email',)
+
+
 class FullUserSerializer(BasicUserSerializer):
     """Serializer for User model as seen by staff members."""
 
