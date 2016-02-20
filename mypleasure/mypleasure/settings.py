@@ -149,18 +149,26 @@ AUTH_USER_MODEL = 'case.CustomUser'
 
 # REST framework
 REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
     'DEFAULT_PERMISSION_CLASSES': [],
     'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework_json_api.renderers.JSONRenderer',
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.AdminRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer'
     ],
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework_json_api.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser'
+    ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_METADATA_CLASS': 'rest_framework_json_api.metadata.JSONAPIMetadata',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework_json_api.pagination.PageNumberPagination',
     'PAGE_SIZE': 100,
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning'
 }
