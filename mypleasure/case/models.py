@@ -183,7 +183,7 @@ class Tag(models.Model):
     'Has Many' and 'Belongs To Many' Videos.
     """
 
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=20, unique=True)
     slug = models.CharField(max_length=20, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -240,3 +240,9 @@ def set_default_email(sender, instance, *args, **kwargs):
     """Set default email address when a User did not provide it."""
     if instance.email == '' or instance.email is None:
         instance.email = instance.username + '.no.email.provided@mypleasu.re'
+
+
+@receiver(pre_save, sender=Tag)
+def lowercase_name(sender, instance, *args, **kwargs):
+    """Set Tag name to lower case."""
+    instance.name = instance.name.lower()

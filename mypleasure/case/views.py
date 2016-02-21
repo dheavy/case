@@ -43,7 +43,7 @@ class UserList(UserMixin, ListCreateAPIView):
 
 
 class UserDetail(UserMixin, APIView):
-    """Viewset for User detail."""
+    """View for User detail."""
 
     def get_serializer_class(self, pk=None):
         """Return three flavors of serializer classes based on user status."""
@@ -149,7 +149,7 @@ class CollectionList(CollectionMixin, ListCreateAPIView):
 
 
 class CollectionDetail(CollectionMixin, APIView):
-    """Viewset for Collection detail."""
+    """View for Collection detail."""
 
     def get_queryset(self):
         """
@@ -270,10 +270,52 @@ class TagList(TagMixin, ListCreateAPIView):
     pass
 
 
-class TagDetail(TagMixin, RetrieveUpdateDestroyAPIView):
-    """Viewset for Tag detail."""
+class TagDetail(TagMixin, APIView):
+    """View for Tag detail."""
 
-    pass
+    def get_object(self, pk):
+        """Return Tag object or 404."""
+        return get_object_or_404(Tag, pk=pk)
+
+    def get(self, request, pk=None, format=None):
+        """GET operation on Collection."""
+        tag = self.get_object(pk)
+        self.check_object_permissions(request, tag)
+        serializer = self.serializer_class(
+            tag, context={'request': request}
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk=None, format=None):
+        """PUT operation on Collection."""
+        if self.request.user.is_staff:
+            tag = self.get_object(pk)
+            self.check_object_permissions(request, tag)
+            serializer = self.serializer_class(
+                tag, context={'request': request}
+            )
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+        return Response(
+            {'detail': 'Tag cannot be modified.'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    def delete(self, request, pk=None, format=None):
+        """DELETE operation on User."""
+        if self.request.user.is_staff:
+            tag = self.get_object(pk=pk)
+            self.check_object_permissions(request, tag)
+            tag.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {'detail': 'Tag cannot be deleted.'},
+            status=status.HTTP_403_FORBIDDEN
+        )
 
 
 class ProfileView(APIView):
