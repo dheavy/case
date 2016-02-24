@@ -15,10 +15,11 @@ Including another URLconf
 """
 from django.conf.urls import url
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
-from case.views import UserList, UserDetail, ProfileView, RegistrationViewSet
-from case.views import CollectionList, CollectionDetail
-from case.views import VideoList, VideoDetail
-from case.views import TagList, TagDetail
+from case.views import (
+    UserList, UserDetail, ProfileView, RegistrationViewSet, CollectionList,
+    CollectionDetail, FeedNormalList, FeedNaughtyList, VideoList, VideoDetail,
+    TagList, TagDetail
+)
 from case.admin import mp_admin
 
 
@@ -78,6 +79,16 @@ urlpatterns = [
     ##################
     #    Resources   #
     ##################
+
+    # Feed
+    # ----
+    # Available to authenticated user. Comes in two flavor: normal/naughty.
+    url(r'^api/v1/feed/?$',
+        FeedNormalList.as_view(), name='feed-normal'),
+    url(r'^api/v1/feed/normal/?$',
+        FeedNormalList.as_view(), name='feed-normal'),
+    url(r'^api/v1/feed/naughty/?$',
+        FeedNaughtyList.as_view(), name='feed-naughty'),
 
     # Users
     # -----

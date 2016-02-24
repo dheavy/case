@@ -32,6 +32,25 @@ def get_videos_filtered_by_ownership_for_privacy(request, obj):
         return []
 
 
+def get_videos_filtered_for_feed(request, obj):
+    """
+    Filter videos for the Feed.
+
+    Private videos are excluded. Use FeedVideoSerializer.
+    """
+    try:
+        # Either a list, or a ManyRelatedManager.
+        videos = type(obj.videos) == list and obj.videos or obj.videos.all()
+
+        return [
+            FeedVideoSerializer(
+                v, context={'request': request}
+            ).data for v in videos if not v.is_private
+        ]
+    except:
+        return []
+
+
 class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer class for User, as seen by regular Users."""
 
@@ -165,6 +184,18 @@ class VideoSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 
+class FeedVideoSerializer(VideoSerializer):
+    """Serializer for videos in Feed (i.e. stripped down of some infos)."""
+
+    class Meta(VideoSerializer.Meta):
+        """Meta for FeedVideoSerializer."""
+
+        fields = (
+            'title', 'hash', 'slug', 'poster', 'original_url', 'embed_url',
+            'duration', 'is_naughty', 'tags'
+        )
+
+
 class TagSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer for Tag model."""
 
@@ -222,3 +253,28 @@ class UserRegistrationSerializer(serializers.Serializer):
         """Meta for Tag serializer."""
 
         fields = ('username', 'email', 'password', 'confirm_password')
+
+
+class FeedSerializer(serializers.Serializer):
+    """
+    Serializer for the Feed.
+
+    Provides a list of videos devoid of reference to collection/owner.
+    """
+
+    videos = serializers.SerializerMethodField()
+
+    def get_videos(self, obj):
+        """Get videos filtered for Feed."""
+        return get_videos_filtered_for_feed(
+            self.context['request'], obj
+        )
+
+    class Meta:
+        """Meta for FeedVideoSerializer."""
+
+        model = Video
+        fields = (
+            'title', 'hash', 'slug', 'poster', 'original_url', 'embed_url',
+            'duration', 'is_naughty', 'tags'
+        )

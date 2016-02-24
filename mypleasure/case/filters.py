@@ -25,3 +25,10 @@ def filter_private_obj_detail_by_ownership(
     if obj.is_private and id != request.user.id:
         raise PermissionDenied(detail='Item is private.')
     return obj
+
+
+def filter_feed(obj, is_naughty):
+    """Filter feed based on naughtyness."""
+    return [
+        v for v in obj.objects.all() if v.is_naughty == is_naughty
+    ]

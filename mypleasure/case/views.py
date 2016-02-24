@@ -16,12 +16,15 @@ from rest_framework_jwt.settings import api_settings
 
 from .models import Collection, Video, CustomUser, Tag
 from .permissions import IsCurrentUserOrReadOnly, IsOwnerOrReadOnly
-from .serializers import BasicUserSerializer, get_user_serializer
-from .serializers import CollectionSerializer, VideoSerializer
-from .serializers import TagSerializer, UserRegistrationSerializer
+from .serializers import (
+    BasicUserSerializer, get_user_serializer, CollectionSerializer,
+    VideoSerializer, TagSerializer, UserRegistrationSerializer,
+    FeedVideoSerializer
+)
 from .filters import (
     filter_private_obj_list_by_ownership,
-    filter_private_obj_detail_by_ownership
+    filter_private_obj_detail_by_ownership,
+    filter_feed
 )
 
 
@@ -254,6 +257,28 @@ class VideoDetail(VideoMixin, RetrieveUpdateDestroyAPIView):
             self.check_object_permissions,
             self.request
         )
+
+
+class FeedNormalList(VideoMixin, ListCreateAPIView):
+    """Feed list for normal mode."""
+
+    permission_classes = (IsAuthenticated,)
+    serializer_class = FeedVideoSerializer
+
+    def get_queryset(self):
+        """Filter Feed's queryset based on naughtyness."""
+        return filter_feed(obj=Video, is_naughty=False)
+
+
+class FeedNaughtyList(VideoMixin, ListCreateAPIView):
+    """Feed list for naughty mode."""
+
+    permission_classes = (IsAuthenticated,)
+    serializer_class = FeedVideoSerializer
+
+    def get_queryset(self):
+        """Filter Feed's queryset based on naughtyness."""
+        return filter_feed(obj=Video, is_naughty=True)
 
 
 class TagMixin(object):
