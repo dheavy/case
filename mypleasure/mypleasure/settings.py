@@ -192,7 +192,7 @@ JWT_AUTH = {
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LEEWAY': 0,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=os.environ.get('JWT_EXPIRATION_DELTA')),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=int(os.environ.get('JWT_EXPIRATION_DELTA'))),
     'JWT_AUDIENCE': None,
     'JWT_ISSUER': None,
 
