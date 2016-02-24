@@ -1,4 +1,5 @@
 """CASE (MyPleasure API) models."""
+import uuid
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
@@ -235,14 +236,29 @@ def slugify_title_or_name(sender, instance, *args, **kwargs):
         pass
 
 
+def set_no_email_suffix(instance):
+    """Generate dummy email stating the User has not provided an email."""
+    return instance.username + '.no.email.provided@mypleasu.re'
+
+
 @receiver(pre_save, sender=CustomUser)
 def set_default_email(sender, instance, *args, **kwargs):
     """Set default email address when a User did not provide it."""
     if instance.email == '' or instance.email is None:
-        instance.email = instance.username + '.no.email.provided@mypleasu.re'
+        instance.email = set_no_email_suffix(instance)
 
 
 @receiver(pre_save, sender=Tag)
 def lowercase_name(sender, instance, *args, **kwargs):
     """Set Tag name to lower case."""
     instance.name = instance.name.lower()
+
+
+@receiver(pre_save, sender=CustomUser)
+def obfuscate_email_if_deactivated(sender, instance, *args, **kwargs):
+    """Obfuscate a User's email if User is being deactivated."""
+    suffix = '.user.deactivated@mypleasu.re'
+    if not instance.is_active and instance.email.find(suffix) == -1:
+        instance.email = str(uuid.uuid4()) + suffix
+    if instance.is_active and instance.email.find(suffix) > -1:
+        instance.email = set_no_email_suffix(instance)
