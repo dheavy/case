@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'case',
+    'djcelery_email'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -61,6 +62,12 @@ MIDDLEWARE_CLASSES = [
 ]
 
 ROOT_URLCONF = 'mypleasure.urls'
+
+EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
+
+CELERY_EMAIL_TASK_CONFIG = {
+    'ignore_result': False,
+}
 
 TEMPLATES = [
     {
