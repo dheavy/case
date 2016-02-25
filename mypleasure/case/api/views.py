@@ -14,7 +14,7 @@ from rest_framework.decorators import list_route
 
 from rest_framework_jwt.settings import api_settings
 
-from .models import Collection, Video, CustomUser, Tag
+from case.models import Collection, Video, CustomUser, Tag
 from .permissions import IsCurrentUserOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (
     BasicUserSerializer, get_user_serializer, CollectionSerializer,
