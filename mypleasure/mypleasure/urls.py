@@ -18,7 +18,7 @@ from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from case.api.views import (
     UserList, UserDetail, ProfileView, RegistrationViewSet, CollectionList,
     CollectionDetail, FeedNormalList, FeedNaughtyList, VideoList, VideoDetail,
-    TagList, TagDetail
+    TagList, TagDetail, UserPasswordResetViewSet
 )
 from case.admin import mp_admin
 
@@ -74,6 +74,31 @@ urlpatterns = [
     # site, they can keep their "session" alive.
     url(r'^api/v1/auth/token/refresh?$',
         refresh_jwt_token, name='refresh-token'),
+
+    # Password reset
+    # --------------
+    # Any user.
+    # `get_reset` is passing token within the URL. It allows displaying a view
+    # in the front end to enable user to reset her password.
+    # `post_reset` effectively triggers the password reset.
+    url(
+        r'^api/v1/password/reset/$',
+        UserPasswordResetViewSet.as_view({'get': 'get_reset'}),
+        name='password-reset'
+    ),
+
+    # Exceptionally, we want to send directly to a "frontend" view,
+    # not an API view.
+    url(
+        r'^password/reset/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$',
+        UserPasswordResetViewSet.as_view({'get': 'get_reset_confirm'}),
+        name='password-reset-confirm'
+    ),
+    url(
+        r'^api/v1/password/reset/done/$',
+        UserPasswordResetViewSet.as_view({'post': 'post_reset'}),
+        name='password-reset-done'
+    ),
 
 
     ##################

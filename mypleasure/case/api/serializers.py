@@ -51,6 +51,24 @@ def get_videos_filtered_for_feed(request, obj):
         return []
 
 
+def validate_user_email_password_data(data):
+    """Validate User's email/password data on registration & password reset."""
+    email = data.get('email', None)
+    existing_email = CustomUser.objects.filter(email=email).first()
+    if existing_email and existing_email != '':
+        raise serializers.ValidationError(
+            "Someone with that email address has already registered."
+        )
+
+    if not data.get('password') or not data.get('confirm_password'):
+        raise serializers.ValidationError(
+            "Please enter a password and confirm it."
+        )
+
+    if data.get('password') != data.get('confirm_password'):
+        raise serializers.ValidationError("Those passwords don't match.")
+
+
 class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer class for User, as seen by regular Users."""
 
@@ -233,21 +251,7 @@ class UserRegistrationSerializer(serializers.Serializer):
 
         Email uniqueness if provided, password and confirmation.
         """
-        email = data.get('email', None)
-        existing_email = CustomUser.objects.filter(email=email).first()
-        if existing_email and existing_email != '':
-            raise serializers.ValidationError(
-                "Someone with that email address has already registered."
-            )
-
-        if not data.get('password') or not data.get('confirm_password'):
-            raise serializers.ValidationError(
-                "Please enter a password and confirm it."
-            )
-
-        if data.get('password') != data.get('confirm_password'):
-            raise serializers.ValidationError("Those passwords don't match.")
-        return data
+        return validate_user_email_password_data(data)
 
     class Meta:
         """Meta for Tag serializer."""
@@ -278,3 +282,31 @@ class FeedSerializer(serializers.Serializer):
             'title', 'hash', 'slug', 'poster', 'original_url', 'embed_url',
             'duration', 'is_naughty', 'tags'
         )
+
+
+class UserForgotPasswordSerializer(serializers.Serializer):
+    """Serializer for password reset form."""
+
+    email = serializers.EmailField()
+
+    class Meta:
+        """Meta for UserForgotPasswordSerializer."""
+
+        fields = ('email',)
+
+
+class UserResetsPasswordSerializer(serializers.Serializer):
+    """Serializer for password reset processing."""
+
+    email = serializers.EmailField()
+    password = serializers.CharField()
+    confirm_password = serializers.CharField()
+
+    def validate(self, data):
+        """Validate data."""
+        return validate_user_email_password_data(data)
+
+    class Meta:
+        """Meta for UserResetsPasswordSerializer."""
+
+        fields = ('email', 'password', 'confirm_password',)

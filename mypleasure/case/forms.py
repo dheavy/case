@@ -3,6 +3,7 @@ from django import forms
 from django.contrib import admin
 from .models import Video, CustomUser
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.contrib.auth.forms import PasswordResetForm
 
 
 class CustomUserForm(forms.ModelForm):
@@ -118,3 +119,15 @@ class TagForm(forms.ModelForm):
                     # Add newly selected videos
                     instance.videos.add(video)
         return instance
+
+
+class UserForgotPasswordForm(PasswordResetForm):
+    """Password reset form."""
+
+    email = forms.EmailField(required=True, max_length=254)
+
+    class Meta:
+        """Meta for UserForgotPassword."""
+
+        model = CustomUser
+        fields = ('email',)

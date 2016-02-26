@@ -1,5 +1,7 @@
 """CASE (MyPleasure API) views."""
 
+import os
+
 from django.shortcuts import get_object_or_404
 
 from rest_framework import status
@@ -10,16 +12,17 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
-from rest_framework.decorators import list_route
-
+from rest_framework.decorators import list_route, detail_route
 from rest_framework_jwt.settings import api_settings
 
 from case.models import Collection, Video, CustomUser, Tag
+from case.forms import UserForgotPasswordForm
 from .permissions import IsCurrentUserOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (
     BasicUserSerializer, get_user_serializer, CollectionSerializer,
     VideoSerializer, TagSerializer, UserRegistrationSerializer,
-    FeedVideoSerializer
+    FeedVideoSerializer, UserForgotPasswordSerializer,
+    UserResetsPasswordSerializer
 )
 from .filters import (
     filter_private_obj_list_by_ownership,
@@ -350,3 +353,61 @@ class ProfileView(APIView):
         """Return current user."""
         user_serializer = UserDetail(data=request.data)
         return user_serializer.get(request, pk=self.request.user.id)
+
+
+class UserPasswordResetViewSet(ViewSet):
+    """View for password reset."""
+
+    @detail_route(methods=['get'], permission_classes=[AllowAny])
+    def get_reset(self, request, pk=None):
+        """
+        Attempt at triggering the password reset process.
+
+        Check if given email exists in DB. If it does, generate and send email.
+        """
+        serializer = UserForgotPasswordSerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+
+        existing_user = CustomUser.objects.filter(
+            email=serializer.validated_data['email']
+        )
+        if not existing_user:
+            return Response(
+                {'detail': 'No user matching this email.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        form = UserForgotPasswordForm(serializer.validated_data)
+        if form.is_valid():
+            path = os.path.join(
+                os.path.dirname(
+                    os.path.abspath(__file__ + '../../')
+                ), 'templates/registration/password_reset_email.html'
+            )
+            try:
+                form.save(
+                    from_email='no-reply@mypleasu.re',
+                    email_template_name=path,
+                    request=request
+                )
+                return Response(
+                    {'detail': 'Password reset request sent.'},
+                    status=status.HTTP_200_OK
+                )
+            except Exception as e:
+                return Response(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=['post'], permission_classes=[AllowAny])
+    def post_reset(self, request, pk=None):
+        """Attempt at processing password reset."""
+        serializer = UserResetsPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = CustomUser.objects.get(email=serializer.validated_data['email'])
+        user.set_password(serializer.validated_data['password'])
+        user.save()
+        return Response(
+            get_user_serializer(user)(user).data,
+            status=status.HTTP_200_OK
+        )
