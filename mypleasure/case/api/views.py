@@ -1,18 +1,16 @@
 """CASE (MyPleasure API) views."""
-
 import os
-
 from django.shortcuts import get_object_or_404
 
 from rest_framework import status
 from rest_framework.generics import (
-    ListCreateAPIView, RetrieveUpdateDestroyAPIView,
+    ListCreateAPIView, RetrieveUpdateDestroyAPIView, GenericAPIView
 )
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
-from rest_framework.decorators import list_route, detail_route
+from rest_framework.decorators import list_route
 from rest_framework_jwt.settings import api_settings
 
 from case.models import Collection, Video, CustomUser, Tag
@@ -21,8 +19,8 @@ from .permissions import IsCurrentUserOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (
     BasicUserSerializer, get_user_serializer, CollectionSerializer,
     VideoSerializer, TagSerializer, UserRegistrationSerializer,
-    FeedVideoSerializer, UserForgotPasswordSerializer,
-    UserResetsPasswordSerializer
+    FeedVideoSerializer, PasswordResetSerializer,
+    PasswordResetConfirmSerializer,
 )
 from .filters import (
     filter_private_obj_list_by_ownership,
@@ -355,36 +353,40 @@ class ProfileView(APIView):
         return user_serializer.get(request, pk=self.request.user.id)
 
 
-class UserPasswordResetViewSet(ViewSet):
-    """View for password reset."""
+class PasswordResetView(GenericAPIView):
+    """
+    Calls Django Auth PasswordResetForm save method.
 
-    @detail_route(methods=['get'], permission_classes=[AllowAny])
-    def get_reset(self, request, pk=None):
-        """
-        Attempt at triggering the password reset process.
+    Accepts the following POST parameters: email
+    Returns the success/fail message.
+    """
 
-        Check if given email exists in DB. If it does, generate and send email.
-        """
-        serializer = UserForgotPasswordSerializer(data=request.query_params)
+    serializer_class = PasswordResetSerializer
+    permission_classes = (AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+        """Create a serializer with request.data."""
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+        form = UserForgotPasswordForm(serializer.validated_data)
         existing_user = CustomUser.objects.filter(
             email=serializer.validated_data['email']
         )
+
         if not existing_user:
             return Response(
-                {'detail': 'No user matching this email.'},
-                status=status.HTTP_404_NOT_FOUND
+                {'detail': 'No such email in our database.'},
+                status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-        form = UserForgotPasswordForm(serializer.validated_data)
         if form.is_valid():
-            path = os.path.join(
-                os.path.dirname(
-                    os.path.abspath(__file__ + '../../')
-                ), 'templates/registration/password_reset_email.html'
-            )
             try:
+                path = os.path.join(
+                    os.path.dirname(
+                        os.path.abspath(__file__ + '../../')
+                    ), 'templates/registration/password_reset_email.html'
+                )
                 form.save(
                     from_email='no-reply@mypleasu.re',
                     email_template_name=path,
@@ -395,19 +397,31 @@ class UserPasswordResetViewSet(ViewSet):
                     status=status.HTTP_200_OK
                 )
             except Exception as e:
+                print(e)
                 return Response(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @detail_route(methods=['post'], permission_classes=[AllowAny])
-    def post_reset(self, request, pk=None):
-        """Attempt at processing password reset."""
-        serializer = UserResetsPasswordSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = CustomUser.objects.get(email=serializer.validated_data['email'])
-        user.set_password(serializer.validated_data['password'])
-        user.save()
         return Response(
-            get_user_serializer(user)(user).data,
-            status=status.HTTP_200_OK
+            {'detail': 'An error occured while resetting password.'},
+            status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+
+class PasswordResetConfirmView(GenericAPIView):
+    """
+    Password reset e-mail link is confirmed: resets the user's password.
+
+    Accepts the following POST parameters: new_password1, new_password2
+    Accepts the following Django URL arguments: token, uid
+    Returns the success/fail message.
+    """
+
+    serializer_class = PasswordResetConfirmSerializer
+    permission_classes = (AllowAny,)
+
+    def post(self, request, uidb64=None, token=None):
+        """Post confirmation."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({
+            'success': 'Password has been reset with the new password.'
+        }, status=status.HTTP_200_OK)
