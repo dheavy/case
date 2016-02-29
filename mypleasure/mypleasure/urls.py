@@ -18,7 +18,7 @@ from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from case.api.views import (
     UserList, UserDetail, ProfileView, RegistrationViewSet, CollectionList,
     CollectionDetail, FeedNormalList, FeedNaughtyList, VideoList, VideoDetail,
-    TagList, TagDetail, UserPasswordResetViewSet
+    TagList, TagDetail, PasswordResetView, PasswordResetConfirmView
 )
 from case.admin import mp_admin
 
@@ -78,28 +78,30 @@ urlpatterns = [
     # Password reset
     # --------------
     # Any user.
-    # `get_reset` is passing token within the URL. It allows displaying a view
-    # in the front end to enable user to reset her password.
-    # `post_reset` effectively triggers the password reset.
+    # `password-reset` generates email with token.
+    # Then the link in the email sends back to frontend and lets
+    # frontend form confirm the action after verifications.
+    # `password-reset-confirm` effectively triggers the password reset.
     url(
-        r'^api/v1/password/reset/$',
-        UserPasswordResetViewSet.as_view({'get': 'get_reset'}),
-        name='password-reset'
+        r'^api/v1/password/reset/?$',
+        PasswordResetView.as_view(),
+        name='password-reset',
+
     ),
 
-    # Exceptionally, we want to send directly to a "frontend" view,
-    # not an API view.
+    # TODO: Should land on user facing view in frontend - a form for password
+    # reset - which is the same URL as this one, attainable via GET.
     url(
-        r'^password/reset/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$',
-        UserPasswordResetViewSet.as_view({'get': 'get_reset_confirm'}),
+        r'^password/reset/confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/?$',
+        PasswordResetConfirmView.as_view(),
+        name='password-reset-link'
+    ),
+
+    url(
+        r'^api/v1/password/reset/confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/?$',
+        PasswordResetConfirmView.as_view(),
         name='password-reset-confirm'
     ),
-    url(
-        r'^api/v1/password/reset/done/$',
-        UserPasswordResetViewSet.as_view({'post': 'post_reset'}),
-        name='password-reset-done'
-    ),
-
 
     ##################
     #    Resources   #
