@@ -98,7 +98,8 @@ urlpatterns = [
     ),
 
     url(
-        r'^api/v1/password/reset/confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/?$',
+        r'^api/v1/password/reset/confirm/\
+        (?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/?$',
         PasswordResetConfirmView.as_view(),
         name='password-reset-confirm'
     ),
