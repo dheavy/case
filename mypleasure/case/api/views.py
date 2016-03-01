@@ -419,7 +419,13 @@ class PasswordResetConfirmView(GenericAPIView):
 
     def post(self, request, uidb64=None, token=None):
         """Post confirmation."""
-        serializer = self.get_serializer(data=request.data)
+        data = {
+            'new_password1': request.data.get('password', None),
+            'new_password2': request.data.get('confirm_password', None),
+            'token': token,
+            'uid': uidb64
+        }
+        serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({
