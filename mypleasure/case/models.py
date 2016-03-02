@@ -270,6 +270,18 @@ class MediaStore(models.Model):
     naughty = models.BooleanField()
     created_at = models.DateTimeField()
 
+    def render_as_video_params(self):
+        """Return parameters for creating Video from this instance."""
+        return {
+            'hash': self.hash,
+            'title': self.title,
+            'original_url': self.original_url,
+            'embed_url': self.embed_url,
+            'poster': self.poster,
+            'duration': self.duration,
+            'is_naughty': self.naughty,
+        }
+
     class Meta:
         """Use legacy name for this table."""
 
