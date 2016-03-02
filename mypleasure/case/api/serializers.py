@@ -298,34 +298,6 @@ class FeedSerializer(serializers.Serializer):
         )
 
 
-class UserForgotPasswordSerializer(serializers.Serializer):
-    """Serializer for password reset form."""
-
-    email = serializers.EmailField()
-
-    class Meta:
-        """Meta for UserForgotPasswordSerializer."""
-
-        fields = ('email',)
-
-
-class UserResetsPasswordSerializer(serializers.Serializer):
-    """Serializer for password reset processing."""
-
-    email = serializers.EmailField()
-    password = serializers.CharField()
-    confirm_password = serializers.CharField()
-
-    def validate(self, data):
-        """Validate data."""
-        return validate_user_email_password_data(data)
-
-    class Meta:
-        """Meta for UserResetsPasswordSerializer."""
-
-        fields = ('email', 'password', 'confirm_password',)
-
-
 class PasswordResetSerializer(serializers.Serializer):
     """Serializer for requesting a password reset e-mail."""
 
