@@ -220,6 +220,62 @@ class Invite(models.Model):
     claimed_at = models.DateTimeField(auto_now=True)
 
 
+class MediaQueue(models.Model):
+    """
+    Media queue element.
+
+    An independant model describing a set of video metada sent by KIPP
+    (or CASE, via some 'add new video via page url' command) to be processed
+    by TARS. These models represent the video marked as 'pending' in a user's
+    video list.
+    Though `requester` and `collection_id` are respectively a reference to
+    `id` fields in CustomUser and `Collection`, the relationship is not
+    enforced.
+    Historically, this and MediaStore were using a different DB (Mongo),
+    and both CASE and TARS were (and still are) using these data extensively.
+    For pragmatic reasons (i.e. $$$) these DB were reconciliated into PSQL.
+    MediaQueue exists as a Django model, among other reasons, to benefit from
+    the migration system.
+    """
+
+    hash = models.CharField(max_length=255, db_index=True)
+    url = models.CharField(max_length=255)
+    requester = models.IntegerField()
+    collection_id = models.IntegerField()
+    status = models.CharField(max_length=30)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        """Use legacy name for this table."""
+
+        db_table = 'mediaqueue'
+
+
+class MediaStore(models.Model):
+    """
+    Media store element.
+
+    The media store keeps metadata/reference of video previously analyzed.
+    TARS checks against it whenever it starts a job to see if it can just
+    return the existing reference instead of doing a full job.
+    The same historical context for MediaQueue table apply to this one.
+    """
+
+    hash = models.CharField(max_length=255, db_index=True)
+    title = models.CharField(max_length=255)
+    original_url = models.CharField(max_length=255)
+    embed_url = models.CharField(max_length=255)
+    poster = models.CharField(max_length=255)
+    duration = models.CharField(max_length=8)
+    naughty = models.BooleanField()
+    created_at = models.DateTimeField()
+
+    class Meta:
+        """Use legacy name for this table."""
+
+        db_table = 'mediastore'
+
+
 @receiver(pre_save, sender=Collection)
 @receiver(pre_save, sender=Video)
 @receiver(pre_save, sender=Tag)
