@@ -20,7 +20,7 @@ from .serializers import (
     BasicUserSerializer, get_user_serializer, CollectionSerializer,
     VideoSerializer, TagSerializer, UserRegistrationSerializer,
     FeedVideoSerializer, PasswordResetSerializer,
-    PasswordResetConfirmSerializer,
+    PasswordResetConfirmSerializer, CuratedMediaAcquisitionSerializer
 )
 from .filters import (
     filter_private_obj_list_by_ownership,
@@ -118,6 +118,7 @@ class RegistrationViewSet(ViewSet):
         payload = jwt_payload_handler(user)
         token = jwt_encode_handler(payload)
 
+        # TODO: replace 'success' by actual user info.
         return Response({'success': True, 'token': token})
 
 
@@ -431,3 +432,24 @@ class PasswordResetConfirmView(GenericAPIView):
         return Response({
             'success': 'Password has been reset with the new password.'
         }, status=status.HTTP_200_OK)
+
+
+class CuratedMediaViewSet(ViewSet):
+    """ViewSet for curated media management."""
+
+    @list_route(methods=['post'], permission_classes=[IsAuthenticated])
+    def acquire(self, request):
+        """
+        Media acquisition.
+
+        Queues a media for processing.
+        If collection ID is provided and belongs to user,
+        make the media belong to it. Otherwise, use new_collection_name
+        to create a new collection to add the media request to.
+        """
+        serializer = CuratedMediaAcquisitionSerializer(
+            data=request.data,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
