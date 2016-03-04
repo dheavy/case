@@ -65,6 +65,22 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
         """Return 'short name' representation of model."""
         return self.username
 
+    def has_video(self, hash=None, include_queue=True):
+        """Tell if user owns a video matching given hash."""
+        try:
+            Video.objects.get(hash=hash, collection__owner=self.id)
+        except:
+            return False
+
+        # If required, check in media acquisition queue.
+        if include_queue is True:
+            try:
+                MediaQueue.objects.get(hash=hash, requester=self.id)
+            except:
+                return False
+
+        return True
+
     def __str__(self):
         """Return string representation of model."""
         return (
@@ -242,7 +258,7 @@ class MediaQueue(models.Model):
     url = models.CharField(max_length=255)
     requester = models.IntegerField()
     collection_id = models.IntegerField()
-    status = models.CharField(max_length=30)
+    status = models.CharField(max_length=30, default='pending')
     created_at = models.DateTimeField()
 
     class Meta:
