@@ -1,11 +1,15 @@
 """CASE (MyPleasure API) serializers."""
+import crypt
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode as uid_decoder
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework import serializers
-from case.models import Collection, Video, CustomUser, Tag
+from case.models import (
+    Collection, Video, CustomUser, Tag, MediaQueue, MediaStore
+)
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 
 
@@ -331,7 +335,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         pass
 
     def validate(self, attrs):
-        """Attempt validation."""
+        """Attempt validation. TODO: clean up."""
         self._errors = {}
 
         # Decode the uidb64 to uid to get User object
@@ -342,12 +346,13 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
             raise ValidationError({'uid': ['Invalid value']})
 
         self.custom_validation(attrs)
+
         # Construct SetPasswordForm instance
         self.set_password_form = self.set_password_form_class(
             user=self.user, data=attrs
         )
         if not self.set_password_form.is_valid():
-            raise serializers.ValidationError(self.set_password_form.errors)
+            raise ValidationError(self.set_password_form.errors)
         if not default_token_generator.check_token(self.user, attrs['token']):
             raise ValidationError({'token': ['Invalid value']})
 
@@ -356,3 +361,74 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     def save(self):
         """Save new password."""
         self.set_password_form.save()
+
+
+class CuratedMediaAcquisitionSerializer(serializers.Serializer):
+    """Serializer used when performing a media acquisition."""
+
+    def validate(self, attrs):
+        """Attempt validation of attributes."""
+        try:
+            # If collection_id is provided, check if it exists, belongs to user.
+            if attrs['collection_id'] is not None:
+                c = Collection.objects.get(pk=attrs['collection_id'])
+                if c.owner == self.context['request'].user:
+                    return attrs
+        except:
+            raise ValidationError({'collection_id': [
+                'Collection ID invalid or not belonging to user.' \
+            ]})
+
+        try:
+            # If not ID provided, a new collection name should have been.
+            name = attrs['new_collection_name']
+            if name is not None and name != '':
+                return attrs
+        except:
+            raise ValidationError({'new_collection_name': [
+                'A name for a new collection should be provided ' \
+                ' if no existing and owned collection ID was given.'
+            ]})
+
+        # Verify URL presence and validity.
+        if not 'url' in attrs:
+            raise ValidationError({'url': ['URL is missing.']})
+
+        try:
+            URLValidator(verify_exists=True)(attrs['url'])
+        except ValidationError:
+            raise ValidationError({'url': ['URL is invalid.']})
+
+
+        # Prevent duplicates.
+        if self.context['request'].has_video(hash=hash, include_queue=True):
+            return ValidationError({'url': [
+                'User already has video, or video is \
+                already queued for acquisition'
+            ]})
+
+        return attrs
+
+    def save(self):
+        hash = crypt.crypt(
+            self.validated_data['url'],
+            crypt.METHOD_MD5
+        )
+
+        # If found in store, get this previously cached version.
+        cached_video = MediaStore.objects.filter(hash=hash)
+        if len(cached_video) > 0:
+            self.get_from_store(cached_video[0])
+            return Response({
+                'detail': 'Video taken from store and available.'
+            }, status=status.HTTP_200_OK)
+        else:
+            self.add_to_queue(
+                hash=hash,
+                url=self.validated_data['url'],
+                requester=self.context['request'].user,
+                collection_id=self.validated_data['collection_id']
+            )
+            return Response({
+                'detail': 'Video added to queue.'
+            }, status=status.HTTP_201_CREATED)
