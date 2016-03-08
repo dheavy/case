@@ -13,14 +13,17 @@ from rest_framework.response import Response
 from rest_framework.decorators import list_route
 from rest_framework_jwt.settings import api_settings
 
-from case.models import Collection, Video, CustomUser, Tag
+from case.models import (
+    Collection, Video, CustomUser, Tag, MediaStore, MediaQueue
+)
 from case.forms import UserForgotPasswordForm
 from .permissions import IsCurrentUserOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (
     BasicUserSerializer, get_user_serializer, CollectionSerializer,
     VideoSerializer, TagSerializer, UserRegistrationSerializer,
     FeedVideoSerializer, PasswordResetSerializer,
-    PasswordResetConfirmSerializer, CuratedMediaAcquisitionSerializer
+    PasswordResetConfirmSerializer, CuratedMediaAcquisitionSerializer,
+    CuratedMediaFetchSerializer
 )
 from .filters import (
     filter_private_obj_list_by_ownership,
@@ -453,3 +456,70 @@ class CuratedMediaViewSet(ViewSet):
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+    @list_route(methods=['get'], permission_classes=[IsAuthenticated])
+    def fetch(self, request, user=None):
+        """
+        Media fetching.
+
+        Fetch videos processed for user and ready to be added
+        to her collections. For convenience, return also the number
+        of videos currently pending process.
+        """
+        serializer = CuratedMediaFetchSerializer(
+            data=request.data,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        new_and_ready = self.fetch_new_and_ready(
+            serializer.validated_data['user']
+        )
+        pending = self.get_pending_number(serializer.validated_data['user'])
+        message = ''
+        status_code = status.HTTP_200_OK
+
+        if new_and_ready is True:
+            message = 'New videos added.'
+        elif new_and_ready is False:
+            message = 'Error while creating video instance.'
+            status_code = status.HTTP_500_SERVER_ERROR
+        elif new_and_ready is None:
+            message = 'No new videos.'
+
+        return Response({
+            'detail': message,
+            'pending': pending
+        }, status=status_code)
+
+    def fetch_new_and_ready(self, user):
+        """Fetch new videos recently acquired."""
+        ready_mediae = MediaQueue.objects.filter(
+            status='ready', requester=user.id
+        )
+
+        # 'None' returned if no videos are found.
+        if len(ready_mediae) == 0:
+            return None
+
+        # Create and assign new Video instance
+        # from MediaStore instance if something was found.
+        # Update job status in queue.
+        for media in ready_mediae:
+            stored_media = MediaStore.objects.get(hash=media.hash)
+            collection_id = media.collection_id
+            video = Video(**stored_media.as_video_params())
+            video.collection.add(collection_id)
+            video.save()
+
+            media.status = 'done'
+            media.save()
+
+        return True
+
+    def get_pending_number(self, user):
+        """Return number of videos currently pending process for user."""
+        return MediaQueue.objects.filter(
+            status='pending',
+            requester=user.id
+        ).count()

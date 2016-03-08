@@ -432,3 +432,12 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
             return Response({
                 'detail': 'Video added to queue.'
             }, status=status.HTTP_201_CREATED)
+
+
+class CuratedMediaFetchSerializer(serializers.Serialier):
+    """Serializer for fetching new videos to be displayed."""
+
+    def validate(self, attrs):
+        if attrs['user'] != self.request['user']:
+            raise ValidationError('Passed ID not matching current user\'s')
+        return attrs
