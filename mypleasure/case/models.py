@@ -286,7 +286,7 @@ class MediaStore(models.Model):
     naughty = models.BooleanField()
     created_at = models.DateTimeField()
 
-    def render_as_video_params(self):
+    def as_video_params(self):
         """Return parameters for creating Video from this instance."""
         return {
             'hash': self.hash,
