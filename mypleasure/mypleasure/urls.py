@@ -18,7 +18,8 @@ from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from case.api.views import (
     UserList, UserDetail, ProfileView, RegistrationViewSet, CollectionList,
     CollectionDetail, FeedNormalList, FeedNaughtyList, VideoList, VideoDetail,
-    TagList, TagDetail, PasswordResetView, PasswordResetConfirmView
+    TagList, TagDetail, PasswordResetView, PasswordResetConfirmView,
+    CuratedMediaViewSet
 )
 from case.admin import mp_admin
 
@@ -151,4 +152,16 @@ urlpatterns = [
         TagList.as_view(), name='tag-list'),
     url(r'^api/v1/tags/(?P<pk>[0-9]+)/?$',
         TagDetail.as_view(), name='tag-detail'),
+
+    # Curated media
+    # -------------
+    # Available to authenticated users only.
+    # It includes media queue and media store items,
+    # and all that has to do with acquiring new media.
+    url(r'^api/v1/curate/acquire/?$',
+        CuratedMediaViewSet.as_view({'post': 'acquire'}),
+        name='media-acquire'),
+    url(r'^api/v1/curate/fetch/?$',
+        CuratedMediaViewSet.as_view({'get': 'fetch'}),
+        name='media-fetch')
 ]
