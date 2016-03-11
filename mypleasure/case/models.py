@@ -12,9 +12,15 @@ from django.dispatch import receiver
 class CustomUserManager(BaseUserManager):
     """Manager object for CustomUser."""
 
+    def create_default_collection(self, user):
+        """Create default collection upon user creation."""
+        user.collections.create(
+            name='my collection', is_private=False
+        )
+
     def create_user(self, username, password, email=None):
         """Create user."""
-        if not email:
+        if not username:
             raise ValueError('Users must have a username.')
 
         user = self.model(
@@ -24,7 +30,10 @@ class CustomUserManager(BaseUserManager):
 
         user.set_password(password)
         user.is_active = True
-        user.save(using=self._db)
+        user.save()
+
+        self.create_default_collection(user)
+
         return user
 
     def create_superuser(self, username, password, email):
@@ -32,7 +41,8 @@ class CustomUserManager(BaseUserManager):
         user = self.create_user(username, password=password, email=email)
         user.is_staff = True
         user.is_superuser = True
-        user.save(using=self._db)
+        user.save()
+        self.create_default_collection(user)
         return user
 
 
@@ -122,6 +132,7 @@ class Collection(models.Model):
         settings.AUTH_USER_MODEL,
         related_name='collections',
         blank=True,
+        null=True,
         on_delete=models.CASCADE
     )
     name = models.CharField(max_length=30)
@@ -183,7 +194,7 @@ class Video(models.Model):
     def __str__(self):
         """Render string representation of instance."""
         return (
-            "Video (id: %s, collectionid: %s, title: %s, slug: %s, poster: %s \
+            "Video (id: %s, collection_id: %s, title: %s, slug: %s, poster: %s \
             originalurl: %s, embedurl: %s, duration: %s, isnaughty: %s))" %
             (
                 self.id, self.collection.id, self.title, self.slug,
@@ -235,6 +246,15 @@ class Invite(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     claimed_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        """Return string representation of model."""
+        return (
+            "Invite (email: %s, code: %s, sender: %s)" %
+            (
+                self.email, self.code, self.user_created
+            )
+        )
+
 
 class MediaQueue(models.Model):
     """
@@ -260,6 +280,17 @@ class MediaQueue(models.Model):
     collection_id = models.IntegerField()
     status = models.CharField(max_length=30, default='pending')
     created_at = models.DateTimeField()
+
+    def __str__(self):
+        """Return string representation of model."""
+        return (
+            "MediaQueue (id: %s, hash: %s, url: %s,\
+requester: %s, collection_id: %s, status: %s)" %
+            (
+                self.id, self.hash, self.url, self.requester,
+                self.collection_id, self.status
+            )
+        )
 
     class Meta:
         """Use legacy name for this table."""
@@ -297,6 +328,17 @@ class MediaStore(models.Model):
             'duration': self.duration,
             'is_naughty': self.naughty,
         }
+
+    def __str__(self):
+        """Return string representation of model."""
+        return (
+            "MediaStore (id: %s, hash: %s, original_url: %s\
+embed_url: %s, poster: %s, duration: %s, naughty: %s)" %
+            (
+                self.id, self.hash, self.original_url, self.embed_url,
+                self.poster, self.duration, self.is_naughty
+            )
+        )
 
     class Meta:
         """Use legacy name for this table."""
