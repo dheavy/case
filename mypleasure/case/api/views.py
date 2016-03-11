@@ -1,6 +1,7 @@
 """CASE (MyPleasure API) views."""
 import os
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
 
 from rest_framework import status
 from rest_framework.generics import (
@@ -14,7 +15,7 @@ from rest_framework.decorators import list_route
 from rest_framework_jwt.settings import api_settings
 
 from case.models import (
-    Collection, Video, CustomUser, Tag, MediaStore, MediaQueue
+    Collection, Video, Tag, MediaStore, MediaQueue
 )
 from case.forms import UserForgotPasswordForm
 from .permissions import IsCurrentUserOrReadOnly, IsOwnerOrReadOnly
@@ -35,7 +36,7 @@ from .filters import (
 class UserMixin(object):
     """Mixin for User viewsets."""
 
-    queryset = CustomUser.objects.all()
+    queryset = get_user_model().objects.all()
     permission_classes = (IsAuthenticated, IsCurrentUserOrReadOnly,)
 
     def get_serializer_class(self):
@@ -54,12 +55,12 @@ class UserDetail(UserMixin, APIView):
 
     def get_serializer_class(self, pk=None):
         """Return three flavors of serializer classes based on user status."""
-        user = CustomUser.objects.get(pk=pk)
+        user = get_user_model().objects.get(pk=pk)
         return get_user_serializer(user, pk)
 
     def get_object(self, pk):
         """Return CustomUser object or 404."""
-        return get_object_or_404(CustomUser, pk=pk)
+        return get_object_or_404(get_user_model(), pk=pk)
 
     def get(self, request, pk, format=None):
         """GET operation on User."""
@@ -93,7 +94,7 @@ class UserDetail(UserMixin, APIView):
 class RegistrationViewSet(ViewSet):
     """Viewset for User registration."""
 
-    queryset = CustomUser.objects.all()
+    queryset = get_user_model().objects.all()
 
     @list_route(methods=['post'], permission_classes=[AllowAny])
     def register(self, request):
@@ -107,7 +108,7 @@ class RegistrationViewSet(ViewSet):
         model_serializer.save()
 
         # Create default collection for User.
-        user = CustomUser.objects.get(username=request.data['username'])
+        user = get_user_model().objects.get(username=request.data['username'])
         collection_serializer = CollectionSerializer(
             data={'owner': user.id, 'name': 'my first collection'}
         )
@@ -217,7 +218,7 @@ class CollectionDetail(CollectionMixin, APIView):
             try:
                 replacement_collection = Collection.objects.get(
                     pk=request.data['replacement'],
-                    owner=CustomUser.objects.get(pk=request.user.id)
+                    owner=get_user_model().objects.get(pk=request.user.id)
                 )
                 for v in collection.videos.all():
                     v.collection = replacement_collection
@@ -374,7 +375,7 @@ class PasswordResetView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
 
         form = UserForgotPasswordForm(serializer.validated_data)
-        existing_user = CustomUser.objects.filter(
+        existing_user = get_user_model().objects.filter(
             email=serializer.validated_data['email']
         )
 
@@ -401,7 +402,6 @@ class PasswordResetView(GenericAPIView):
                     status=status.HTTP_200_OK
                 )
             except Exception as e:
-                print(e)
                 return Response(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(
             {'detail': 'An error occured while resetting password.'},
@@ -455,10 +455,19 @@ class CuratedMediaViewSet(ViewSet):
             context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        result = serializer.save()
+
+        if 'code' in result and result['code'] == 'available':
+            return Response({
+                'detail': 'Video taken from store and available.'
+            }, status=status.HTTP_200_OK)
+        if 'code' in result and result['code'] == 'added':
+            return Response({
+                'detail': 'Video added to queue.'
+            }, status=status.HTTP_200_OK)
 
     @list_route(methods=['get'], permission_classes=[IsAuthenticated])
-    def fetch(self, request, user=None):
+    def fetch(self, request, userid=None):
         """
         Media fetching.
 
@@ -467,20 +476,20 @@ class CuratedMediaViewSet(ViewSet):
         of videos currently pending process.
         """
         serializer = CuratedMediaFetchSerializer(
-            data=request.data,
+            data={'userid': userid},
             context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
 
         new_and_ready = self.fetch_new_and_ready(
-            serializer.validated_data['user']
+            serializer.validated_data['userid']
         )
-        pending = self.get_pending_number(serializer.validated_data['user'])
+        pending = self.get_pending_number(serializer.validated_data['userid'])
         message = ''
         status_code = status.HTTP_200_OK
 
         if new_and_ready is True:
-            message = 'New videos added.'
+            message = 'New videos fetched.'
         elif new_and_ready is False:
             message = 'Error while creating video instance.'
             status_code = status.HTTP_500_SERVER_ERROR
@@ -492,10 +501,10 @@ class CuratedMediaViewSet(ViewSet):
             'pending': pending
         }, status=status_code)
 
-    def fetch_new_and_ready(self, user):
+    def fetch_new_and_ready(self, id):
         """Fetch new videos recently acquired."""
         ready_mediae = MediaQueue.objects.filter(
-            status='ready', requester=user.id
+            status='ready', requester=id
         )
 
         # 'None' returned if no videos are found.
@@ -505,21 +514,24 @@ class CuratedMediaViewSet(ViewSet):
         # Create and assign new Video instance
         # from MediaStore instance if something was found.
         # Update job status in queue.
+
         for media in ready_mediae:
+            #try:
             stored_media = MediaStore.objects.get(hash=media.hash)
-            collection_id = media.collection_id
             video = Video(**stored_media.as_video_params())
-            video.collection.add(collection_id)
+            video.collection = Collection.objects.get(pk=media.collection_id)
             video.save()
 
             media.status = 'done'
             media.save()
+            #except:
+            #    pass
 
         return True
 
-    def get_pending_number(self, user):
+    def get_pending_number(self, id):
         """Return number of videos currently pending process for user."""
         return MediaQueue.objects.filter(
             status='pending',
-            requester=user.id
+            requester=id
         ).count()

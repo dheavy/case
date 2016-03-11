@@ -99,7 +99,8 @@ urlpatterns = [
     ),
 
     url(
-        r'^api/v1/password/reset/confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/?$',
+        r'^api/v1/password/reset/confirm/\
+        (?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/?$',
         PasswordResetConfirmView.as_view(),
         name='password-reset-confirm'
     ),
@@ -161,7 +162,7 @@ urlpatterns = [
     url(r'^api/v1/curate/acquire/?$',
         CuratedMediaViewSet.as_view({'post': 'acquire'}),
         name='media-acquire'),
-    url(r'^api/v1/curate/fetch/?$',
+    url(r'^api/v1/curate/fetch/(?P<userid>[0-9]+)/?$',
         CuratedMediaViewSet.as_view({'get': 'fetch'}),
         name='media-fetch')
 ]

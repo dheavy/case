@@ -8,7 +8,7 @@ from django.utils.http import urlsafe_base64_decode as uid_decoder
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework import serializers
 from case.models import (
-    Collection, Video, CustomUser, Tag, MediaQueue, MediaStore
+    Collection, Video, CustomUser, Tag, MediaStore
 )
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 
@@ -334,29 +334,26 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         """Possible custom validation."""
         pass
 
-    def validate(self, attrs):
-        """Attempt validation. TODO: clean up."""
-        self._errors = {}
-
-        # Decode the uidb64 to uid to get User object
+    def validate(self, data):
+        """Attempt validation."""
         try:
-            uid = force_text(uid_decoder(attrs['uid']))
+            uid = force_text(uid_decoder(data['uid']))
             self.user = CustomUser.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
             raise ValidationError({'uid': ['Invalid value']})
 
-        self.custom_validation(attrs)
+        self.custom_validation(data)
 
         # Construct SetPasswordForm instance
         self.set_password_form = self.set_password_form_class(
-            user=self.user, data=attrs
+            user=self.user, data=data
         )
         if not self.set_password_form.is_valid():
             raise ValidationError(self.set_password_form.errors)
-        if not default_token_generator.check_token(self.user, attrs['token']):
+        if not default_token_generator.check_token(self.user, data['token']):
             raise ValidationError({'token': ['Invalid value']})
 
-        return attrs
+        return data
 
     def save(self):
         """Save new password."""
@@ -369,14 +366,16 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
     def validate(self, attrs):
         """Attempt validation of attributes."""
         try:
-            # If collection_id is provided, check if it exists, belongs to user.
+            # If collection_id is provided, check if it exists,
+            # belongs to user.
             if attrs['collection_id'] is not None:
                 c = Collection.objects.get(pk=attrs['collection_id'])
                 if c.owner == self.context['request'].user:
                     return attrs
         except:
             raise ValidationError({'collection_id': [
-                'Collection ID invalid or not belonging to user.' \
+                'Collection ID invalid or not belonging \
+                to user.'
             ]})
 
         try:
@@ -386,19 +385,18 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
                 return attrs
         except:
             raise ValidationError({'new_collection_name': [
-                'A name for a new collection should be provided ' \
+                'A name for a new collection should be provided '
                 ' if no existing and owned collection ID was given.'
             ]})
 
         # Verify URL presence and validity.
-        if not 'url' in attrs:
+        if 'url' not in attrs:
             raise ValidationError({'url': ['URL is missing.']})
 
         try:
             URLValidator(verify_exists=True)(attrs['url'])
         except ValidationError:
             raise ValidationError({'url': ['URL is invalid.']})
-
 
         # Prevent duplicates.
         if self.context['request'].has_video(hash=hash, include_queue=True):
@@ -410,6 +408,7 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
         return attrs
 
     def save(self):
+        """Save Video in store."""
         hash = crypt.crypt(
             self.validated_data['url'],
             crypt.METHOD_MD5
@@ -419,9 +418,7 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
         cached_video = MediaStore.objects.filter(hash=hash)
         if len(cached_video) > 0:
             self.get_from_store(cached_video[0])
-            return Response({
-                'detail': 'Video taken from store and available.'
-            }, status=status.HTTP_200_OK)
+            return {'code': 'available'}
         else:
             self.add_to_queue(
                 hash=hash,
@@ -429,15 +426,17 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
                 requester=self.context['request'].user,
                 collection_id=self.validated_data['collection_id']
             )
-            return Response({
-                'detail': 'Video added to queue.'
-            }, status=status.HTTP_201_CREATED)
+            return {'code': 'added'}
 
 
-class CuratedMediaFetchSerializer(serializers.Serialier):
+class CuratedMediaFetchSerializer(serializers.Serializer):
     """Serializer for fetching new videos to be displayed."""
 
     def validate(self, attrs):
-        if attrs['user'] != self.request['user']:
+        """Validate data."""
+        user_id = self.context['request'].user.id
+        if 'userid' not in self.initial_data or int(self.initial_data[
+            'userid'
+        ]) != user_id:
             raise ValidationError('Passed ID not matching current user\'s')
-        return attrs
+        return self.initial_data
