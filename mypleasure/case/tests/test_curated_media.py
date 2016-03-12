@@ -68,22 +68,37 @@ class CuratedMediaTestCase(TestCase):
         self.assertEqual(MediaStore.objects.count(), 2)
 
     def test_fetch_requires_authentication(self):
-        """Test GET api/v1/curate/fetch requires authentication."""
+        """GET api/v1/curate/fetch requires authentication."""
         uri = '/api/v1/curate/fetch/{0}'.format(self.user.id)
         response = self.client.get(uri)
         self.assertEqual(response.status_code, 400)
 
     def test_fetch_returns_ready_media(self):
-        """Test GET api/v1/curate/fetch returns ready media."""
+        """GET api/v1/curate/fetch returns ready media."""
         self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
         response = self.client.get(self.uri)
         self.client.credentials()
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['code'], 'fetched')
         self.assertEqual(response.data['pending'], MediaStore.objects.count())
 
     def test_fetch_changes_jobs_statuses_in_queue(self):
-        """Test GET api/v1/curate/fetch changes jobs statuses in queue."""
+        """GET api/v1/curate/fetch changes jobs statuses in queue."""
         self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
         self.client.get(self.uri)
         self.client.credentials()
         self.assertEqual(MediaQueue.objects.get(hash='h4').status, 'done')
+
+    def test_fetch_returns_code_empty_when_no_new_videos(self):
+        """GET api/v1/curate/fetch in payload returns 'empty' if no videos."""
+        mediae = [m for m in MediaQueue.objects.all()]
+        for m in mediae:
+            m.status = 'pending'
+            m.save()
+
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+        response = self.client.get(self.uri)
+        self.client.credentials()
+
+        self.assertEqual(MediaQueue.objects.filter(status='done').count(), 0)
+        self.assertEqual(response.data['code'], 'empty')
