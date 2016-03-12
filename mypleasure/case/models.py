@@ -195,7 +195,7 @@ class Video(models.Model):
         """Render string representation of instance."""
         return (
             "Video (id: %s, collection_id: %s, title: %s, slug: %s, poster: %s \
-            originalurl: %s, embedurl: %s, duration: %s, isnaughty: %s))" %
+originalurl: %s, embedurl: %s, duration: %s, isnaughty: %s))" %
             (
                 self.id, self.collection.id, self.title, self.slug,
                 self.poster, self.original_url, self.embed_url,
@@ -284,7 +284,7 @@ class MediaQueue(models.Model):
     def __str__(self):
         """Return string representation of model."""
         return (
-            "MediaQueue (id: %s, hash: %s, url: %s,\
+            "MediaQueue (id: %s, hash: %s, url: %s, \
 requester: %s, collection_id: %s, status: %s)" %
             (
                 self.id, self.hash, self.url, self.requester,
@@ -332,7 +332,7 @@ class MediaStore(models.Model):
     def __str__(self):
         """Return string representation of model."""
         return (
-            "MediaStore (id: %s, hash: %s, original_url: %s\
+            "MediaStore (id: %s, hash: %s, original_url: %s, \
 embed_url: %s, poster: %s, duration: %s, naughty: %s)" %
             (
                 self.id, self.hash, self.original_url, self.embed_url,
