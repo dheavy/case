@@ -10,18 +10,16 @@ class CuratedMediaTestCase(TestCase):
 
     def setUp(self):
         """Set up test case."""
-        self.username = 'user'
-        self.password = 'azertyuiop'
-        self.user = CustomUser.objects.create_user(
-            self.username, self.password
-        )
+        username = 'morgane'
+        password = 'azertyuiop'
+        self.user = CustomUser.objects.create_user(username, password)
 
         # Client for API calls.
         self.client = APIClient()
 
         # Enable usage of JWT token for authenticated tests.
         response = self.client.post('/api/v1/auth/login/', {
-            'username': 'user', 'password': 'azertyuiop'
+            'username': username, 'password': password
         })
         self.token = response.data['token']
         self.auth = 'Bearer {0}'.format(self.token)
@@ -71,6 +69,23 @@ class CuratedMediaTestCase(TestCase):
         """GET api/v1/curate/fetch requires authentication."""
         uri = '/api/v1/curate/fetch/{0}'.format(self.user.id)
         response = self.client.get(uri)
+        self.assertEqual(response.status_code, 400)
+
+    def test_fetch_needs_user_id(self):
+        """GET api/v1/curate/fetch returns error if no ID param."""
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+        response = self.client.get('/api/v1/curate/fetch/')
+        self.client.credentials()
+        self.assertEqual(response.status_code, 404)
+
+    def test_fetch_needs_current_user_id(self):
+        """GET api/v1/curate/fetch returns error if ID isn't current user's."""
+        u = CustomUser.objects.create_user('marion', 'azertyiop')
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+        response = self.client.get(
+            '/api/v1/curate/fetch/{0}'.format(u.id)
+        )
+        self.client.credentials()
         self.assertEqual(response.status_code, 400)
 
     def test_fetch_returns_ready_media(self):
