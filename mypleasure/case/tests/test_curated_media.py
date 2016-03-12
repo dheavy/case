@@ -23,7 +23,8 @@ class CuratedMediaTestCase(TestCase):
         })
         self.token = response.data['token']
         self.auth = 'Bearer {0}'.format(self.token)
-        self.uri = '/api/v1/curate/fetch/{0}'.format(self.user.id)
+        self.fetch_uri = '/api/v1/curate/fetch/{0}'.format(self.user.id)
+        self.acquire_uri = '/api/v1/curate/acquire'
 
         MediaQueue.objects.create(
             hash='h1', url='u1', requester=self.user.id,
@@ -67,8 +68,7 @@ class CuratedMediaTestCase(TestCase):
 
     def test_fetch_requires_authentication(self):
         """GET api/v1/curate/fetch requires authentication."""
-        uri = '/api/v1/curate/fetch/{0}'.format(self.user.id)
-        response = self.client.get(uri)
+        response = self.client.get(self.fetch_uri)
         self.assertEqual(response.status_code, 400)
 
     def test_fetch_needs_user_id(self):
@@ -91,7 +91,7 @@ class CuratedMediaTestCase(TestCase):
     def test_fetch_returns_ready_media(self):
         """GET api/v1/curate/fetch returns ready media."""
         self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
-        response = self.client.get(self.uri)
+        response = self.client.get(self.fetch_uri)
         self.client.credentials()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['code'], 'fetched')
@@ -100,7 +100,7 @@ class CuratedMediaTestCase(TestCase):
     def test_fetch_changes_jobs_statuses_in_queue(self):
         """GET api/v1/curate/fetch changes jobs statuses in queue."""
         self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
-        self.client.get(self.uri)
+        self.client.get(self.fetch_uri)
         self.client.credentials()
         self.assertEqual(MediaQueue.objects.get(hash='h4').status, 'done')
 
@@ -112,8 +112,13 @@ class CuratedMediaTestCase(TestCase):
             m.save()
 
         self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
-        response = self.client.get(self.uri)
+        response = self.client.get(self.fetch_uri)
         self.client.credentials()
 
         self.assertEqual(MediaQueue.objects.filter(status='done').count(), 0)
         self.assertEqual(response.data['code'], 'empty')
+
+    def test_acquire_requires_authentication(self):
+        """GET api/v1/curate/acquire requires authentication."""
+        response = self.client.post(self.acquire_uri, {})
+        self.assertEqual(response.status_code, 400)
