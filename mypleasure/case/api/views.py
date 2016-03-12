@@ -490,15 +490,19 @@ class CuratedMediaViewSet(ViewSet):
 
         if new_and_ready is True:
             message = 'New videos fetched.'
+            code = 'fetched'
         elif new_and_ready is False:
             message = 'Error while creating video instance.'
             status_code = status.HTTP_500_SERVER_ERROR
+            code = 'error'
         elif new_and_ready is None:
             message = 'No new videos.'
+            code = 'empty'
 
         return Response({
             'detail': message,
-            'pending': pending
+            'pending': pending,
+            'code': code
         }, status=status_code)
 
     def fetch_new_and_ready(self, id):
@@ -516,16 +520,18 @@ class CuratedMediaViewSet(ViewSet):
         # Update job status in queue.
 
         for media in ready_mediae:
-            #try:
-            stored_media = MediaStore.objects.get(hash=media.hash)
-            video = Video(**stored_media.as_video_params())
-            video.collection = Collection.objects.get(pk=media.collection_id)
-            video.save()
+            try:
+                stored_media = MediaStore.objects.get(hash=media.hash)
+                video = Video(**stored_media.as_video_params())
+                video.collection = Collection.objects.get(
+                    pk=media.collection_id
+                )
+                video.save()
 
-            media.status = 'done'
-            media.save()
-            #except:
-            #    pass
+                media.status = 'done'
+                media.save()
+            except:
+                pass
 
         return True
 
