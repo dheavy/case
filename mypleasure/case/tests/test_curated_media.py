@@ -139,6 +139,31 @@ class CuratedMediaTestCase(TestCase):
             response.data[0]['detail'], 'collection_id_or_name_missing'
         )
 
+    def test_acquire_new_collection_name_fails_if_name_is_empty_or_none(self):
+        """
+        POST api/v1/curate/acquire fails if name is empty or none.
+
+        Triggered only if collection_id not passed.
+        """
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+        response = self.client.post(self.acquire_uri, {
+            'new_collection_name': '',
+            'url': 'http://youtube.com'
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data[0]['detail'], 'collection_id_or_name_missing'
+        )
+
+        response = self.client.post(self.acquire_uri, {
+            'new_collection_name': '',
+            'url': None
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data[0]['detail'], 'collection_id_or_name_missing'
+        )
+
     def test_acquire_returns_validation_error_if_collection_not_owned(self):
         """
         POST api/v1/curate/acquire fails without required parameters.
