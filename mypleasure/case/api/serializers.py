@@ -368,15 +368,14 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
         try:
             # If collection_id is provided, check if it exists,
             # belongs to user.
-            if attrs['collection_id'] is not None:
+            if 'collection_id' in attrs:
                 c = Collection.objects.get(pk=attrs['collection_id'])
                 if c.owner == self.context['request'].user:
                     return attrs
         except:
-            raise ValidationError({'collection_id': [
-                'Collection ID invalid or not belonging \
-                to user.'
-            ]})
+            raise ValidationError({
+                'code': 'collection_id_invalid'
+            })
 
         try:
             # If not ID provided, a new collection name should have been.
@@ -384,26 +383,24 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
             if name is not None and name != '':
                 return attrs
         except:
-            raise ValidationError({'new_collection_name': [
-                'A name for a new collection should be provided '
-                ' if no existing and owned collection ID was given.'
-            ]})
+            raise ValidationError({
+                'code': 'collection_id_or_name_missing'
+            })
 
         # Verify URL presence and validity.
         if 'url' not in attrs:
-            raise ValidationError({'url': ['URL is missing.']})
+            raise ValidationError({
+                'url': ['URL is missing.'], 'code': 'url_missing'
+            })
 
         try:
             URLValidator(verify_exists=True)(attrs['url'])
         except ValidationError:
-            raise ValidationError({'url': ['URL is invalid.']})
+            raise ValidationError({'code': 'url_invalid'})
 
         # Prevent duplicates.
         if self.context['request'].has_video(hash=hash, include_queue=True):
-            return ValidationError({'url': [
-                'User already has video, or video is \
-                already queued for acquisition'
-            ], 'code': 'duplicate'})
+            return ValidationError({'code': 'duplicate'})
 
         return attrs
 
