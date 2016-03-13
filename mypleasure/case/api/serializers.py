@@ -365,11 +365,12 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         """Attempt validation of attributes."""
+        attrs = self.initial_data
         try:
             # If collection_id is provided, check if it exists,
             # belongs to user.
             if 'collection_id' in attrs:
-                c = Collection.objects.get(pk=attrs['collection_id'])
+                c = Collection.objects.get(pk=attrs['collection_id'][0])
                 if c.owner == self.context['request'].user:
                     return attrs
         except:
@@ -379,7 +380,7 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
 
         try:
             # If not ID provided, a new collection name should have been.
-            name = attrs['new_collection_name']
+            name = attrs['new_collection_name'][0]
             if name is not None and name != '':
                 return attrs
         except:
@@ -394,7 +395,7 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
             })
 
         try:
-            URLValidator(verify_exists=True)(attrs['url'])
+            URLValidator(verify_exists=True)(attrs['url'][0])
         except ValidationError:
             raise ValidationError({'code': 'url_invalid'})
 
