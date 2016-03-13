@@ -122,3 +122,45 @@ class CuratedMediaTestCase(TestCase):
         """GET api/v1/curate/acquire requires authentication."""
         response = self.client.post(self.acquire_uri, {})
         self.assertEqual(response.status_code, 400)
+
+    def test_acquire_requires_collection_id_or_new_collection_name_param(self):
+        """
+        POST api/v1/curate/acquire fails without required parameters.
+
+        Parameters should either be a collection ID or a name (string).
+        """
+        pass
+
+    def test_acquire_returns_validation_error_if_collection_not_owned(self):
+        """
+        POST api/v1/curate/acquire fails without required parameters.
+
+        If parameter given is collection ID, the collection should belong
+        to the current user.
+        """
+        pass
+
+    def test_acquire_requires_url_param(self):
+        """POST api/v1/curate/acquire requires 'url' parameter."""
+        pass
+
+    def test_acquire_returns_validation_error_if_url_invalid(self):
+        """POST api/v1/curate/acquire returns validation error on bad URL."""
+        pass
+
+    def test_acquire_returns_validation_error_if_duplicate(self):
+        """POST api/v1/curate/acquire returns validation on duplicates."""
+        pass
+
+    def test_acquire_adds_to_queue(self):
+        """Successful POST api/v1/curate/acquire adds job to queue."""
+        pass
+
+    def test_acquire_returns_copy_from_store_if_exists(self):
+        """
+        POST api/v1/curate/acquire uses media store.
+
+        On a successful request, check if video already exists cached in store,
+        and return it if it does.
+        """
+        pass
