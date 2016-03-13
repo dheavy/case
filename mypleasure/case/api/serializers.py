@@ -365,9 +365,8 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
         # belongs to user.
         if 'collection_id' in attrs:
             try:
-                c = Collection.objects.get(pk=attrs['collection_id'][0])
-                if c.owner == self.context['request'].user:
-                    pass
+                c = Collection.objects.get(pk=attrs['collection_id'])
+                assert c.owner == self.context['request'].user
             except:
                 raise ValidationError({
                     'code': 'collection_id_invalid'
@@ -376,8 +375,7 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
             try:
                 # If not ID provided, a new collection name should have been.
                 name = attrs['new_collection_name'][0]
-                if bool(name) is not None and name != '':
-                    pass
+                assert bool(name) is not None and name != ''
             except:
                 raise ValidationError({
                     'code': 'collection_id_or_name_missing'
