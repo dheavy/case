@@ -330,10 +330,6 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
     set_password_form_class = SetPasswordForm
 
-    def custom_validation(self, attrs):
-        """Possible custom validation."""
-        pass
-
     def validate(self, data):
         """Attempt validation."""
         try:
@@ -341,8 +337,6 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
             self.user = CustomUser.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
             raise ValidationError({'uid': ['Invalid value']})
-
-        self.custom_validation(data)
 
         # Construct SetPasswordForm instance
         self.set_password_form = self.set_password_form_class(
