@@ -1,7 +1,7 @@
 """CASE (MyPleasure API) tests for curated media."""
 from django.utils import timezone
 from django.test import TestCase
-from case.models import MediaQueue, MediaStore, CustomUser
+from case.models import MediaQueue, MediaStore, CustomUser, Collection
 from rest_framework.test import APIClient
 
 
@@ -13,6 +13,8 @@ class CuratedMediaTestCase(TestCase):
         username = 'morgane'
         password = 'azertyuiop'
         self.user = CustomUser.objects.create_user(username, password)
+
+        self.user2 = CustomUser.objects.create_user('marion', 'azertyiop')
 
         # Client for API calls.
         self.client = APIClient()
@@ -80,10 +82,9 @@ class CuratedMediaTestCase(TestCase):
 
     def test_fetch_needs_current_user_id(self):
         """GET api/v1/curate/fetch returns error if ID isn't current user's."""
-        u = CustomUser.objects.create_user('marion', 'azertyiop')
         self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
         response = self.client.get(
-            '/api/v1/curate/fetch/{0}'.format(u.id)
+            '/api/v1/curate/fetch/{0}'.format(self.user2.id)
         )
         self.client.credentials()
         self.assertEqual(response.status_code, 400)
@@ -142,10 +143,29 @@ class CuratedMediaTestCase(TestCase):
         """
         POST api/v1/curate/acquire fails without required parameters.
 
-        If parameter given is collection ID, the collection should belong
-        to the current user.
+        If parameter given is collection ID, the collection should exist and
+        belong to the current user.
         """
-        pass
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+        response = self.client.post(self.acquire_uri, {
+            'collection_id': 99,
+            'url': 'http://youtube.com'
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data[0]['detail'], 'collection_id_invalid'
+        )
+
+        c = Collection.objects.get(owner=self.user2)
+
+        response = self.client.post(self.acquire_uri, {
+            'collection_id': c.id,
+            'url': 'http://youtube.com'
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data[0]['detail'], 'collection_id_invalid'
+        )
 
     def test_acquire_requires_url_param(self):
         """POST api/v1/curate/acquire requires 'url' parameter."""
