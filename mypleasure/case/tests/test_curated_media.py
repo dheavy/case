@@ -129,7 +129,14 @@ class CuratedMediaTestCase(TestCase):
 
         Parameters should either be a collection ID or a name (string).
         """
-        pass
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+        response = self.client.post(self.acquire_uri, {
+            'url': 'http://youtube.com'
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data[0]['detail'], 'collection_id_or_name_missing'
+        )
 
     def test_acquire_returns_validation_error_if_collection_not_owned(self):
         """
