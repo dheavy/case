@@ -403,7 +403,7 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
             return ValidationError({'url': [
                 'User already has video, or video is \
                 already queued for acquisition'
-            ]})
+            ], 'code': 'duplicate'})
 
         return attrs
 
