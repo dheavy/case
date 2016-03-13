@@ -360,36 +360,35 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
     def validate(self, attrs):
         """Attempt validation of attributes."""
         attrs = self.initial_data
-        try:
-            # If collection_id is provided, check if it exists,
-            # belongs to user.
-            if 'collection_id' in attrs:
+
+        # If collection_id is provided, check if it exists,
+        # belongs to user.
+        if 'collection_id' in attrs:
+            try:
                 c = Collection.objects.get(pk=attrs['collection_id'][0])
                 if c.owner == self.context['request'].user:
-                    return attrs
-        except:
-            raise ValidationError({
-                'code': 'collection_id_invalid'
-            })
-
-        try:
-            # If not ID provided, a new collection name should have been.
-            name = attrs['new_collection_name'][0]
-            if name is not None and name != '':
-                return attrs
-        except:
-            raise ValidationError({
-                'code': 'collection_id_or_name_missing'
-            })
+                    pass
+            except:
+                raise ValidationError({
+                    'code': 'collection_id_invalid'
+                })
+        else:
+            try:
+                # If not ID provided, a new collection name should have been.
+                name = attrs['new_collection_name'][0]
+                if bool(name) is not None and name != '':
+                    pass
+            except:
+                raise ValidationError({
+                    'code': 'collection_id_or_name_missing'
+                })
 
         # Verify URL presence and validity.
         if 'url' not in attrs:
-            raise ValidationError({
-                'url': ['URL is missing.'], 'code': 'url_missing'
-            })
+            raise ValidationError({'code': 'url_missing'})
 
         try:
-            URLValidator(verify_exists=True)(attrs['url'][0])
+            URLValidator()(attrs['url'][0])
         except ValidationError:
             raise ValidationError({'code': 'url_invalid'})
 
@@ -419,6 +418,9 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
                 collection_id=self.validated_data['collection_id']
             )
             return {'code': 'added'}
+
+    def add_to_queue(self, hash, url, requester, collection_id):
+        pass
 
 
 class CuratedMediaFetchSerializer(serializers.Serializer):

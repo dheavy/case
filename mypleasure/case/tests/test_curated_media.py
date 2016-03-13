@@ -169,7 +169,33 @@ class CuratedMediaTestCase(TestCase):
 
     def test_acquire_requires_url_param(self):
         """POST api/v1/curate/acquire requires 'url' parameter."""
-        pass
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+
+        response = self.client.post(self.acquire_uri, {
+            'collection_id': self.user.collections.first().id,
+            'url': None
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data[0]['detail'], 'url_invalid'
+        )
+
+        response = self.client.post(self.acquire_uri, {
+            'collection_id': self.user.collections.first().id,
+            'url': 'not a url'
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data[0]['detail'], 'url_invalid'
+        )
+
+        response = self.client.post(self.acquire_uri, {
+            'collection_id': self.user.collections.first().id,
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data[0]['detail'], 'url_missing'
+        )
 
     def test_acquire_returns_validation_error_if_url_invalid(self):
         """POST api/v1/curate/acquire returns validation error on bad URL."""
