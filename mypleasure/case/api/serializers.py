@@ -386,18 +386,20 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
             raise ValidationError({'code': 'url_missing'})
 
         try:
-            URLValidator()(attrs['url'][0])
+            URLValidator()(attrs['url'])
         except ValidationError:
             raise ValidationError({'code': 'url_invalid'})
 
         # Prevent duplicates.
-        if self.context['request'].has_video(hash=hash, include_queue=True):
-            return ValidationError({'code': 'duplicate'})
+        u = self.context['request'].user
+        if u.has_video(url=attrs['url'], include_queue=True):
+            raise ValidationError({'code': 'duplicate'})
 
         return attrs
 
     def save(self):
         """Save Video in store."""
+        print(self.validated_data)
         hash = crypt.crypt(
             self.validated_data['url'],
             crypt.METHOD_MD5
@@ -418,6 +420,7 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
             return {'code': 'added'}
 
     def add_to_queue(self, hash, url, requester, collection_id):
+        """Add job to media queue."""
         pass
 
 

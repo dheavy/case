@@ -1,7 +1,9 @@
 """CASE (MyPleasure API) tests for curated media."""
 from django.utils import timezone
 from django.test import TestCase
-from case.models import MediaQueue, MediaStore, CustomUser, Collection
+from case.models import (
+    MediaQueue, MediaStore, CustomUser, Collection, Video
+)
 from rest_framework.test import APIClient
 
 
@@ -25,11 +27,13 @@ class CuratedMediaTestCase(TestCase):
         })
         self.token = response.data['token']
         self.auth = 'Bearer {0}'.format(self.token)
+
         self.fetch_uri = '/api/v1/curate/fetch/{0}'.format(self.user.id)
         self.acquire_uri = '/api/v1/curate/acquire'
+        self.dummy_uri = 'http://example.com'
 
         MediaQueue.objects.create(
-            hash='h1', url='u1', requester=self.user.id,
+            hash='h1', url=self.dummy_uri, requester=self.user.id,
             collection_id=self.user.collections.first().id, status='pending',
             created_at=timezone.now()
         )
@@ -226,7 +230,29 @@ class CuratedMediaTestCase(TestCase):
 
     def test_acquire_returns_validation_error_if_duplicate(self):
         """POST api/v1/curate/acquire returns validation on duplicates."""
-        pass
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+        response = self.client.post(self.acquire_uri, {
+            'collection_id': self.user.collections.first().id,
+            'url': self.dummy_uri
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data[0]['detail'], 'duplicate'
+        )
+
+        Video.objects.create(
+            hash='somehash', title='my title',
+            original_url=self.dummy_uri,
+            collection_id=self.user.collections.first().id
+        )
+        response = self.client.post(self.acquire_uri, {
+            'collection_id': self.user.collections.first().id,
+            'url': self.dummy_uri
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data[0]['detail'], 'duplicate'
+        )
 
     def test_acquire_adds_to_queue(self):
         """Successful POST api/v1/curate/acquire adds job to queue."""
