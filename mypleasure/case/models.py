@@ -75,21 +75,29 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
         """Return 'short name' representation of model."""
         return self.username
 
-    def has_video(self, hash=None, include_queue=True):
-        """Tell if user owns a video matching given hash."""
-        try:
-            Video.objects.get(hash=hash, collection__owner=self.id)
-        except:
-            return False
+    def has_video(self, hash=None, url=None, include_queue=True):
+        """Tell if user owns a video matching given hash or url."""
+        has_video = False
+
+        if hash is not None:
+            v = Video.objects.filter(hash=hash, collection__owner=self.id)
+        elif url is not None:
+            v = Video.objects.filter(
+                original_url=url, collection__owner=self.id
+            )
+        if len(v) > 0:
+            has_video = True
 
         # If required, check in media acquisition queue.
         if include_queue is True:
-            try:
-                MediaQueue.objects.get(hash=hash, requester=self.id)
-            except:
-                return False
+            if hash is not None:
+                m = MediaQueue.objects.filter(hash=hash, requester=self.id)
+            elif url is not None:
+                m = MediaQueue.objects.filter(url=url, requester=self.id)
+            if len(m) > 0:
+                has_video = True
 
-        return True
+        return has_video
 
     def __str__(self):
         """Return string representation of model."""
@@ -158,7 +166,7 @@ class Collection(models.Model):
 
 class Video(models.Model):
     """
-    Videos.
+    Video.
 
     'Belongs To' one Collection.
     'Has Many' and 'Belongs To Many' Tags.
@@ -372,6 +380,13 @@ def set_default_email(sender, instance, *args, **kwargs):
     """Set default email address when a User did not provide it."""
     if instance.email == '' or instance.email is None:
         instance.email = set_no_email_suffix(instance)
+
+
+@receiver(pre_save, sender=Collection)
+def set_default_collection_name(sender, instance, *args, **kwargs):
+    """Set default collection name if none provided."""
+    if instance.name == '' or instance.name is None:
+        instance.name = 'my collection'
 
 
 @receiver(pre_save, sender=Tag)
