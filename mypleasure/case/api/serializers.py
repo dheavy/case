@@ -410,11 +410,20 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
             self.get_from_store(cached_video[0])
             return {'code': 'available'}
         else:
+            if 'collection_id' in self.validated_data:
+                cid = self.validated_data['collection_id']
+            else:
+                new_collection = Collection.objects.create(
+                    name=self.validated_data['new_collection_name'],
+                    owner=self.context['request'].user
+                )
+                cid = new_collection.id
+
             self.add_to_queue(
                 hash=hash,
                 url=self.validated_data['url'],
                 requester=self.context['request'].user,
-                collection_id=self.validated_data['collection_id']
+                collection_id=cid
             )
             return {'code': 'added'}
 

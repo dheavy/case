@@ -266,6 +266,28 @@ class CuratedMediaTestCase(TestCase):
             response.data['detail'], 'added_to_queue'
         )
 
+    def test_acquire_adds_to_queue_create_new_collection_with_name(self):
+        """
+        Successful POST api/v1/curate/acquire adds job to queue.
+
+        Use new_collection_name parameter to create new collection
+        to receive media to be created.
+        """
+        new_name = 'my brand new collection'
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+        response = self.client.post(self.acquire_uri, {
+            'new_collection_name': new_name,
+            'url': 'http://example.com/new_coll'
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.data['detail'], 'added_to_queue'
+        )
+
+        c = Collection.objects.get(name=new_name)
+        self.assertEqual(c.owner, self.user)
+
     def test_acquire_returns_copy_from_store_if_exists(self):
         """
         POST api/v1/curate/acquire uses media store.
