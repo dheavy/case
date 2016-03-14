@@ -399,7 +399,6 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
 
     def save(self):
         """Save Video in store."""
-        print(self.validated_data)
         hash = crypt.crypt(
             self.validated_data['url'],
             crypt.METHOD_MD5

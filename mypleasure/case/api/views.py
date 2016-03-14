@@ -459,11 +459,11 @@ class CuratedMediaViewSet(ViewSet):
 
         if 'code' in result and result['code'] == 'available':
             return Response({
-                'detail': 'Video taken from store and available.'
+                'detail': 'created_from_store'
             }, status=status.HTTP_200_OK)
         if 'code' in result and result['code'] == 'added':
             return Response({
-                'detail': 'Video added to queue.'
+                'detail': 'added_to_queue'
             }, status=status.HTTP_200_OK)
 
     @list_route(methods=['get'], permission_classes=[IsAuthenticated])
@@ -485,22 +485,17 @@ class CuratedMediaViewSet(ViewSet):
             serializer.validated_data['userid']
         )
         pending = self.get_pending_number(serializer.validated_data['userid'])
-        message = ''
         status_code = status.HTTP_200_OK
 
         if new_and_ready is True:
-            message = 'New videos fetched.'
             code = 'fetched'
         elif new_and_ready is False:
-            message = 'Error while creating video instance.'
             status_code = status.HTTP_500_SERVER_ERROR
             code = 'error'
         elif new_and_ready is None:
-            message = 'No new videos.'
             code = 'empty'
 
         return Response({
-            'detail': message,
             'pending': pending,
             'code': code
         }, status=status_code)

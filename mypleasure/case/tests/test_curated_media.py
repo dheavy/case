@@ -256,7 +256,15 @@ class CuratedMediaTestCase(TestCase):
 
     def test_acquire_adds_to_queue(self):
         """Successful POST api/v1/curate/acquire adds job to queue."""
-        pass
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+        response = self.client.post(self.acquire_uri, {
+            'collection_id': self.user.collections.first().id,
+            'url': 'http://example.com/successful'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.data['detail'], 'added_to_queue'
+        )
 
     def test_acquire_returns_copy_from_store_if_exists(self):
         """
