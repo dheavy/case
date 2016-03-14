@@ -286,8 +286,8 @@ class MediaQueue(models.Model):
     url = models.CharField(max_length=255)
     requester = models.IntegerField()
     collection_id = models.IntegerField()
-    status = models.CharField(max_length=30, default='pending')
-    created_at = models.DateTimeField()
+    status = models.CharField(max_length=30, blank=True, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         """Return string representation of model."""

@@ -288,6 +288,22 @@ class CuratedMediaTestCase(TestCase):
         c = Collection.objects.get(name=new_name)
         self.assertEqual(c.owner, self.user)
 
+    def test_acquire_adding_job_show_new_job_in_mediaqueue(self):
+        """
+        Successful POST api/v1/curate/acquire adds job to queue.
+
+        Should result in a new job being added to media queue.
+        """
+        url = 'http://example.com/added_to_queue'
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+        self.client.post(self.acquire_uri, {
+            'collection_id': self.user.collections.first().id,
+            'url': url
+        })
+        jobs = MediaQueue.objects.filter(url=url)
+        self.assertEqual(len(jobs), 1)
+        self.assertEqual(jobs[0].requester, self.user.id)
+
     def test_acquire_returns_copy_from_store_if_exists(self):
         """
         POST api/v1/curate/acquire uses media store.

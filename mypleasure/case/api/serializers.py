@@ -8,7 +8,7 @@ from django.utils.http import urlsafe_base64_decode as uid_decoder
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework import serializers
 from case.models import (
-    Collection, Video, CustomUser, Tag, MediaStore
+    Collection, Video, CustomUser, Tag, MediaStore, MediaQueue
 )
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 
@@ -422,14 +422,17 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
             self.add_to_queue(
                 hash=hash,
                 url=self.validated_data['url'],
-                requester=self.context['request'].user,
+                requester=self.context['request'].user.id,
                 collection_id=cid
             )
             return {'code': 'added'}
 
     def add_to_queue(self, hash, url, requester, collection_id):
         """Add job to media queue."""
-        pass
+        MediaQueue.objects.create(
+            hash=hash, url=url, requester=requester,
+            collection_id=collection_id, status='pending'
+        )
 
 
 class CuratedMediaFetchSerializer(serializers.Serializer):
