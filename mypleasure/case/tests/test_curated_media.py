@@ -17,7 +17,9 @@ class CuratedMediaTestCase(TestCase):
         password = 'azertyuiop'
         self.user = get_user_model().objects.create_user(username, password)
 
-        self.user2 = get_user_model().objects.create_user('marion', 'azertyiop')
+        self.user2 = get_user_model().objects.create_user(
+            'marion', 'azertyiop'
+        )
 
         # Client for API calls.
         self.client = APIClient()
