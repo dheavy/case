@@ -1,4 +1,4 @@
-# Routes
+# API Routes
 
 
 - Route name is next to URI.
@@ -36,9 +36,24 @@ You get a `400` on errors with a payload similar to the following example:
 {'user': {'email': [u'Enter a valid e-mail address.']}, 'created': [u'This field is required.']}
 ```
 
+##### Discussion
+You may now browse as an authenticated user provided to set the following header on each request
+```
+Authorization: Bearer <token>
+```
+
 - `POST /api/v1/auth/login/` (login)
 
 ##### Parameters
 ```javascript
 {username:string, password:string}
+```
+
+##### Returns
+`{user:<serialized_user>, token:string}` on success with status `200`.
+
+##### Discussion
+You may now browse as an authenticated user provided to set the following header on each request
+```
+Authorization: Bearer <token>
 ```
