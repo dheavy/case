@@ -311,4 +311,23 @@ class CuratedMediaTestCase(TestCase):
         On a successful request, check if video already exists cached in store,
         and return it if it does.
         """
-        pass
+        url = 'http://example.com/from_store'
+        MediaStore.objects.create(
+            hash='h', title='t', original_url=url,
+            embed_url='url', poster='p',
+            duration='--:--:--', naughty=False
+        )
+        self.assertEqual(MediaStore.objects.filter(
+            original_url=url).count(), 1
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+        response = self.client.post(self.acquire_uri, {
+            'collection_id': self.user.collections.first().id,
+            'url': url
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(MediaStore.objects.filter(
+            original_url=url).count(), 1
+        )
