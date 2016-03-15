@@ -323,7 +323,7 @@ class MediaStore(models.Model):
     poster = models.CharField(max_length=255)
     duration = models.CharField(max_length=8)
     naughty = models.BooleanField()
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def as_video_params(self):
         """Return parameters for creating Video from this instance."""
