@@ -1,8 +1,9 @@
-"""CASE (MyPleasure API) tests for curated media."""
+"""CASE (MyPleasure API) tests for curated media (MediaQueue, MediaStore."""
 from django.utils import timezone
 from django.test import TestCase
+from django.contrib.auth import get_user_model
 from case.models import (
-    MediaQueue, MediaStore, CustomUser, Collection, Video
+    MediaQueue, MediaStore, Collection, Video
 )
 from rest_framework.test import APIClient
 
@@ -14,9 +15,9 @@ class CuratedMediaTestCase(TestCase):
         """Set up test case."""
         username = 'morgane'
         password = 'azertyuiop'
-        self.user = CustomUser.objects.create_user(username, password)
+        self.user = get_user_model().objects.create_user(username, password)
 
-        self.user2 = CustomUser.objects.create_user('marion', 'azertyiop')
+        self.user2 = get_user_model().objects.create_user('marion', 'azertyiop')
 
         # Client for API calls.
         self.client = APIClient()
