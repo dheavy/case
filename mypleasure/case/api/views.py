@@ -7,18 +7,20 @@ from rest_framework import status
 from rest_framework.generics import (
     ListCreateAPIView, RetrieveUpdateDestroyAPIView, GenericAPIView
 )
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 from rest_framework_jwt.settings import api_settings
 
 from case.models import (
     Collection, Video, Tag, MediaStore, MediaQueue
 )
 from case.forms import UserForgotPasswordForm
-from .permissions import IsCurrentUserOrReadOnly, IsOwnerOrReadOnly
+from .permissions import (
+    IsCurrentUserOrReadOnly, IsOwnerOrReadOnly
+)
 from .serializers import (
     BasicUserSerializer, get_user_serializer, CollectionSerializer,
     VideoSerializer, TagSerializer, UserRegistrationSerializer,
@@ -92,10 +94,38 @@ class UserDetail(UserMixin, APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class HeartbeatViewSet(ViewSet):
+    """
+    Simple Viewset for testing API responsiveness.
+
+    TODO: -> https://github.com/tomchristie/django-rest-framework/issues/3997
+    This issue seems to be what I'm going through here, with permissions
+    in decorators not working.
+    At some point, this needs a fix.
+    """
+
+    @detail_route(
+        methods=['head', 'get', 'post', 'put', 'delete', 'options']
+    )
+    def test(self, request):
+        """Return HTTP 200 for anyone."""
+        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+
+    @detail_route(
+        methods=['head', 'get', 'post', 'put', 'delete', 'options']
+    )
+    def test_authenticated(self, request):
+        """Return HTTP 200 for anyone."""
+        if type(request.user) is get_user_model():
+            return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {'detail': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN
+            )
+
+
 class RegistrationViewSet(ViewSet):
     """Viewset for User registration."""
-
-    queryset = get_user_model().objects.all()
 
     @list_route(methods=['get'], permission_classes=[AllowAny])
     def check_username(self, request, username):

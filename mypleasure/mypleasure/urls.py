@@ -19,7 +19,7 @@ from case.api.views import (
     UserList, UserDetail, ProfileView, RegistrationViewSet, CollectionList,
     CollectionDetail, FeedNormalList, FeedNaughtyList, VideoList, VideoDetail,
     TagList, TagDetail, PasswordResetView, PasswordResetConfirmView,
-    CuratedMediaViewSet
+    CuratedMediaViewSet, HeartbeatViewSet
 )
 from case.admin import mp_admin
 
@@ -28,8 +28,32 @@ urlpatterns = [
     ##################
     #      Admin     #
     ##################
-    url(r'^admin/?', mp_admin.urls),
+    url(r'^admin/?$', mp_admin.urls),
 
+    ##################
+    #    Test API    #
+    ##################
+
+    # Testing API responsiveness.
+    # Simply returns HTTP 200 on all major verbs.
+    url(
+        r'^api/v1/heartbeat/?$',
+        HeartbeatViewSet.as_view({
+            'get': 'test', 'head': 'test',
+            'post': 'test', 'put': 'test',
+            'delete': 'test'
+        })
+    ),
+
+    # Same, for authenticated user only.
+    url(
+        r'^api/v1/heartbeat/auth?$',
+        HeartbeatViewSet.as_view({
+            'get': 'test_authenticated', 'head': 'test_authenticated',
+            'post': 'test_authenticated', 'put': 'test_authenticated',
+            'delete': 'test_authenticated'
+        })
+    ),
 
     ##################
     # Authentication #
