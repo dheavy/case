@@ -4,6 +4,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.utils.encoding import force_text
+from django.contrib.auth import get_user_model
 from django.utils.http import urlsafe_base64_decode as uid_decoder
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework import serializers
@@ -20,6 +21,11 @@ def get_user_serializer(user, pk=None):
     elif user.id is pk:  # Basic, with email, if self
         return ProfileUserSerializer
     return BasicUserSerializer
+
+
+def get_serialized_user_data(user):
+    """Return serialized user data matching user's level of power."""
+    return get_user_serializer(user)(user).data
 
 
 def get_videos_filtered_by_ownership_for_privacy(request, obj):
@@ -65,26 +71,35 @@ def validate_user_email_password_data(data):
     """Validate User's email/password data on registration & password reset."""
     email = data.get('email', None)
 
-    try:
-        validate_email(email)
-    except ValidationError:
-        raise serializers.ValidationError(
-            "Invalid email address."
-        )
+    if email is not None:
+        try:
+            validate_email(email)
+        except ValidationError:
+            raise serializers.ValidationError(
+                'Invalid email address.',
+                code='invalid_email'
+            )
 
     existing_email = CustomUser.objects.filter(email=email).first()
     if existing_email and existing_email != '':
         raise serializers.ValidationError(
-            "Someone with that email address has already registered."
+            'Email address already exists.',
+            code='existing_email'
         )
 
     if not data.get('password') or not data.get('confirm_password'):
         raise serializers.ValidationError(
-            "Please enter a password and confirm it."
+            'Password confirmation missing.',
+            code='confirm_password_missing'
         )
 
     if data.get('password') != data.get('confirm_password'):
-        raise serializers.ValidationError("Those passwords don't match.")
+        raise serializers.ValidationError(
+            'Passwords mismatch',
+            code='passwords_mismatch'
+        )
+
+    return True
 
 
 class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
@@ -258,10 +273,10 @@ class UserRegistrationSerializer(serializers.Serializer):
     It just validates the necessary data beforehand.
     """
 
-    username = serializers.CharField()
+    username = serializers.CharField(min_length=2, max_length=40)
     email = serializers.EmailField(required=False)
-    password = serializers.CharField()
-    confirm_password = serializers.CharField()
+    password = serializers.CharField(min_length=8)
+    confirm_password = serializers.CharField(min_length=8)
 
     def validate(self, data):
         """
@@ -269,12 +284,30 @@ class UserRegistrationSerializer(serializers.Serializer):
 
         Email uniqueness if provided, password and confirmation.
         """
-        return validate_user_email_password_data(data)
+        if type(self.context['request'].user) is get_user_model():
+            raise ValidationError(
+                'Action forbidden for authenticated user forbidden',
+                code='auth_forbidden'
+            )
+
+        if validate_user_email_password_data(data):
+            return data
 
     class Meta:
         """Meta for Tag serializer."""
 
         fields = ('username', 'email', 'password', 'confirm_password')
+
+
+class CheckUsernameSerializer(serializers.Serializer):
+    """Serializer for 'check username' endpoint."""
+
+    username = serializers.CharField()
+
+    class Meta:
+        """Meta for CheckUsernameSerializer."""
+
+        fields = ('username',)
 
 
 class FeedSerializer(serializers.Serializer):

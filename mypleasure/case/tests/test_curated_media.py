@@ -1,4 +1,4 @@
-"""CASE (MyPleasure API) tests for curated media (MediaQueue, MediaStore."""
+"""CASE (MyPleasure API) tests for curated media (MediaQueue, MediaStore)."""
 from django.utils import timezone
 from django.test import TestCase
 from django.contrib.auth import get_user_model

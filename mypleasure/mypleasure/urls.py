@@ -42,11 +42,11 @@ urlpatterns = [
         RegistrationViewSet.as_view({'post': 'register'}),
         name='register'
     ),
-    # url(
-    #     r'^api/v1/register/check/username/(?P<username>.+)/?$',
-    #     RegistrationViewSet.as_view({'get': 'check_username'}),
-    #     name='register-check-username'
-    # )
+    url(
+        r'^api/v1/register/check/username/(?P<username>.+)/?$',
+        RegistrationViewSet.as_view({'get': 'check_username'}),
+        name='register-check-username'
+    ),
 
     # Login
     # -----

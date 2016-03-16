@@ -102,7 +102,8 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
     def __str__(self):
         """Return string representation of model."""
         return (
-            "CustomUser (id: %s, username: %s, staff: %s, superuser: %s)" %
+            "CustomUser (id: %s, username: %s, is_staff: %s, \
+    is_superuser: %s)" %
             (
                 self.id, self.username, self.is_staff, self.is_superuser
             )

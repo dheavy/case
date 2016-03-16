@@ -24,7 +24,8 @@ from .serializers import (
     VideoSerializer, TagSerializer, UserRegistrationSerializer,
     FeedVideoSerializer, PasswordResetSerializer,
     PasswordResetConfirmSerializer, CuratedMediaAcquisitionSerializer,
-    CuratedMediaFetchSerializer
+    CuratedMediaFetchSerializer, CheckUsernameSerializer,
+    get_serialized_user_data
 )
 from .filters import (
     filter_private_obj_list_by_ownership,
@@ -96,14 +97,40 @@ class RegistrationViewSet(ViewSet):
 
     queryset = get_user_model().objects.all()
 
+    @list_route(methods=['get'], permission_classes=[AllowAny])
+    def check_username(self, request, username):
+        """
+        Check if username is available.
+
+        Be careful with returned status code:
+        - 200 means username was found, so it's TAKEN,
+        - 404 means username was not found, so it's AVAILABLE.
+        """
+        serializer = CheckUsernameSerializer(data={'username': username})
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data['username']
+
+        u = get_user_model().objects.filter(username=username)
+        if len(u) > 0:
+            return Response(
+                {'detail': 'Username taken.'}, status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {'detail': 'Username available.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
     @list_route(methods=['post'], permission_classes=[AllowAny])
     def register(self, request):
         """Validating our serializer from the UserRegistrationSerializer."""
-        serializer = UserRegistrationSerializer(data=request.data)
+        serializer = UserRegistrationSerializer(
+            data=request.data, context={'request': request}
+        )
         serializer.is_valid(raise_exception=True)
 
         # Everything's valid, so send it to the BasicUserSerializer
-        model_serializer = BasicUserSerializer(data=serializer.data)
+        model_serializer = BasicUserSerializer(data=serializer.validated_data)
         model_serializer.is_valid(raise_exception=True)
         model_serializer.save()
 
@@ -121,9 +148,10 @@ class RegistrationViewSet(ViewSet):
 
         payload = jwt_payload_handler(user)
         token = jwt_encode_handler(payload)
-
-        # TODO: replace 'success' by actual user info.
-        return Response({'success': True, 'token': token})
+        return Response({
+            'user': get_serialized_user_data(user),
+            'token': token
+        })
 
 
 class CollectionMixin(object):
