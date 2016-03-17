@@ -355,6 +355,37 @@ embed_url: %s, poster: %s, duration: %s, naughty: %s)" %
         db_table = 'mediastore'
 
 
+class UserReport(models.Model):
+    """
+    User report.
+
+    Model dealing with a media reported on site by a user.
+    Staff should inquire upon such a report, to see if a media
+    actually fits the site's guideline.
+    """
+
+    video = models.ForeignKey(
+        Video, related_name='reports', on_delete=models.CASCADE
+    )
+    reporter = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        """Return string representation of model."""
+        return (
+            "UserReport (id: %s, video: %s, reporter: %s, \
+created_at: %s, updated_at: %s)" %
+            (
+                self.id, self.video, self.reporter,
+                self.created_at, self.updated_at
+            )
+        )
+
+
 @receiver(pre_save, sender=Collection)
 @receiver(pre_save, sender=Video)
 @receiver(pre_save, sender=Tag)
