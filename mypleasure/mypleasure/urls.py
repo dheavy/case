@@ -28,7 +28,7 @@ urlpatterns = [
     ##################
     #      Admin     #
     ##################
-    url(r'^admin/?$', mp_admin.urls),
+    url(r'^admin/?', mp_admin.urls),
 
     ##################
     #    Test API    #
