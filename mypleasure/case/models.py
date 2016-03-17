@@ -103,7 +103,7 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
         """Return string representation of model."""
         return (
             "CustomUser (id: %s, username: %s, is_staff: %s, \
-    is_superuser: %s)" %
+is_superuser: %s)" %
             (
                 self.id, self.username, self.is_staff, self.is_superuser
             )
@@ -183,8 +183,8 @@ class Video(models.Model):
     title = models.CharField(max_length=100)
     slug = models.CharField(max_length=100, blank=True)
     poster = models.CharField(max_length=100, null=True, blank=True)
-    original_url = models.CharField(max_length=100)
-    embed_url = models.CharField(max_length=100)
+    original_url = models.URLField(max_length=100)
+    embed_url = models.URLField(max_length=100)
     duration = models.CharField(max_length=8, default='--:--:--')
     is_naughty = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
