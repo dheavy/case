@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url
+from django.conf import settings
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from case.api.views import (
     UserList, UserDetail, ProfileView, RegistrationViewSet, CollectionList,
@@ -28,7 +29,7 @@ urlpatterns = [
     ##################
     #      Admin     #
     ##################
-    url(r'^admin/?', mp_admin.urls),
+    url(settings.ADMIN_URL, mp_admin.urls),
 
     ##################
     #    Test API    #

@@ -159,6 +159,9 @@ APPEND_SLASH = False
 # Custom User model
 AUTH_USER_MODEL = 'case.CustomUser'
 
+# Admin panel URL
+ADMIN_URL = r'^admin/?'
+
 # REST framework
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
