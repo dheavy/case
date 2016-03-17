@@ -385,6 +385,12 @@ created_at: %s, updated_at: %s)" %
             )
         )
 
+    class Meta:
+        """Normalize name in admin panel."""
+
+        verbose_name = 'Report (user reporting video)'
+        verbose_name_plural = 'Reports (user reporting video)'
+
 
 @receiver(pre_save, sender=Collection)
 @receiver(pre_save, sender=Video)
