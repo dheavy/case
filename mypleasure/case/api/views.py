@@ -498,7 +498,9 @@ class PasswordResetConfirmView(GenericAPIView):
 class CuratedMediaViewSet(ViewSet):
     """ViewSet for curated media management."""
 
-    @list_route(methods=['post'], permission_classes=[IsAuthenticated])
+    permission_classes = (IsAuthenticated,)
+
+    @list_route(methods=['post'])
     def acquire(self, request):
         """
         Media acquisition.

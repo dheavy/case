@@ -78,7 +78,7 @@ class CuratedMediaTestCase(TestCase):
     def test_fetch_requires_authentication(self):
         """GET api/v1/curate/fetch requires authentication."""
         response = self.client.get(self.fetch_uri)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 403)
 
     def test_fetch_needs_user_id(self):
         """GET api/v1/curate/fetch returns error if no ID param."""
@@ -129,7 +129,7 @@ class CuratedMediaTestCase(TestCase):
     def test_acquire_requires_authentication(self):
         """GET api/v1/curate/acquire requires authentication."""
         response = self.client.post(self.acquire_uri, {})
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 403)
 
     def test_acquire_requires_collection_id_or_new_collection_name_param(self):
         """
