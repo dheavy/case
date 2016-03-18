@@ -68,7 +68,11 @@ class FeedTestCase(TestCase):
 
     def test_normal_feed_only_returns_normal_videos(self):
         """Test /api/v1/feed/?normal?/? returns a payload of normal videos."""
-        pass
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+        r1 = self.client.get(self.url_normal1)
+        self.assertEqual(len(r1.data['results']), 2)
+        r2 = self.client.get(self.url_normal2)
+        self.assertEqual(len(r2.data['results']), 2)
 
     def test_naughty_feed_only_returns_naughty_videos(self):
         """Test /api/v1/feed/naughy returns a payload of naughty videos."""
