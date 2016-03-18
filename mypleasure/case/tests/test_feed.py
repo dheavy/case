@@ -76,7 +76,9 @@ class FeedTestCase(TestCase):
 
     def test_naughty_feed_only_returns_naughty_videos(self):
         """Test /api/v1/feed/naughy returns a payload of naughty videos."""
-        pass
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+        r = self.client.get(self.url_naughty)
+        self.assertEqual(len(r.data['results']), 2)
 
     def test_normal_feed_hides_ownership_for_private_collections(self):
         """Test /api/v1/feed/?normal?/? hides owners on private collections."""
