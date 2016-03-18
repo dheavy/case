@@ -59,7 +59,12 @@ class FeedTestCase(TestCase):
 
     def test_feed_requires_authentication(self):
         """Test Feed requires authentication."""
-        pass
+        r1 = self.client.get(self.url_normal1)
+        r2 = self.client.get(self.url_normal2)
+        r3 = self.client.get(self.url_naughty)
+        self.assertEqual(r1.status_code, 403)
+        self.assertEqual(r2.status_code, 403)
+        self.assertEqual(r3.status_code, 403)
 
     def test_normal_feed_only_returns_normal_videos(self):
         """Test /api/v1/feed/?normal?/? returns a payload of normal videos."""
