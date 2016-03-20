@@ -11,10 +11,14 @@ from rest_framework import serializers
 from case.models import (
     Collection, Video, CustomUser, Tag, MediaStore, MediaQueue
 )
+from .filters import (
+    filter_videos_by_ownership_for_privacy,
+    filter_videos_for_feed
+)
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 
 
-def get_user_serializer(user, pk=None):
+def user_serializer(user, pk=None):
     """Return user serializer matching user's level of power."""
     if user.is_staff:    # Full if user is staff member
         return FullUserSerializer
@@ -23,48 +27,9 @@ def get_user_serializer(user, pk=None):
     return BasicUserSerializer
 
 
-def get_serialized_user_data(user):
+def serialized_user_data(user):
     """Return serialized user data matching user's level of power."""
-    return get_user_serializer(user)(user).data
-
-
-def get_videos_filtered_by_ownership_for_privacy(request, obj):
-    """
-    Filter videos before passing them down to serializers.
-
-    Private videos are excluded if current user don't own them.
-    """
-    try:
-        # Either a list, or a ManyRelatedManager.
-        videos = type(obj.videos) == list and obj.videos or obj.videos.all()
-
-        return [
-            VideoSerializer(
-                v, context={'request': request}
-            ).data for v in videos
-            if not v.is_private or v.owner['id'] == request.user.id
-        ]
-    except:
-        return []
-
-
-def get_videos_filtered_for_feed(request, obj):
-    """
-    Filter videos for the Feed.
-
-    Private videos are excluded. Use FeedVideoSerializer.
-    """
-    try:
-        # Either a list, or a ManyRelatedManager.
-        videos = type(obj.videos) == list and obj.videos or obj.videos.all()
-
-        return [
-            FeedVideoSerializer(
-                v, context={'request': request}
-            ).data for v in videos if not v.is_private
-        ]
-    except:
-        return []
+    return user_serializer(user)(user).data
 
 
 def validate_user_email_password_data(data):
@@ -113,8 +78,9 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_videos(self, obj):
         """Get filtered list of serialized Videos."""
-        return get_videos_filtered_by_ownership_for_privacy(
-            self.context['request'], obj
+        return filter_videos_by_ownership_for_privacy(
+            self.context['request'], obj,
+            VideoSerializer
         )
 
     def get_collections(self, obj):
@@ -198,8 +164,9 @@ class CollectionSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_videos(self, obj):
         """Get filtered list of serialized Videos."""
-        return get_videos_filtered_by_ownership_for_privacy(
-            self.context['request'], obj
+        return filter_videos_by_ownership_for_privacy(
+            self.context['request'], obj,
+            VideoSerializer
         )
 
     class Meta:
@@ -235,16 +202,63 @@ class VideoSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 
-class FeedVideoSerializer(VideoSerializer):
-    """Serializer for videos in Feed (i.e. stripped down of some infos)."""
+class FeedNormalSerializer(serializers.Serializer):
+    """
+    Serializer for the normal Feed - a full list of videos.
+
+    Provides a list of normal videos devoid of reference to collection/owner
+    for private videos.
+    """
+
+    videos = serializers.SerializerMethodField()
+
+    def get_videos(self, obj):
+        """Get videos filtered for Feed."""
+        return filter_videos_for_feed(
+            self.context['request'],
+            Video.objects.filter(is_naughty=False),
+            FeedPublicVideoSerializer, FeedPrivateVideoSerializer
+        )
+
+
+class FeedNaughtySerializer(serializers.Serializer):
+    """
+    Serializer for the naughty Feed - a full list of videos.
+
+    Provides a list of naughty videos devoid of reference to collection/owner
+    for private videos.
+    """
+
+    videos = serializers.SerializerMethodField()
+
+    def get_videos(self, obj):
+        """Get videos filtered for Feed."""
+        return filter_videos_for_feed(
+            self.context['request'],
+            Video.objects.filter(is_naughty=True),
+            FeedPublicVideoSerializer, FeedPrivateVideoSerializer
+        )
+
+
+class FeedPrivateVideoSerializer(VideoSerializer):
+    """Serializer for *single* video, in Feed, without owner info."""
 
     class Meta(VideoSerializer.Meta):
-        """Meta for FeedVideoSerializer."""
+        """Meta for FeedPrivateVideoSerializer."""
 
         fields = (
-            'title', 'hash', 'slug', 'poster', 'original_url', 'embed_url',
-            'duration', 'is_naughty', 'tags'
+            'id', 'title', 'hash', 'slug', 'poster', 'original_url',
+            'embed_url', 'duration', 'is_naughty', 'tags'
         )
+
+
+class FeedPublicVideoSerializer(FeedPrivateVideoSerializer):
+    """Serializer for *single* video, in Feed with owner info."""
+
+    class Meta(FeedPrivateVideoSerializer.Meta):
+        """Meta for FeedPublicVideoSerializer."""
+
+        fields = FeedPrivateVideoSerializer.Meta.fields + ('owner',)
 
 
 class TagSerializer(serializers.HyperlinkedModelSerializer):
@@ -254,8 +268,8 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_videos(self, obj):
         """Get filtered list of serialized Videos."""
-        return get_videos_filtered_by_ownership_for_privacy(
-            self.context['request'], obj
+        return filter_videos_by_ownership_for_privacy(
+            self.context['request'], obj, VideoSerializer
         )
 
     class Meta:
@@ -308,31 +322,6 @@ class CheckUsernameSerializer(serializers.Serializer):
         """Meta for CheckUsernameSerializer."""
 
         fields = ('username',)
-
-
-class FeedSerializer(serializers.Serializer):
-    """
-    Serializer for the Feed.
-
-    Provides a list of videos devoid of reference to collection/owner.
-    """
-
-    videos = serializers.SerializerMethodField()
-
-    def get_videos(self, obj):
-        """Get videos filtered for Feed."""
-        return get_videos_filtered_for_feed(
-            self.context['request'], obj
-        )
-
-    class Meta:
-        """Meta for FeedVideoSerializer."""
-
-        model = Video
-        fields = (
-            'title', 'hash', 'slug', 'poster', 'original_url', 'embed_url',
-            'duration', 'is_naughty', 'tags'
-        )
 
 
 class PasswordResetSerializer(serializers.Serializer):

@@ -22,17 +22,16 @@ from .permissions import (
     IsCurrentUserOrReadOnly, IsOwnerOrReadOnly
 )
 from .serializers import (
-    BasicUserSerializer, get_user_serializer, CollectionSerializer,
+    BasicUserSerializer, user_serializer, CollectionSerializer,
     VideoSerializer, TagSerializer, UserRegistrationSerializer,
-    FeedVideoSerializer, PasswordResetSerializer,
+    FeedNormalSerializer, FeedNaughtySerializer, PasswordResetSerializer,
     PasswordResetConfirmSerializer, CuratedMediaAcquisitionSerializer,
     CuratedMediaFetchSerializer, CheckUsernameSerializer,
-    get_serialized_user_data
+    serialized_user_data
 )
 from .filters import (
     filter_private_obj_list_by_ownership,
-    filter_private_obj_detail_by_ownership,
-    filter_feed
+    filter_private_obj_detail_by_ownership
 )
 
 
@@ -44,7 +43,7 @@ class UserMixin(object):
 
     def get_serializer_class(self):
         """Different levels of serialized content based on user's status."""
-        return get_user_serializer(self.request.user)
+        return user_serializer(self.request.user)
 
 
 class UserList(UserMixin, ListCreateAPIView):
@@ -59,7 +58,7 @@ class UserDetail(UserMixin, APIView):
     def get_serializer_class(self, pk=None):
         """Return three flavors of serializer classes based on user status."""
         user = get_user_model().objects.get(pk=pk)
-        return get_user_serializer(user, pk)
+        return user_serializer(user, pk)
 
     def get_object(self, pk):
         """Return CustomUser object or 404."""
@@ -179,7 +178,7 @@ class RegistrationViewSet(ViewSet):
         payload = jwt_payload_handler(user)
         token = jwt_encode_handler(payload)
         return Response({
-            'user': get_serialized_user_data(user),
+            'user': serialized_user_data(user),
             'token': token
         })
 
@@ -327,22 +326,30 @@ class FeedNormalList(VideoMixin, ListCreateAPIView):
     """Feed list for normal mode."""
 
     permission_classes = (IsAuthenticated,)
-    serializer_class = FeedVideoSerializer
+    queryset = Video.objects.all()
 
-    def get_queryset(self):
-        """Filter Feed's queryset based on naughtyness."""
-        return filter_feed(obj=Video, is_naughty=False)
+    def list(self, request):
+        """Return payload."""
+        serializer = FeedNormalSerializer(
+            self.get_queryset(),
+            many=True, context={'request': request}
+        )
+        return Response(serializer.data[0])
 
 
 class FeedNaughtyList(VideoMixin, ListCreateAPIView):
     """Feed list for naughty mode."""
 
     permission_classes = (IsAuthenticated,)
-    serializer_class = FeedVideoSerializer
+    queryset = Video.objects.all()
 
-    def get_queryset(self):
-        """Filter Feed's queryset based on naughtyness."""
-        return filter_feed(obj=Video, is_naughty=True)
+    def list(self, request):
+        """Return payload."""
+        serializer = FeedNaughtySerializer(
+            self.get_queryset(),
+            many=True, context={'request': request}
+        )
+        return Response(serializer.data[0])
 
 
 class TagMixin(object):
