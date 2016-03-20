@@ -69,21 +69,46 @@ class FeedTestCase(TestCase):
     def test_normal_feed_only_returns_normal_videos(self):
         """Test /api/v1/feed/?normal?/? returns a payload of normal videos."""
         self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+
         r1 = self.client.get(self.url_normal1)
-        self.assertEqual(len(r1.data['results']), 2)
+        self.assertEqual(len(r1.data['videos']), 2)
+        self.assertEqual(r1.data['videos'][0]['title'], 'pbnmt')
+        self.assertEqual(r1.data['videos'][1]['title'], 'pvnmt')
+        self.assertFalse(r1.data['videos'][0]['is_naughty'])
+        self.assertFalse(r1.data['videos'][1]['is_naughty'])
+
         r2 = self.client.get(self.url_normal2)
-        self.assertEqual(len(r2.data['results']), 2)
+        self.assertEqual(len(r2.data['videos']), 2)
+        self.assertEqual(r1.data['videos'][0]['title'], 'pbnmt')
+        self.assertEqual(r1.data['videos'][1]['title'], 'pvnmt')
+        self.assertFalse(r1.data['videos'][0]['is_naughty'])
+        self.assertFalse(r1.data['videos'][1]['is_naughty'])
 
     def test_naughty_feed_only_returns_naughty_videos(self):
         """Test /api/v1/feed/naughy returns a payload of naughty videos."""
         self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
         r = self.client.get(self.url_naughty)
-        self.assertEqual(len(r.data['results']), 2)
+        self.assertEqual(len(r.data['videos']), 2)
+        self.assertEqual(r.data['videos'][0]['title'], 'pbntt')
+        self.assertEqual(r.data['videos'][1]['title'], 'pvntt')
+        self.assertTrue(r.data['videos'][0]['is_naughty'])
+        self.assertTrue(r.data['videos'][1]['is_naughty'])
 
     def test_normal_feed_hides_ownership_for_private_collections(self):
         """Test /api/v1/feed/?normal?/? hides owners on private collections."""
-        pass
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+
+        r1 = self.client.get(self.url_normal1)
+        r2 = self.client.get(self.url_normal2)
+
+        self.assertIn('owner', r1.data['videos'][0])
+        self.assertNotIn('owner', r1.data['videos'][1])
+        self.assertIn('owner', r2.data['videos'][0])
+        self.assertNotIn('owner', r2.data['videos'][1])
 
     def test_naughty_feed_hides_ownership_for_private_collections(self):
         """Test /api/v1/feed/naughty hides owners on private collections."""
-        pass
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth, format='json')
+        r = self.client.get(self.url_naughty)
+        self.assertIn('owner', r.data['videos'][0])
+        self.assertNotIn('owner', r.data['videos'][1])
