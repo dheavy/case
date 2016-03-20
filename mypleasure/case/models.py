@@ -204,7 +204,7 @@ class Video(models.Model):
         """Render string representation of instance."""
         return (
             "Video (id: %s, collection_id: %s, title: %s, slug: %s, poster: %s \
-originalurl: %s, embedurl: %s, duration: %s, isnaughty: %s))" %
+originalurl: %s, embedurl: %s, duration: %s, isnaughty: %s)" %
             (
                 self.id, self.collection.id, self.title, self.slug,
                 self.poster, self.original_url, self.embed_url,
