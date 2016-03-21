@@ -4,7 +4,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.template.defaultfilters import slugify
 from django.dispatch import receiver
 
@@ -355,6 +355,11 @@ embed_url: %s, poster: %s, duration: %s, naughty: %s)" %
         db_table = 'mediastore'
 
 
+class UserReportManager(models.Manager):
+
+    statuses = ['new', 'reviewing', 'accepted', 'dismissed']
+
+
 class UserReport(models.Model):
     """
     User report.
@@ -370,10 +375,12 @@ class UserReport(models.Model):
     such way that it should be considered as an enum such as follow:
     - 'new' is the state given by default for any new report,
     - 'reviewing' is the state set by a staff member when reviewing the report,
-    - 'removed' is set by reviewer when inquiry validates report, and video is
+    - 'accepted' is set by reviewer when inquiry validates report, and video is
       effectively being removed,
     - 'dismissed' is set by reviewer after inquiry, to ignore report.
     """
+
+    objects = UserReportManager()
 
     video = models.ForeignKey(
         Video, related_name='reports', on_delete=models.CASCADE
@@ -461,3 +468,11 @@ def obfuscate_email_if_deactivated(sender, instance, *args, **kwargs):
         instance.email = str(uuid.uuid4()) + suffix
     if instance.is_active and instance.email.find(suffix) > -1:
         instance.email = set_no_email_suffix(instance)
+
+
+@receiver(post_save, sender=UserReport)
+def notify_on_new_report(self, instance, *args, **kwargs):
+    """Notify of a new User report."""
+    # TODO: Use logger to notify on Slack/Trello/email
+    # if instance.status === 'new'
+    pass
