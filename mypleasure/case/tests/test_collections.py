@@ -106,20 +106,51 @@ class CollectionTestCase(TestCase):
         self.assertEqual(self.u2.collections.all().count(), 1)
 
     def test_authenticated_user_can_update_own_collection(self):
-        """Test PUT /api/v1/collections/ creates owned collection."""
-        pass
+        """Test PATCH /api/v1/collections/ updates owned collection."""
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth1, format='json')
+        self.client.post(self.uri, {'name': 'my new collection'})
+        cid = Collection.objects.get(
+            name='my new collection', owner=self.u1.id
+        ).id
+        r = self.client.patch(
+            self.uri + str(cid), {'name': 'my altered collection'}
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(
+            Collection.objects.get(pk=cid).name, 'my altered collection'
+        )
 
     def test_authenticated_user_cant_update_collection_for_another_user(self):
         """
-        Test PUT /api/v1/collections/ fails if trying to exploit.
+        Test PATCH /api/v1/collections/ fails if trying to exploit.
 
         Should fail when trying to set another owner (user).
         """
-        pass
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth2, format='json')
+        self.client.post(self.uri, {'name': 'marion\'s collection'})
+        cid = Collection.objects.get(
+            name='marion\'s collection', owner=self.u2.id
+        ).id
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth1, format='json')
+        r = self.client.patch(
+            self.uri + str(cid), {'name': 'my altered collection'}
+        )
+        self.assertEqual(r.status_code, 403)
+        self.assertEqual(
+            Collection.objects.get(pk=cid).name, 'marion\'s collection'
+        )
 
     def test_authenticated_user_can_delete_own_collection(self):
         """Test DELETE /api/v1/collections/ creates owned collection."""
-        pass
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth1, format='json')
+        self.client.post(self.uri, {'name': 'my new collection'})
+        self.assertEqual(self.u1.collections.all().count(), 2)
+        cid = Collection.objects.get(
+            name='my new collection', owner=self.u1.id
+        ).id
+        r = self.client.delete(self.uri + str(cid))
+        self.assertEqual(r.status_code, 204)
+        self.assertEqual(self.u1.collections.all().count(), 1)
 
     def test_authenticated_user_cant_delete_collection_for_another_user(self):
         """
@@ -127,4 +158,13 @@ class CollectionTestCase(TestCase):
 
         Should fail when trying to set another owner (user).
         """
-        pass
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth2, format='json')
+        self.client.post(self.uri, {'name': 'my new collection'})
+        self.assertEqual(self.u2.collections.all().count(), 2)
+        cid = Collection.objects.get(
+            name='my new collection', owner=self.u2.id
+        ).id
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth1, format='json')
+        r = self.client.delete(self.uri + str(cid))
+        self.assertEqual(r.status_code, 403)
+        self.assertEqual(self.u2.collections.all().count(), 2)
