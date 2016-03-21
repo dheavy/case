@@ -19,11 +19,17 @@ class CollectionTestCase(TestCase):
         )
         self.uri = '/api/v1/collections/'
 
-        response = self.client.post('/api/v1/auth/login/', {
+        response1 = self.client.post('/api/v1/auth/login/', {
             'username': 'morgane', 'password': 'azertyuiop'
         })
-        self.token = response.data['token']
-        self.auth = 'Bearer {0}'.format(self.token)
+        self.token1 = response1.data['token']
+        self.auth1 = 'Bearer {0}'.format(self.token1)
+
+        response2 = self.client.post('/api/v1/auth/login/', {
+            'username': 'marion', 'password': 'azertyuiop'
+        })
+        self.token2 = response2.data['token']
+        self.auth2 = 'Bearer {0}'.format(self.token2)
 
     def test_collection_list_requires_authentication(self):
         """Test /api/v1/collections/ requires authentication."""
@@ -45,7 +51,14 @@ class CollectionTestCase(TestCase):
 
         Show it only if requester is owner.
         """
-        pass
+        self.u2.collections.create(name='private collection', is_private=True)
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth1, format='json')
+        r = self.client.get(self.uri)
+        self.assertEqual(len(r.data['results']), 2)
+
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth2, format='json')
+        r = self.client.get(self.uri)
+        self.assertEqual(len(r.data['results']), 3)
 
     def test_collection_detail_hides_private_collection_if_not_owner(self):
         """
@@ -53,19 +66,44 @@ class CollectionTestCase(TestCase):
 
         Show it only if requester is owner.
         """
-        pass
+        self.u2.collections.create(name='private collection', is_private=True)
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth1, format='json')
+        r = self.client.get(
+            self.uri +
+            str(self.u2.collections.get(name='private collection').id)
+        )
+        self.assertEqual(r.status_code, 403)
+
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth2, format='json')
+        r = self.client.get(
+            self.uri +
+            str(self.u2.collections.get(name='private collection').id)
+        )
+        self.assertEqual(r.status_code, 200)
 
     def test_authenticated_user_can_create_own_collection(self):
         """Test POST /api/v1/collections/ creates owned collection."""
-        pass
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth1, format='json')
+        r = self.client.post(self.uri, {'name': 'my new collection'})
+        self.assertEqual(r.status_code, 201)
+        self.assertEqual(self.u1.collections.all().count(), 2)
 
     def test_authenticated_user_cant_create_collection_for_another_user(self):
         """
         Test POST /api/v1/collections/ fails if trying to exploit.
 
-        Should fail when trying to set another owner (user).
+        User can not set owner of collection. Calling the endpoint
+        always create collection for the current user.
         """
-        pass
+        self.assertEqual(self.u1.collections.all().count(), 1)
+        self.assertEqual(self.u2.collections.all().count(), 1)
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth1, format='json')
+        self.client.post(self.uri, {
+            'name': 'my new collection',
+            'owner': self.u2.id
+        })
+        self.assertEqual(self.u1.collections.all().count(), 2)
+        self.assertEqual(self.u2.collections.all().count(), 1)
 
     def test_authenticated_user_can_update_own_collection(self):
         """Test PUT /api/v1/collections/ creates owned collection."""
