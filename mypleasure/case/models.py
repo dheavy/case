@@ -145,7 +145,7 @@ class Collection(models.Model):
         on_delete=models.CASCADE
     )
     name = models.CharField(max_length=30)
-    slug = models.CharField(max_length=30, blank=True)
+    slug = models.SlugField(max_length=30, blank=True)
     is_private = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -181,7 +181,7 @@ class Video(models.Model):
     )
     hash = models.CharField(max_length=100, db_index=True)
     title = models.CharField(max_length=100)
-    slug = models.CharField(max_length=100, blank=True)
+    slug = models.SlugField(max_length=100, blank=True)
     poster = models.CharField(max_length=100, null=True, blank=True)
     original_url = models.URLField(max_length=100)
     embed_url = models.URLField(max_length=100)
@@ -221,7 +221,7 @@ class Tag(models.Model):
     """
 
     name = models.CharField(max_length=20, unique=True)
-    slug = models.CharField(max_length=20, blank=True)
+    slug = models.SlugField(max_length=20, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
