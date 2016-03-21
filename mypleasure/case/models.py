@@ -397,11 +397,11 @@ class UserReport(models.Model):
     def __str__(self):
         """Return string representation of model."""
         return (
-            "UserReport (id: %s, video: %s, reporter: %s, \
-created_at: %s, updated_at: %s)" %
+            "UserReport (id: %s, video: %s, reporter: %s, assignee: %s \
+comments: %s, created_at: %s, updated_at: %s)" %
             (
-                self.id, self.video, self.reporter,
-                self.created_at, self.updated_at
+                self.id, self.video, self.reporter, self.assignee,
+                self.comments, self.created_at, self.updated_at
             )
         )
 
