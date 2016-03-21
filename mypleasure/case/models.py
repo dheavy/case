@@ -362,6 +362,17 @@ class UserReport(models.Model):
     Model dealing with a media reported on site by a user.
     Staff should inquire upon such a report, to see if a media
     actually fits the site's guideline.
+
+    `assignee` references the staff member who is assigned (either by herself
+    or was assigned by Admin) to review the report.
+    `reporter` references user who made the report. `comments` should hold
+    reviewer's optional notes in Admin. `status` should be set in Admin in
+    such way that it should be considered as an enum such as follow:
+    - 'new' is the state given by default for any new report,
+    - 'reviewing' is the state set by a staff member when reviewing the report,
+    - 'removed' is set by reviewer when inquiry validates report, and video is
+      effectively being removed,
+    - 'dismissed' is set by reviewer after inquiry, to ignore report.
     """
 
     video = models.ForeignKey(
@@ -369,8 +380,17 @@ class UserReport(models.Model):
     )
     reporter = models.OneToOneField(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='reporter'
     )
+    assignee = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        blank=True, null=True,
+        related_name='assignee'
+    )
+    comments = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, blank=True, default="new")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
