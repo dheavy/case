@@ -356,6 +356,7 @@ embed_url: %s, poster: %s, duration: %s, naughty: %s)" %
 
 
 class UserReportManager(models.Manager):
+    """Manager for UserReport model."""
 
     statuses = ['new', 'reviewing', 'accepted', 'dismissed']
 
