@@ -1,7 +1,7 @@
 """CASE (MyPleasure API) admin forms."""
 from django import forms
 from django.contrib import admin
-from .models import Video, CustomUser
+from .models import Video, CustomUser, UserReport
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth.forms import PasswordResetForm
 
@@ -26,19 +26,36 @@ class CustomUserForm(forms.ModelForm):
 
     def clean_password2(self):
         """Check that the two password entries match."""
-        password1 = self.cleaned_data.get("password1")
-        password2 = self.cleaned_data.get("password2")
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
         if password1 and password2 and password1 != password2:
-            raise forms.ValidationError("Passwords don't match")
+            raise forms.ValidationError('Passwords don\'t match.')
         return password2
 
     def save(self, commit=True):
         """Save the provided password in hashed format."""
         user = super(CustomUserForm, self).save(commit=False)
-        user.set_password(self.cleaned_data["password1"])
+        user.set_password(self.cleaned_data['password1'])
         if commit:
             user.save()
         return user
+
+
+class UserReportForm(forms.ModelForm):
+    """Form for managing user reports."""
+
+    status = forms.ChoiceField(
+        widget=forms.Select,
+        choices=UserReport.objects.statuses_for_form,
+        help_text=(
+            "<b>new</b> is the state given by default for any new report<br />\
+            <b>reviewing</b> is the state set by a staff member when \
+            reviewing the report<br /><b>accepted</b> is set by reviewer \
+            when inquiry validates report, and video is effectively being \
+            removed<br /> <b>dismissed</b> is set by reviewer after inquiry \
+            to ignore report."
+        )
+    )
 
 
 class CustomUserChangeForm(forms.ModelForm):

@@ -358,7 +358,12 @@ embed_url: %s, poster: %s, duration: %s, naughty: %s)" %
 class UserReportManager(models.Manager):
     """Manager for UserReport model."""
 
-    statuses = ['new', 'reviewing', 'accepted', 'dismissed']
+    @property
+    def statuses_for_form(self):
+        """Return available statuses for form select."""
+        return tuple(
+            [(e, e) for e in ('new', 'reviewing', 'accepted', 'dismissed',)]
+        )
 
 
 class UserReport(models.Model):
@@ -416,8 +421,8 @@ comments: %s, created_at: %s, updated_at: %s)" %
     class Meta:
         """Normalize name in admin panel."""
 
-        verbose_name = 'Report (user reporting video)'
-        verbose_name_plural = 'Reports (user reporting video)'
+        verbose_name = 'Report (from user on site)'
+        verbose_name_plural = 'Reports (from user on site)'
 
 
 @receiver(pre_save, sender=Collection)
@@ -472,7 +477,7 @@ def obfuscate_email_if_deactivated(sender, instance, *args, **kwargs):
 
 
 @receiver(post_save, sender=UserReport)
-def notify_on_new_report(self, instance, *args, **kwargs):
+def notify_on_new_report(sender, instance, *args, **kwargs):
     """Notify of a new User report."""
     # TODO: Use logger to notify on Slack/Trello/email
     # if instance.status === 'new'

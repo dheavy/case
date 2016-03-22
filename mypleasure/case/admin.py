@@ -5,8 +5,12 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import AdminPasswordChangeForm
 
-from .models import Collection, Video, Invite, Tag, CustomUser
-from .forms import TagForm, CustomUserForm, CustomUserChangeForm
+from .models import (
+    Collection, Video, Invite, Tag, CustomUser, UserReport
+)
+from .forms import (
+    TagForm, CustomUserForm, CustomUserChangeForm, UserReportForm
+)
 
 
 class CustomUserAdmin(BaseUserAdmin):
@@ -53,6 +57,23 @@ class TagAdmin(admin.ModelAdmin):
     )
 
 
+class UserReportAdmin(admin.ModelAdmin):
+    """Custom admin for UserReport."""
+
+    form = UserReportForm
+    list_display = (
+        'video', 'reporter', 'assignee', 'comments',
+        'status', 'created_at', 'updated_at'
+    )
+    list_filter = ('status',)
+    fieldsets = (
+        (None, {'fields': ('video', 'reporter',)}),
+        ('Inquiry', {'fields': ('status', 'comments',)}),
+    )
+    search_fields = ('status', 'reporter', 'assignee',)
+    ordering = ('status', 'created_at',)
+
+
 class MyPleasureAdmin(AdminSite):
     """Customize elements from the admin panel itself."""
 
@@ -73,3 +94,4 @@ mp_admin.register(Collection)
 mp_admin.register(Invite)
 mp_admin.register(Video)
 mp_admin.register(Tag, TagAdmin)
+mp_admin.register(UserReport, UserReportAdmin)
