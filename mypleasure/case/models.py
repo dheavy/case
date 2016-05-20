@@ -445,8 +445,20 @@ class Message(models.Model):
     )
     title = models.CharField(max_length=100, null=True, blank=True)
     body = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, blank=True, default="new")
     created_at = models.DateTimeField(auto_now_add=True)
     read_at = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        """Return string representation of model."""
+        return (
+            "Message (from: %s, to: %s, status: %s, created_at: %s, \
+read_at: %s)" %
+            (
+                self.id, self.sender.username, self.recipient.username,
+                self.status, self.created_at, self.read_at
+            )
+        )
 
 
 @receiver(pre_save, sender=Collection)
