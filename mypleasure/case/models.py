@@ -253,7 +253,7 @@ class Invite(models.Model):
         on_delete=models.CASCADE, null=True
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    claimed_at = models.DateTimeField(auto_now=True)
+    claimed_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         """Return string representation of model."""
@@ -423,6 +423,30 @@ comments: %s, created_at: %s, updated_at: %s)" %
 
         verbose_name = 'Report (from user on site)'
         verbose_name_plural = 'Reports (from user on site)'
+
+
+class Message(models.Model):
+    """
+    Message.
+
+    Primarily used as notification system from admins to users.
+    Might later be expended as a full-fledged messaging system.
+    Status is considered an enum with the following values:
+    - 'new'
+    - 'read'
+    - 'deleted'
+    """
+
+    sender = models.ForeignKey(
+        CustomUser, related_name='messages_sent', on_delete=models.CASCADE
+    )
+    recipient = models.ForeignKey(
+        CustomUser, related_name='messages_received', on_delete=models.CASCADE
+    )
+    title = models.CharField(max_length=100, null=True, blank=True)
+    body = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    read_at = models.DateTimeField(blank=True, null=True)
 
 
 @receiver(pre_save, sender=Collection)
