@@ -135,8 +135,13 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
 
     def follow_user(self, user):
         """Follow a user."""
-        relationship = UserFollowRelationship(follower=self, followed=user)
-        relationship.save()
+        try:
+            UserFollowRelationship.objects.get(
+                follower=self, followed=user
+            )
+        except:
+            relationship = UserFollowRelationship(follower=self, followed=user)
+            relationship.save()
 
     def unfollow_user(self, user):
         """Unfollow a user."""
@@ -147,37 +152,66 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
         except:
             pass
 
-    def block_user(self, pk):
+    def block_user(self, user):
         """Block a user."""
-        relationship_model = self.related_users.through
-        relationship_model.objects.bulk_create(
-            relationship_model(blocker=self.id, blocked=pk)
-        )
+        try:
+            UserBlockRelationship.objects.get(
+                blocker=self, blocked=user
+            )
+        except:
+            relationship = UserBlockRelationship(blocker=self, blocked=user)
+            relationship.save()
 
-    def unblock_user(self, pk):
+    def unblock_user(self, user):
         """Unblock a user."""
         try:
-            UserFollowRelationship.objects.get(
-                blocker=self.id, blocked=pk
+            UserBlockRelationship.objects.get(
+                blocker=self.id, blocked=user.id
             ).delete()
         except:
             pass
 
-    def follow_collection(self, pk):
+    def follow_collection(self, collection):
         """Follow another user's collection."""
-        pass
+        try:
+            UserCollectionFollowRelationship.objects.get(
+                user=self, collection=collection
+            )
+        except:
+            relationship = UserCollectionFollowRelationship(
+                user=self, collection=collection
+            )
+            relationship.save()
 
-    def unfollow_collection(self, pk):
+    def unfollow_collection(self, collection):
         """Unfollow a collection."""
-        pass
+        try:
+            UserCollectionFollowRelationship.objects.get(
+                user=self.id, collection=collection.id
+            ).delete()
+        except:
+            pass
 
-    def block_collection(self, pk):
+    def block_collection(self, collection):
         """Block another user's collection."""
-        pass
+        try:
+            UserCollectionBlockRelationship.objects.get(
+                user=self, collection=collection
+            )
+        except:
+            relationship = UserCollectionBlockRelationship(
+                user=self, collection=collection
+            )
+            relationship.save()
 
-    def unblock_collection(self, pk):
+    def unblock_collection(self, collection):
         """Unblock a collection."""
-        pass
+        try:
+            UserCollectionBlockRelationship.objects.get(
+                user=self.id, collection=collection.id
+            ).delete()
+        except:
+            pass
 
     def disable_account(self):
         """Disable User account."""
@@ -244,33 +278,46 @@ is_superuser: %s)" %
     def followers(self):
         """Return list of users following self."""
         relationship = UserFollowRelationship.objects.filter(followed=self.id)
-        return [f.follower for f in relationship]
+        return [r.follower for r in relationship]
 
     @property
     def following(self):
         """Return list of users self is following."""
         relationship = UserFollowRelationship.objects.filter(follower=self.id)
-        return [f.followed for f in relationship]
-
-    @property
-    def blocking(self):
-        """Return list of users self has blocked."""
-        pass
+        return [r.followed for r in relationship]
 
     @property
     def blocked_by(self):
         """Return list of users blocking self."""
-        pass
+        relationship = UserBlockRelationship.objects.filter(blocked=self.id)
+        return [r.blocker for r in relationship]
+
+    @property
+    def blocking(self):
+        """Return list of users self has blocked."""
+        relationship = UserBlockRelationship.objects.filter(blocker=self.id)
+        return [r.blocked for r in relationship]
 
     @property
     def collections_followed(self):
         """Return list of collections self is following."""
-        pass
+        relationship = UserCollectionFollowRelationship.objects.filter(
+            user=self.id
+        )
+        return [r.collection for r in relationship]
 
     @property
     def collections_blocked(self):
-        """Return list of collections self has blocked."""
-        pass
+        """
+        Return list of collections self has blocked.
+
+        Include collections from blocked users.
+        """
+        blocking = self.blocking
+        r = UserCollectionBlockRelationship.objects.filter(user=self.id)
+        c = [blocked.collection for blocked in r]
+        u = [col for user in blocking for col in user.collections.all()]
+        return list(set(c + u))
 
     class Meta:
         """Normalize CustomUser name to "User" in admin panel."""
@@ -324,7 +371,8 @@ class Collection(models.Model):
         return (
             "Collection (id: %s, owner: %s, name: %s, slug: %s, private: %s)" %
             (
-                self.id, self.owner.id, self.name, self.slug, self.is_private
+                self.id, (self.owner and self.owner.id or None),
+                self.name, self.slug, self.is_private
             )
         )
 
