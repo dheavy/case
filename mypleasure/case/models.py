@@ -46,8 +46,75 @@ class CustomUserManager(BaseUserManager):
         return user
 
 
+class UserFollowRelationship(models.Model):
+    """Model defining `follow` relationship between users via pivot table."""
+
+    follower = models.ForeignKey('CustomUser', related_name='follower')
+    followed = models.ForeignKey('CustomUser', related_name='followed')
+    since = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        """Render string representation of instance."""
+        return (
+            "UserFollowRelationship (id: %s, follower: %s, followed: %s, \
+since: %s)" % (self.id, self.follower, self.followed, self.since)
+        )
+
+
+class UserBlockRelationship(models.Model):
+    """Model defining `block` relationship between users via pivot table."""
+
+    blocker = models.ForeignKey('CustomUser', related_name='blocker')
+    blocked = models.ForeignKey('CustomUser', related_name='blocked')
+    since = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        """Render string representation of instance."""
+        return (
+            "UserBlockRelationship (id: %s, blocker: %s, blocked: %s, \
+since: %s)" % (self.id, self.blocker, self.blocked, self.since)
+        )
+
+
+class UserCollectionFollowRelationship(models.Model):
+    """Model defining `follow` relationship between user and a collection."""
+
+    user = models.ForeignKey('CustomUser', related_name='user_following')
+    collection = models.ForeignKey(
+        'Collection', related_name='collection_followed'
+    )
+    since = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        """Render string representation of instance."""
+        return (
+            "UserCollectionFollowRelationship (id: %s, user: %s, \
+collection: %s, since: %s)" % (self.id, self.user, self.collection, self.since)
+        )
+
+
+class UserCollectionBlockRelationship(models.Model):
+    """Model defining `block` relationship between user and a collection."""
+
+    user = models.ForeignKey('CustomUser', related_name='user_blocking')
+    collection = models.ForeignKey(
+        'Collection', related_name='collection_blocked'
+    )
+    since = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        """Render string representation of instance."""
+        return (
+            "UserCollectionBlockRelationship (id: %s, user: %s, \
+collection: %s, since: %s)" % (self.id, self.user, self.collection, self.since)
+        )
+
+
 class CustomUser(PermissionsMixin, AbstractBaseUser):
     """Custom User class, enhancing User model."""
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email', 'password']
 
     objects = CustomUserManager()
     username = models.CharField(max_length=40, unique=True, db_index=True)
@@ -58,8 +125,59 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email', 'password']
+    related_users = models.ManyToManyField(
+        'self', symmetrical=False, through='UserFollowRelationship'
+    )
+
+    related_collections = models.ManyToManyField(
+        'Collection', through='UserCollectionFollowRelationship'
+    )
+
+    def follow_user(self, user):
+        """Follow a user."""
+        relationship = UserFollowRelationship(follower=self, followed=user)
+        relationship.save()
+
+    def unfollow_user(self, user):
+        """Unfollow a user."""
+        try:
+            UserFollowRelationship.objects.get(
+                follower=self.id, followed=user.id
+            ).delete()
+        except:
+            pass
+
+    def block_user(self, pk):
+        """Block a user."""
+        relationship_model = self.related_users.through
+        relationship_model.objects.bulk_create(
+            relationship_model(blocker=self.id, blocked=pk)
+        )
+
+    def unblock_user(self, pk):
+        """Unblock a user."""
+        try:
+            UserFollowRelationship.objects.get(
+                blocker=self.id, blocked=pk
+            ).delete()
+        except:
+            pass
+
+    def follow_collection(self, pk):
+        """Follow another user's collection."""
+        pass
+
+    def unfollow_collection(self, pk):
+        """Unfollow a collection."""
+        pass
+
+    def block_collection(self, pk):
+        """Block another user's collection."""
+        pass
+
+    def unblock_collection(self, pk):
+        """Unblock a collection."""
+        pass
 
     def disable_account(self):
         """Disable User account."""
@@ -122,6 +240,38 @@ is_superuser: %s)" %
             if (not v.is_private or c.owner.id == self.id)
         ]
 
+    @property
+    def followers(self):
+        """Return list of users following self."""
+        relationship = UserFollowRelationship.objects.filter(followed=self.id)
+        return [f.follower for f in relationship]
+
+    @property
+    def following(self):
+        """Return list of users self is following."""
+        relationship = UserFollowRelationship.objects.filter(follower=self.id)
+        return [f.followed for f in relationship]
+
+    @property
+    def blocking(self):
+        """Return list of users self has blocked."""
+        pass
+
+    @property
+    def blocked_by(self):
+        """Return list of users blocking self."""
+        pass
+
+    @property
+    def collections_followed(self):
+        """Return list of collections self is following."""
+        pass
+
+    @property
+    def collections_blocked(self):
+        """Return list of collections self has blocked."""
+        pass
+
     class Meta:
         """Normalize CustomUser name to "User" in admin panel."""
 
@@ -149,6 +299,20 @@ class Collection(models.Model):
     is_private = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    related_users = models.ManyToManyField(
+        CustomUser, through=UserCollectionFollowRelationship
+    )
+
+    @property
+    def followers(self):
+        """Return list of users following self."""
+        pass
+
+    @property
+    def blocked_by(self):
+        """Return list of users blocking self."""
+        pass
 
     @property
     def is_default(self):

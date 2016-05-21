@@ -6,11 +6,26 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import AdminPasswordChangeForm
 
 from .models import (
-    Collection, Video, Invite, Tag, CustomUser, UserReport
+    Collection, Video, Invite, Tag, CustomUser, UserReport,
+    UserFollowRelationship, UserCollectionFollowRelationship
 )
 from .forms import (
     TagForm, CustomUserForm, CustomUserChangeForm, UserReportForm
 )
+
+
+class FollowingInline(admin.TabularInline):
+    """Inline set up to display M2M user<->user relationships."""
+
+    model = UserFollowRelationship
+    fk_name = 'follower'
+
+
+# class UserToCollectionInline(admin.TabularInline):
+#     """Inline set up to display M2M user<->user relationships."""
+
+#     model = UserCollectionFollowRelationship
+#     fk_name = 'collection'
 
 
 class CustomUserAdmin(BaseUserAdmin):
@@ -20,6 +35,9 @@ class CustomUserAdmin(BaseUserAdmin):
     form = CustomUserChangeForm
     add_form = CustomUserForm
     change_password_form = AdminPasswordChangeForm
+
+    # Setup for M2M relationships (users, collections).
+    inlines = (FollowingInline, )
 
     # The fields to be used in displaying the User model.
     # These override the definitions on the base BaseUserAdmin
