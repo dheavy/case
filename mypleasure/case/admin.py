@@ -7,7 +7,8 @@ from django.contrib.auth.forms import AdminPasswordChangeForm
 
 from .models import (
     Collection, Video, Invite, Tag, CustomUser, UserReport,
-    UserFollowRelationship, UserCollectionFollowRelationship
+    UserFollowRelationship, UserCollectionFollowRelationship,
+    UserBlockRelationship, UserCollectionBlockRelationship
 )
 from .forms import (
     TagForm, CustomUserForm, CustomUserChangeForm, UserReportForm
@@ -15,17 +16,31 @@ from .forms import (
 
 
 class FollowingInline(admin.TabularInline):
-    """Inline set up to display M2M user<->user relationships."""
+    """Inline set up to display M2M user<->user (follow) relationships."""
 
     model = UserFollowRelationship
     fk_name = 'follower'
 
 
-# class UserToCollectionInline(admin.TabularInline):
-#     """Inline set up to display M2M user<->user relationships."""
+class BlockingInline(admin.TabularInline):
+    """Inline set up to display M2M user<->collection (block) relationships."""
 
-#     model = UserCollectionFollowRelationship
-#     fk_name = 'collection'
+    model = UserBlockRelationship
+    fk_name = 'blocker'
+
+
+class FollowingCollectionInline(admin.TabularInline):
+    """Inline set up to display M2M user<->collect. (follow) relationships."""
+
+    model = UserCollectionFollowRelationship
+    fk_name = 'user'
+
+
+class BlockingCollectionInline(admin.TabularInline):
+    """Inline set up to display M2M user<->user (block) relationships."""
+
+    model = UserCollectionBlockRelationship
+    fk_name = 'user'
 
 
 class CustomUserAdmin(BaseUserAdmin):
@@ -37,7 +52,10 @@ class CustomUserAdmin(BaseUserAdmin):
     change_password_form = AdminPasswordChangeForm
 
     # Setup for M2M relationships (users, collections).
-    inlines = (FollowingInline, )
+    inlines = (
+        FollowingInline, BlockingInline, FollowingCollectionInline,
+        BlockingCollectionInline
+    )
 
     # The fields to be used in displaying the User model.
     # These override the definitions on the base BaseUserAdmin

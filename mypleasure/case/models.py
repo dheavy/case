@@ -60,6 +60,12 @@ class UserFollowRelationship(models.Model):
 since: %s)" % (self.id, self.follower, self.followed, self.since)
         )
 
+    class Meta:
+        """Meta for UserFollowRelationship."""
+
+        verbose_name = "User <-> User (follow) relationship"
+        verbose_name_plural = "User <-> User (follow) relationships"
+
 
 class UserBlockRelationship(models.Model):
     """Model defining `block` relationship between users via pivot table."""
@@ -74,6 +80,12 @@ class UserBlockRelationship(models.Model):
             "UserBlockRelationship (id: %s, blocker: %s, blocked: %s, \
 since: %s)" % (self.id, self.blocker, self.blocked, self.since)
         )
+
+    class Meta:
+        """Meta for UserBlockRelationship."""
+
+        verbose_name = "User <-> User (block) relationship"
+        verbose_name_plural = "User <-> User (block) relationships"
 
 
 class UserCollectionFollowRelationship(models.Model):
@@ -92,6 +104,12 @@ class UserCollectionFollowRelationship(models.Model):
 collection: %s, since: %s)" % (self.id, self.user, self.collection, self.since)
         )
 
+    class Meta:
+        """Meta for UserCollectionFollowRelationship."""
+
+        verbose_name = "User <-> Collection (follow) relationship"
+        verbose_name_plural = "User <-> Collection (follow) relationships"
+
 
 class UserCollectionBlockRelationship(models.Model):
     """Model defining `block` relationship between user and a collection."""
@@ -108,6 +126,12 @@ class UserCollectionBlockRelationship(models.Model):
             "UserCollectionBlockRelationship (id: %s, user: %s, \
 collection: %s, since: %s)" % (self.id, self.user, self.collection, self.since)
         )
+
+    class Meta:
+        """Meta for UserCollectionBlockRelationship."""
+
+        verbose_name = "User <-> Collection (block) relationship"
+        verbose_name_plural = "User <-> Collection (block) relationships"
 
 
 class CustomUser(PermissionsMixin, AbstractBaseUser):
