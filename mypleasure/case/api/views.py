@@ -26,7 +26,8 @@ from .serializers import (
     VideoSerializer, TagSerializer, UserRegistrationSerializer,
     FeedNormalSerializer, FeedNaughtySerializer, PasswordResetSerializer,
     PasswordResetConfirmSerializer, CuratedMediaAcquisitionSerializer,
-    CuratedMediaFetchSerializer, CheckUsernameSerializer,
+    CuratedMediaFetchSerializer, CheckUsernameSerializer, FollowUserSerializer,
+    BlockUserSerializer, FollowCollectionSerializer, BlockCollectionSerializer,
     serialized_user_data
 )
 from .filters import (
@@ -181,6 +182,94 @@ class RegistrationViewSet(ViewSet):
             'user': serialized_user_data(user),
             'token': token
         })
+
+
+class FollowUserViewSet(ViewSet):
+    """ViewSet for user <-> user follow relationship."""
+
+    @list_route(methods=['post'], permission_classes=[IsAuthenticated])
+    def follow(self, request, pk):
+        """Follow a user."""
+        serializer = FollowUserSerializer(
+            data={'pk': pk, 'current_user': request.user, 'intent': 'follow'}
+        )
+        serializer.is_valid(raise_exception=True)
+        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+
+    @list_route(methods=['post'], permission_classes=[IsAuthenticated])
+    def unfollow(self, request, pk):
+        """Unfollow a user."""
+        serializer = FollowUserSerializer(
+            data={'pk': pk, 'current_user': request.user, 'intent': 'unfollow'}
+        )
+        serializer.is_valid(raise_exception=True)
+        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+
+
+class BlockUserViewSet(ViewSet):
+    """ViewSet for user <-> user block relationship."""
+
+    @list_route(methods=['post'], permission_classes=[IsAuthenticated])
+    def block(self, request, pk):
+        """Block a user."""
+        serializer = BlockUserSerializer(
+            data={'pk': pk, 'current_user': request.user, 'intent': 'block'}
+        )
+        serializer.is_valid(raise_exception=True)
+        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+
+    @list_route(methods=['post'], permission_classes=[IsAuthenticated])
+    def unblock(self, request, pk):
+        """Unblock a user."""
+        serializer = BlockUserSerializer(
+            data={'pk': pk, 'current_user': request.user, 'intent': 'unblock'}
+        )
+        serializer.is_valid(raise_exception=True)
+        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+
+
+class FollowCollectionViewSet(ViewSet):
+    """ViewSet for user <-> collection follow relationship."""
+
+    @list_route(methods=['post'], permission_classes=[IsAuthenticated])
+    def follow(self, request, pk):
+        """Follow a collection."""
+        serializer = FollowCollectionSerializer(
+            data={'pk': pk, 'current_user': request.user, 'intent': 'follow'}
+        )
+        serializer.is_valid(raise_exception=True)
+        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+
+    @list_route(methods=['post'], permission_classes=[IsAuthenticated])
+    def unfollow(self, request, pk):
+        """Unfollow a collection."""
+        serializer = FollowCollectionSerializer(
+            data={'pk': pk, 'current_user': request.user, 'intent': 'unfollow'}
+        )
+        serializer.is_valid(raise_exception=True)
+        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+
+
+class BlockCollectionViewSet(ViewSet):
+    """ViewSet for user <-> collection block relationship."""
+
+    @list_route(methods=['post'], permission_classes=[IsAuthenticated])
+    def block(self, request, pk):
+        """Block a collection."""
+        serializer = BlockCollectionSerializer(
+            data={'pk': pk, 'current_user': request.user, 'intent': 'block'}
+        )
+        serializer.is_valid(raise_exception=True)
+        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+
+    @list_route(methods=['post'], permission_classes=[IsAuthenticated])
+    def unblock(self, request, pk):
+        """Unblock a collection."""
+        serializer = BlockCollectionSerializer(
+            data={'pk': pk, 'current_user': request.user, 'intent': 'unblock'}
+        )
+        serializer.is_valid(raise_exception=True)
+        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
 
 
 class CollectionMixin(object):

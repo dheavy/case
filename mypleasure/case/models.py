@@ -166,6 +166,7 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
         except:
             relationship = UserFollowRelationship(follower=self, followed=user)
             relationship.save()
+        return True
 
     def unfollow_user(self, user):
         """Unfollow a user."""
@@ -173,8 +174,9 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
             UserFollowRelationship.objects.get(
                 follower=self.id, followed=user.id
             ).delete()
+            return True
         except:
-            pass
+            return False
 
     def block_user(self, user):
         """Block a user."""
@@ -185,6 +187,7 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
         except:
             relationship = UserBlockRelationship(blocker=self, blocked=user)
             relationship.save()
+        return True
 
     def unblock_user(self, user):
         """Unblock a user."""
@@ -193,7 +196,7 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
                 blocker=self.id, blocked=user.id
             ).delete()
         except:
-            pass
+            return False
 
     def follow_collection(self, collection):
         """Follow another user's collection."""

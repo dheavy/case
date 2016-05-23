@@ -20,7 +20,8 @@ from case.api.views import (
     UserList, UserDetail, ProfileView, RegistrationViewSet, CollectionList,
     CollectionDetail, FeedNormalList, FeedNaughtyList, VideoList, VideoDetail,
     TagList, TagDetail, PasswordResetView, PasswordResetConfirmView,
-    CuratedMediaViewSet, HeartbeatViewSet
+    CuratedMediaViewSet, HeartbeatViewSet, FollowUserViewSet,
+    FollowCollectionViewSet, BlockUserViewSet, BlockCollectionViewSet
 )
 from case.admin import mp_admin
 
@@ -166,6 +167,36 @@ urlpatterns = [
         CollectionList.as_view(), name='collection-list'),
     url(r'^api/v1/collections/(?P<pk>[0-9]+)/?$',
         CollectionDetail.as_view(), name='collection-detail'),
+
+    # Relationships
+    # -------------
+    # Available to authenticated users only.
+    # Follow/unfollow user, block/unblock user,
+    # follow/unfollow collection, block/unblock collection.
+    url(r'^api/v1/users/follow/(?P<pk>[0-9]+)/?$',
+        FollowUserViewSet.as_view({'post': 'follow'}),
+        name='follow-user'),
+    url(r'^api/v1/users/unfollow/(?P<pk>[0-9]+)/?$',
+        FollowUserViewSet.as_view({'post': 'unfollow'}),
+        name='unfollow-user'),
+    url(r'^api/v1/users/block/(?P<pk>[0-9]+)/?$',
+        BlockUserViewSet.as_view({'post': 'block'}),
+        name='block-user'),
+    url(r'^api/v1/users/unblock/(?P<pk>[0-9]+)/?$',
+        BlockUserViewSet.as_view({'post': 'unblock'}),
+        name='unblock-user'),
+    url(r'^api/v1/collections/follow/(?P<pk>[0-9]+)/?$',
+        FollowCollectionViewSet.as_view({'post': 'follow'}),
+        name='follow-collection'),
+    url(r'^api/v1/collections/unfollow/(?P<pk>[0-9]+)/?$',
+        FollowCollectionViewSet.as_view({'post': 'unfollow'}),
+        name='unfollow-collection'),
+    url(r'^api/v1/collections/block/(?P<pk>[0-9]+)/?$',
+        BlockCollectionViewSet.as_view({'post': 'block'}),
+        name='block-user'),
+    url(r'^api/v1/collections/unblock/(?P<pk>[0-9]+)/?$',
+        BlockCollectionViewSet.as_view({'post': 'unblock'}),
+        name='unblock-user'),
 
     # Videos
     # ------

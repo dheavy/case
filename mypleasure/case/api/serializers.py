@@ -299,7 +299,7 @@ class UserRegistrationSerializer(serializers.Serializer):
         Email uniqueness if provided, password and confirmation.
         """
         if type(self.context['request'].user) is get_user_model():
-            raise ValidationError(
+            raise serializers.ValidationError(
                 'Action forbidden for authenticated user forbidden',
                 code='auth_forbidden'
             )
@@ -358,16 +358,16 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
             uid = force_text(uid_decoder(data['uid']))
             self.user = CustomUser.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
-            raise ValidationError({'uid': ['Invalid value']})
+            raise serializers.ValidationError({'uid': ['Invalid value']})
 
         # Construct SetPasswordForm instance
         self.set_password_form = self.set_password_form_class(
             user=self.user, data=data
         )
         if not self.set_password_form.is_valid():
-            raise ValidationError(self.set_password_form.errors)
+            raise serializers.ValidationError(self.set_password_form.errors)
         if not default_token_generator.check_token(self.user, data['token']):
-            raise ValidationError({'token': ['Invalid value']})
+            raise serializers.ValidationError({'token': ['Invalid value']})
 
         return data
 
@@ -390,7 +390,7 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
                 c = Collection.objects.get(pk=attrs['collection_id'])
                 assert c.owner == self.context['request'].user
             except:
-                raise ValidationError({
+                raise serializers.ValidationError({
                     'code': 'collection_id_invalid'
                 })
         else:
@@ -399,23 +399,23 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
                 name = attrs['new_collection_name'][0]
                 assert bool(name) is not None and name != ''
             except:
-                raise ValidationError({
+                raise serializers.ValidationError({
                     'code': 'collection_id_or_name_missing'
                 })
 
         # Verify URL presence and validity.
         if 'url' not in attrs:
-            raise ValidationError({'code': 'url_missing'})
+            raise serializers.ValidationError({'code': 'url_missing'})
 
         try:
             URLValidator()(attrs['url'])
         except ValidationError:
-            raise ValidationError({'code': 'url_invalid'})
+            raise serializers.ValidationError({'code': 'url_invalid'})
 
         # Prevent duplicates.
         u = self.context['request'].user
         if u.has_video(url=attrs['url'], include_queue=True):
-            raise ValidationError({'code': 'duplicate'})
+            raise serializers.ValidationError({'code': 'duplicate'})
 
         return attrs
 
@@ -466,5 +466,100 @@ class CuratedMediaFetchSerializer(serializers.Serializer):
         if 'userid' not in self.initial_data or int(self.initial_data[
             'userid'
         ]) != user_id:
-            raise ValidationError('Passed ID not matching current user\'s')
+            raise serializers.ValidationError({'code': 'id_user_mismatch'})
+        return self.initial_data
+
+
+class FollowUserSerializer(serializers.Serializer):
+    """Serializer for follow user process."""
+
+    def validate(self, attrs):
+        """Validate data, make changes."""
+        try:
+            other_user = CustomUser.objects.get(
+                pk=int(self.initial_data.get('pk'))
+            )
+        except:
+            raise serializers.ValidationError({'code': 'user_not_found'})
+
+        if self.initial_data.get('intent', None) == 'follow':
+            self.initial_data.get('current_user', None).follow_user(other_user)
+        elif self.initial_data.get('intent', None) == 'unfollow':
+            # Will return True if unfollowed successful, False otherwise.
+            if self.initial_data.get(
+                'current_user', None
+            ).unfollow_user(other_user) is False:
+                raise serializers.ValidationError({'code': 'unfollow_failed'})
+        else:
+            raise serializers.ValidationError({'code': 'intent_misunderstood'})
+
+        return self.initial_data
+
+
+class BlockUserSerializer(serializers.Serializer):
+    """Serializer for block user process."""
+
+    def validate(self, attrs):
+        """Validate data, make changes."""
+        try:
+            other_user = CustomUser.objects.get(
+                pk=int(self.initial_data.get('pk', 0))
+            )
+        except:
+            raise serializers.ValidationError({'code': 'user_not_found'})
+
+        if self.initial_data.get('intent', None) == 'block':
+            self.initial_data.get('current_user', None).block_user(other_user)
+        elif self.initial_data.get('intent', None) == 'unblock':
+            if self.initial_data.get(
+                'current_user', None
+            ).unblock_user(other_user) is False:
+                raise serializers.ValidationError({'code': 'unblock_failed'})
+        else:
+            raise serializers.ValidationError({'code': 'intent_misunderstood'})
+
+        return self.initial_data
+
+
+class FollowCollectionSerializer(serializers.Serializer):
+    """Serializer for follow collection process."""
+
+    def validate(self, attrs):
+        """Validate data, make changes."""
+        try:
+            c = Collection.objects.get(
+                pk=int(self.initial_data.get('pk', 0))
+            )
+        except:
+            raise serializers.ValidationError({'code': 'collection_not_found'})
+
+        if self.initial_data.get('intent', None) == 'follow':
+            self.initial_data.get('current_user', None).follow_collection(c)
+        elif self.initial_data.get('intent', None) == 'unfollow':
+            self.initial_data.get('current_user', None).unfollow_collection(c)
+        else:
+            raise serializers.ValidationError({'code': 'intent_misunderstood'})
+
+        return self.initial_data
+
+
+class BlockCollectionSerializer(serializers.Serializer):
+    """Serializer for block collection process."""
+
+    def validate(self, attrs):
+        """Validate data, make changes."""
+        try:
+            c = Collection.objects.get(
+                pk=int(self.initial_data.get('pk', 0))
+            )
+        except:
+            raise serializers.ValidationError({'code': 'collection_not_found'})
+
+        if self.initial_data.get('intent', None) == 'block':
+            self.initial_data.get('current_user', None).block_collection(c)
+        elif self.initial_data.get('intent', None) == 'unblock':
+            self.initial_data.get('current_user', None).unblock_collection(c)
+        else:
+            raise serializers.ValidationError({'code': 'intent_misunderstood'})
+
         return self.initial_data
