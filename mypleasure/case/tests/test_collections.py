@@ -156,7 +156,7 @@ class CollectionTestCase(TestCase):
         """
         Test DELETE /api/v1/collections/ fails if trying to exploit.
 
-        Should fail when trying to set another owner (user).
+        Should fail when trying to delete another owner's (user).
         """
         self.client.credentials(HTTP_AUTHORIZATION=self.auth2, format='json')
         self.client.post(self.uri, {'name': 'my new collection'})

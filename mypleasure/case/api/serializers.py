@@ -67,7 +67,7 @@ def validate_user_email_password_data(data):
     return True
 
 
-class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
+class BasicUserSerializer(serializers.ModelSerializer):
     """Serializer class for User, as seen by regular Users."""
 
     # Do not include videos as they are already passed in the
@@ -152,7 +152,7 @@ class FullUserSerializer(BasicUserSerializer):
         )
 
 
-class CollectionSerializer(serializers.HyperlinkedModelSerializer):
+class CollectionSerializer(serializers.ModelSerializer):
     """Serializer for Collection model."""
 
     owner = serializers.PrimaryKeyRelatedField(
@@ -179,7 +179,7 @@ class CollectionSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 
-class VideoSerializer(serializers.HyperlinkedModelSerializer):
+class VideoSerializer(serializers.ModelSerializer):
     """Serializer for Video model."""
 
     owner = serializers.SerializerMethodField()
@@ -261,7 +261,7 @@ class FeedPublicVideoSerializer(FeedPrivateVideoSerializer):
         fields = FeedPrivateVideoSerializer.Meta.fields + ('owner',)
 
 
-class TagSerializer(serializers.HyperlinkedModelSerializer):
+class TagSerializer(serializers.ModelSerializer):
     """Serializer for Tag model."""
 
     videos = serializers.SerializerMethodField()
@@ -299,10 +299,9 @@ class UserRegistrationSerializer(serializers.Serializer):
         Email uniqueness if provided, password and confirmation.
         """
         if type(self.context['request'].user) is get_user_model():
-            raise serializers.ValidationError(
-                'Action forbidden for authenticated user forbidden',
-                code='auth_forbidden'
-            )
+            raise serializers.ValidationError({
+                'code': 'auth_forbidden'
+            })
 
         if validate_user_email_password_data(data):
             return data

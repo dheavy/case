@@ -382,6 +382,33 @@ class VideoList(VideoMixin, ListCreateAPIView):
         """Private videos can only be seen by owner."""
         return filter_private_obj_list_by_ownership(Video, self.request.user)
 
+    def post(self, request, *args, **kwargs):
+        """Attempt creating a new video."""
+        collection = None
+        try:
+            collection = Collection.objects.get(
+                pk=int(request.data.get('collection'))
+            )
+        except:
+            return Response(
+                'Collection does not exist', status=status.HTTP_404_NOT_FOUND
+            )
+
+        if collection in request.user.collections.all():
+            serializer = self.get_serializer_class()(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(
+                    serializer.data, status=status.HTTP_201_CREATED
+                )
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+        else:
+            return Response(
+                'Collection not owned', status=status.HTTP_403_FORBIDDEN
+            )
+
 
 class VideoDetail(VideoMixin, RetrieveUpdateDestroyAPIView):
     """Viewset for Video detail."""
@@ -397,6 +424,27 @@ class VideoDetail(VideoMixin, RetrieveUpdateDestroyAPIView):
             self.check_object_permissions,
             self.request
         )
+
+    def delete(self, request, *args, **kwargs):
+        """Attempt at deleting video."""
+        print(request.data, args, kwargs)
+        video = None
+        try:
+            video = Video.objects.get(pk=int(kwargs.get('pk')))
+        except:
+            return Response(
+                'Video does not exist', status=status.HTTP_404_NOT_FOUND
+            )
+
+        if video in request.user.videos:
+            video.delete()
+            return Response(
+                {'detail': 'OK'}, status=status.HTTP_204_NO_CONTENT
+            )
+        else:
+            return Response(
+                {'detail': 'Video not owned'}, status=status.HTTP_403_FORBIDDEN
+            )
 
 
 class FeedNormalList(VideoMixin, ListCreateAPIView):
