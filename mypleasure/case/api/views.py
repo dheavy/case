@@ -181,12 +181,8 @@ class RegistrationViewSet(ViewSet):
         """Finish registration using Facebook account."""
         try:
             serializer = FacebookUserSerializer(data=request.data)
-            print('FOO')
             serializer.is_valid(raise_exception=True)
-            print('BAR')
-            print(serializer.validated_data)
             user = serializer.finish_create()
-            print('BAZ')
             return Response(
                 create_auth_token_payload(user), status=status.HTTP_201_CREATED
             )
@@ -459,7 +455,6 @@ class VideoDetail(VideoMixin, RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         """Attempt at deleting video."""
-        print(request.data, args, kwargs)
         video = None
         try:
             video = Video.objects.get(pk=int(kwargs.get('pk')))
