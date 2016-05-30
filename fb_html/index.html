@@ -147,7 +147,16 @@
             'fb_name': response.name
           },
           statusCode: {
-            206: function(res) {
+            200: function (res) {
+              console.log('200 - OK');
+              console.log(res);
+
+              $('#status').html(
+                '<p><strong>Logged in</strong><br>' + res.data.user.username +
+                '</p><p><strong>JWT Token</strong><br>' + res.data.token + '</p>'
+              );
+            },
+            206: function (res) {
               console.log('206 - Partial Content')
               console.log(res)
 
