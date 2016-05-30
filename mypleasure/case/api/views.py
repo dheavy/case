@@ -790,13 +790,10 @@ class FacebookAuthViewSet(ViewSet):
         # return the necessary payload to complete it via frontend
         # (see 'facebook-register' route). The status code the frontend looks
         # for is 206 ("Partial Content").
-
         if 'intent' in p and p.get('intent') == 'facebook_register':
             return Response(p, status=status.HTTP_206_PARTIAL_CONTENT)
 
-        print(p)
-
         # ...or an authentication token as response to log in user immediately.
         return Response(
-            create_auth_token_payload(p), status=status.HTTP_200_OK
+            create_auth_token_payload(p.get('user')), status=status.HTTP_200_OK
         )

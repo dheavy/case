@@ -657,9 +657,9 @@ class FacebookUserSerializer(serializers.Serializer):
 
     def auth(self, user, token):
         """Authenticate using Facebook user."""
-        serializer = FacebookAuthenticateUserSerializer(data=user)
+        serializer = FacebookAuthenticateUserSerializer(data={'user': user})
         serializer.is_valid(raise_exception=True)
-        user = serializer.login(serializer.validated_data)
+        return {'user': user}
 
     def finish_create(self):
         """
@@ -769,9 +769,9 @@ class FacebookAuthenticateUserSerializer(serializers.Serializer):
     """Serializer to authenticate existing user from FB data."""
 
     def validate(self, data):
-        """Validate payload."""
-        pass
+        """
+        Validate payload.
 
-    def login(self, user):
-        """Login from Facebook user."""
-        pass
+        Lean of FacebookUserSerializer for now.
+        """
+        return self.initial_data
