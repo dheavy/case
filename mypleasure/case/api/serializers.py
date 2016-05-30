@@ -107,7 +107,11 @@ class BasicUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data, is_active=True):
         """Create User if validation succeeds."""
         password = validated_data.pop('password', None)
-        user = self.Meta.model(**validated_data)
+        user = CustomUser.objects.create_user(
+            validated_data.get('username'),
+            validated_data.get('password'),
+            validated_data.get('email')
+        )
         user.is_active = is_active
         user.set_password(password)
         user.save()
