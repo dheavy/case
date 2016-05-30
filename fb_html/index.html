@@ -40,6 +40,7 @@
       e.preventDefault();
       var data = {
         fb_id: $('#fb_id').val(),
+        fb_email: $('#fb_email').val(),
         user_id: $('#user_id').val(),
         username: $('#username').val(),
         password: $('#password').val(),
@@ -125,17 +126,8 @@
     };
 
     function attemptAuth(token) {
-      FB.api('/me', function(response) {
+      FB.api('/me?fields=id,name,email', function(response) {
         console.log(token, response)
-        /*$.post('http://localhost:8000/api/v1/auth/facebook/', {
-          'fb_access_token': token,
-          'fb_id': response.id,
-          'fb_name': response.name
-        }).then(function (res) {
-          console.log(res)
-        }).catch(function (res) {
-          console.log(res.statusText)
-        });*/
 
         $.ajax({
           type: 'POST',
@@ -144,7 +136,8 @@
           data: {
             'fb_access_token': token,
             'fb_id': response.id,
-            'fb_name': response.name
+            'fb_name': response.name,
+            'fb_email': response.email,
           },
           statusCode: {
             200: function (res) {
@@ -162,6 +155,7 @@
 
               $('#user_id').val(res.data.user_id);
               $('#fb_id').val(res.data.fb_id);
+              $('#fb_email').val(res.data.fb_email);
               $('#username').val(res.data.tmp_username);
               $('#tmp_username').val(res.data.tmp_username);
 
@@ -200,6 +194,7 @@
 
 <form method="post" id="register">
   <input id="fb_id" type="hidden" name="fb_id" value=""><br/>
+  <input id="fb_email" type="hidden" name="fb_email" value=""><br/>
   <input id="user_id" type="hidden" name="user_id" value=""><br/>
   <input id="tmp_username" type="hidden" name="tmp_username" value=""><br/>
   <input id="username" type="text" placeholder="username"><br/>

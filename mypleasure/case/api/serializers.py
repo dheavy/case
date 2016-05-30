@@ -584,6 +584,12 @@ class FacebookUserSerializer(serializers.Serializer):
 
     def validate(self, data):
         """Validate data."""
+        # Verify email.
+        try:
+            validate_email(self.initial_data.get('fb_email', None))
+        except ValidationError:
+            raise serializers.ValidationError({'code': 'invalid_fb_email'})
+
         # Verify access token.
         try:
             fb_access_token = self.initial_data.get('fb_access_token', None)
@@ -623,6 +629,7 @@ class FacebookUserSerializer(serializers.Serializer):
         """Create and/or authenticate user via a Facebook token."""
         fb_id = self.validated_data.get('fb_id')
         fb_name = self.validated_data.get('fb_name')
+        fb_email = self.validated_data.get('fb_email')
         fb_access_token = self.validated_data.get('fb_access_token')
 
         # Return existing elements if user exists from a preceding
@@ -633,7 +640,7 @@ class FacebookUserSerializer(serializers.Serializer):
             )
             serializer = FacebookCreateUserSerializer()
             return serializer.continue_create_from_interrupted(
-                user, fb_name, fb_id
+                user, fb_name, fb_id, fb_email
             )
         except:
             pass
@@ -653,6 +660,7 @@ class FacebookUserSerializer(serializers.Serializer):
                 data={
                     'fb_id': fb_id,
                     'fb_name': fb_name,
+                    'fb_email': fb_email,
                     'fb_access_token': fb_access_token
                 }
             )
@@ -684,7 +692,9 @@ class FacebookCreateUserSerializer(serializers.Serializer):
         Validate data.
 
         For the first batch (init_create), rely on validation
-        from FacebookUserSerializer. Implement a custom validation for the
+        from FacebookUserSerializer.
+
+        Implement a custom validation for the
         second batch (finish_create).
         """
         if 'tmp_username' in self.initial_data:
@@ -699,7 +709,7 @@ class FacebookCreateUserSerializer(serializers.Serializer):
                     'confirm_password': self.initial_data.get(
                         'confirm_password'
                     ),
-                    'email': 'facebookemail@email.com',
+                    'email': self.initial_data.get('fb_email'),
                 },
                 context={'facebook': True}
             )
@@ -707,12 +717,13 @@ class FacebookCreateUserSerializer(serializers.Serializer):
 
         return self.initial_data
 
-    def continue_create_from_interrupted(self, user, fb_name, fb_id):
+    def continue_create_from_interrupted(self, user, fb_name, fb_id, fb_email):
         """Return data to continue interrupted registration from Facebook."""
         return {
             'intent': 'facebook_register',
             'user_id': user.id,
             'fb_id': fb_id,
+            'fb_email': fb_email,
             'tmp_username': tmp_username_from_fb(fb_name, fb_id)
         }
 
@@ -726,6 +737,7 @@ class FacebookCreateUserSerializer(serializers.Serializer):
         """
         fb_id = self.validated_data.get('fb_id')
         fb_name = self.validated_data.get('fb_name')
+        fb_email = self.validated_data.get('fb_email')
         pwd = crypt.crypt(
             self.validated_data.get('fb_name'),
             crypt.METHOD_MD5
@@ -734,13 +746,15 @@ class FacebookCreateUserSerializer(serializers.Serializer):
         user_serializer = BasicUserSerializer()
         user = user_serializer.create({
             'username': tmp_username_from_fb(fb_name, fb_id),
-            'password': pwd
+            'password': pwd,
+            'email': fb_email
         }, is_active=False)
 
         return {
             'intent': 'facebook_register',
             'user_id': user.id,
             'fb_id': fb_id,
+            'fb_email': fb_email,
             'tmp_username': slugify(fb_name + '-' + fb_id)
         }
 
@@ -759,6 +773,7 @@ class FacebookCreateUserSerializer(serializers.Serializer):
             fb_id = self.validated_data.get('fb_id', None)
 
             user.username = self.validated_data.get('username', tmp_username)
+            user.email = self.validated_data.get('fb_email')
             user.is_active = True
             user.attach_facebook_account(facebook_id=fb_id)
             user.save()
