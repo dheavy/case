@@ -28,12 +28,26 @@ from .serializers import (
     PasswordResetConfirmSerializer, CuratedMediaAcquisitionSerializer,
     CuratedMediaFetchSerializer, CheckUsernameSerializer, FollowUserSerializer,
     BlockUserSerializer, FollowCollectionSerializer, BlockCollectionSerializer,
-    serialized_user_data
+    FacebookUserSerializer, serialized_user_data
 )
 from .filters import (
     filter_private_obj_list_by_ownership,
     filter_private_obj_detail_by_ownership
 )
+
+
+def create_auth_token_payload(user):
+    """Return authentication token as response to log in user process."""
+    jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+    jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+
+    payload = jwt_payload_handler(user)
+    token = jwt_encode_handler(payload)
+
+    return {
+        'user': serialized_user_data(user),
+        'token': token
+    }
 
 
 class UserMixin(object):
@@ -133,8 +147,8 @@ class RegistrationViewSet(ViewSet):
         Check if username is available.
 
         Be careful with returned status code:
-        - 200 means username was found, so it's TAKEN,
-        - 404 means username was not found, so it's AVAILABLE.
+        - 206 (Partial Content) if username is taken,
+        - 200 (OK) if username is available.
         """
         serializer = CheckUsernameSerializer(data={'username': username})
         serializer.is_valid(raise_exception=True)
@@ -143,17 +157,44 @@ class RegistrationViewSet(ViewSet):
         u = get_user_model().objects.filter(username=username)
         if len(u) > 0:
             return Response(
-                {'detail': 'Username taken.'}, status=status.HTTP_200_OK
+                {'detail': 'Username taken.'},
+                status=status.HTTP_206_PARTIAL_CONTENT
             )
         else:
             return Response(
                 {'detail': 'Username available.'},
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_200_OK
             )
 
     @list_route(methods=['post'], permission_classes=[AllowAny])
     def register(self, request):
-        """Validating our serializer from the UserRegistrationSerializer."""
+        """Register user with username/password."""
+        user = self.registration_process(request)
+
+        # Return authentication token as response to log in user immediately.
+        return Response(
+            create_auth_token_payload(user), status=status.HTTP_201_CREATED
+        )
+
+    @list_route(methods=['post'], permission_classes=[AllowAny])
+    def facebook_register(self, request):
+        """Finish registration using Facebook account."""
+        try:
+            serializer = FacebookUserSerializer(data=request.data)
+            print('FOO')
+            serializer.is_valid(raise_exception=True)
+            print('BAR')
+            print(serializer.validated_data)
+            user = serializer.finish_create()
+            print('BAZ')
+            return Response(
+                create_auth_token_payload(user), status=status.HTTP_201_CREATED
+            )
+        except Exception as e:
+            return Response(e, status=status.HTTP_400_BAD_REQUEST)
+
+    def registration_process(self, request):
+        """Register a new user."""
         serializer = UserRegistrationSerializer(
             data=request.data, context={'request': request}
         )
@@ -172,16 +213,7 @@ class RegistrationViewSet(ViewSet):
         collection_serializer.is_valid(raise_exception=True)
         collection_serializer.save()
 
-        # Return authentication token as response to log in user immediately.
-        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-
-        payload = jwt_payload_handler(user)
-        token = jwt_encode_handler(payload)
-        return Response({
-            'user': serialized_user_data(user),
-            'token': token
-        })
+        return user
 
 
 class FollowUserViewSet(ViewSet):
@@ -728,3 +760,43 @@ class CuratedMediaViewSet(ViewSet):
             status='pending',
             requester=id
         ).count()
+
+
+class FacebookAuthViewSet(ViewSet):
+    """
+    FacebookAuthViewSet.
+
+    Controls the Facebook-based authentication and registration processes.
+    """
+
+    @list_route(methods=['post'], permission_class=[AllowAny])
+    def auth(self, request, *args, **kwargs):
+        """
+        Authenticate, or create then authenticate, a Facebook user.
+
+        Get available user infos from FB API and check if they match
+        with a FacebookUser attached to a CustomUser model.
+        If they do: we have a user using her FB account to log in - proceed.
+        If they don't: create a new user from a FB account then log in.
+        """
+        serializer = FacebookUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # Returns either a payload to finish registration,
+        # or a user if we can proceed with login.
+        p = serializer.create_or_authenticate()
+
+        # If it's a first time registration, create a CustomUser then
+        # return the necessary payload to complete it via frontend
+        # (see 'facebook-register' route). The status code the frontend looks
+        # for is 206 ("Partial Content").
+
+        if 'intent' in p and p.get('intent') == 'facebook_register':
+            return Response(p, status=status.HTTP_206_PARTIAL_CONTENT)
+
+        print(p)
+
+        # ...or an authentication token as response to log in user immediately.
+        return Response(
+            create_auth_token_payload(p), status=status.HTTP_200_OK
+        )

@@ -1,21 +1,29 @@
 """CASE (MyPleasure API) serializers."""
 import crypt
+import requests
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.utils.encoding import force_text
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.http import urlsafe_base64_decode as uid_decoder
+from django.template.defaultfilters import slugify
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework import serializers
 from case.models import (
-    Collection, Video, CustomUser, Tag, MediaStore, MediaQueue
+    Collection, Video, CustomUser, Tag, MediaStore, MediaQueue, FacebookUser
 )
 from .filters import (
     filter_videos_by_ownership_for_privacy,
     filter_videos_for_feed
 )
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
+
+
+def tmp_username_from_fb(fb_name, fb_id):
+    """Generate temporary username from Facebook info."""
+    return slugify(fb_name + '-' + fb_id)
 
 
 def user_serializer(user, pk=None):
@@ -96,10 +104,11 @@ class BasicUserSerializer(serializers.ModelSerializer):
         except:
             return []
 
-    def create(self, validated_data):
+    def create(self, validated_data, is_active=True):
         """Create User if validation succeeds."""
         password = validated_data.pop('password', None)
         user = self.Meta.model(**validated_data)
+        user.is_active = is_active
         user.set_password(password)
         user.save()
         return user
@@ -283,7 +292,7 @@ class UserRegistrationSerializer(serializers.Serializer):
     """
     Serializer used for registering process.
 
-    It does not create the user (that's left to the CustomUserSerializer).
+    It does not create the user (that's left to the BasicUserSerializer).
     It just validates the necessary data beforehand.
     """
 
@@ -297,11 +306,13 @@ class UserRegistrationSerializer(serializers.Serializer):
         Validate incoming data.
 
         Email uniqueness if provided, password and confirmation.
+        Don't check the first part if we're completing a FB registration.
         """
-        if type(self.context['request'].user) is get_user_model():
-            raise serializers.ValidationError({
-                'code': 'auth_forbidden'
-            })
+        if 'facebook' not in self.context:
+            if type(self.context['request'].user) is get_user_model():
+                raise serializers.ValidationError({
+                    'code': 'auth_forbidden'
+                })
 
         if validate_user_email_password_data(data):
             return data
@@ -562,3 +573,205 @@ class BlockCollectionSerializer(serializers.Serializer):
             raise serializers.ValidationError({'code': 'intent_misunderstood'})
 
         return self.initial_data
+
+
+class FacebookUserSerializer(serializers.Serializer):
+    """Serializer to either create or authenticate user from FB data."""
+
+    def validate(self, data):
+        """Validate data."""
+        # Verify access token.
+        try:
+            fb_access_token = self.initial_data.get('fb_access_token', None)
+
+            if fb_access_token is not None:
+                fb_id = self.initial_data.get('fb_id', None)
+                req_uri = 'https://graph.facebook.com/debug_token?\
+    input_token={0}\
+    &access_token={1}'.format(
+                    fb_access_token,
+                    settings.FB_APP_TOKEN
+                )
+
+                req = requests.get(req_uri)
+                res = req.json().get('data')
+
+                if res.get('user_id') != fb_id:
+                    raise ValidationError({
+                        'code': 'invalid_fb_token_through_fb_id'
+                    })
+
+                if res.get('is_valid') is not True:
+                    raise ValidationError({
+                        'code': 'invalid_fb_token_through_valid'
+                    })
+
+                if res.get('app_id') != settings.FB_CLIENT_ID:
+                    raise ValidationError({
+                        'code': 'invalid_fb_token_through_app_id'
+                    })
+        except:
+            raise ValidationError({'code': 'unknown_error_fb_token'})
+
+        return self.initial_data
+
+    def create_or_authenticate(self):
+        """Create and/or authenticate user via a Facebook token."""
+        fb_id = self.validated_data.get('fb_id')
+        fb_name = self.validated_data.get('fb_name')
+        fb_access_token = self.validated_data.get('fb_access_token')
+
+        # Return existing elements if user exists from a preceding
+        # attempt that had not been completed yet.
+        try:
+            user = CustomUser.objects.get(
+                username=tmp_username_from_fb(fb_name, fb_id)
+            )
+            serializer = FacebookCreateUserSerializer()
+            return serializer.continue_create_from_interrupted(
+                user, fb_name, fb_id
+            )
+        except:
+            pass
+
+        fb_user_queryset = FacebookUser.objects.filter(facebook_id=fb_id)
+        if fb_user_queryset.count() > 0:
+            # User exists - authenticate.
+            return self.auth(fb_user_queryset[0].user, fb_access_token)
+        else:
+            # New user - initialize creation.
+            # Will return a payload to view that should trigger,
+            # in the frontend, the redirection to a new register view
+            # where user can complete FB registration (CustomUser model
+            # created, username choice pending).
+            # See "facebook-register" route.
+            serializer = FacebookCreateUserSerializer(
+                data={
+                    'fb_id': fb_id,
+                    'fb_name': fb_name,
+                    'fb_access_token': fb_access_token
+                }
+            )
+            serializer.is_valid(raise_exception=True)
+            return serializer.init_create()
+
+    def auth(self, user, token):
+        """Authenticate using Facebook user."""
+        serializer = FacebookAuthenticateUserSerializer(data=user)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.login(serializer.validated_data)
+
+    def finish_create(self):
+        """
+        Proxy for the FacebookCreateUserSerializer method of the same name.
+
+        Engage the finalization of a Facebook-based user account.
+        """
+        serializer = FacebookCreateUserSerializer(data=self.validated_data)
+        serializer.is_valid(raise_exception=True)
+        return serializer.finish_create()
+
+
+class FacebookCreateUserSerializer(serializers.Serializer):
+    """Serializer to process creation of a new user from FB data."""
+
+    def validate(self, data):
+        """
+        Validate data.
+
+        For the first batch (init_create), rely on validation
+        from FacebookUserSerializer. Implement a custom validation for the
+        second batch (finish_create).
+        """
+        if 'tmp_username' in self.initial_data:
+            username_serializer = CheckUsernameSerializer(
+                data={'username': self.initial_data.get('username', '')}
+            )
+            username_serializer.is_valid(raise_exception=True)
+            registration_serializer = UserRegistrationSerializer(
+                data={
+                    'username': self.initial_data.get('username'),
+                    'password': self.initial_data.get('password'),
+                    'confirm_password': self.initial_data.get(
+                        'confirm_password'
+                    ),
+                    'email': 'facebookemail@email.com',
+                },
+                context={'facebook': True}
+            )
+            registration_serializer.is_valid(raise_exception=True)
+
+        return self.initial_data
+
+    def continue_create_from_interrupted(self, user, fb_name, fb_id):
+        """Return data to continue interrupted registration from Facebook."""
+        return {
+            'intent': 'facebook_register',
+            'user_id': user.id,
+            'fb_id': fb_id,
+            'tmp_username': tmp_username_from_fb(fb_name, fb_id)
+        }
+
+    def init_create(self):
+        """
+        Create user from validated Facebook data - part 1.
+
+        Initialize creation, setting user.is_active = False.
+        We'll present in the frontend a screen where the user
+        is asked to choose a username to complete her registration.
+        """
+        fb_id = self.validated_data.get('fb_id')
+        fb_name = self.validated_data.get('fb_name')
+        pwd = crypt.crypt(
+            self.validated_data.get('fb_name'),
+            crypt.METHOD_MD5
+        )
+
+        user_serializer = BasicUserSerializer()
+        user = user_serializer.create({
+            'username': tmp_username_from_fb(fb_name, fb_id),
+            'password': pwd
+        }, is_active=False)
+
+        return {
+            'intent': 'facebook_register',
+            'user_id': user.id,
+            'fb_id': fb_id,
+            'tmp_username': slugify(fb_name + '-' + fb_id)
+        }
+
+    def finish_create(self):
+        """
+        Create user from validated Facebook data - part 2.
+
+        End creation, settings user.is_active = True, attaching a FacebookUser
+        model to the CustomUser.
+        """
+        try:
+            user = CustomUser.objects.get(
+                username=self.validated_data.get('tmp_username', '')
+            )
+            tmp_username = self.validated_data.get('tmp_username')
+            fb_id = self.validated_data.get('fb_id', None)
+
+            user.username = self.validated_data.get('username', tmp_username)
+            user.is_active = True
+            user.attach_facebook_account(facebook_id=fb_id)
+            user.save()
+
+            return user
+
+        except Exception as e:
+            raise e
+
+
+class FacebookAuthenticateUserSerializer(serializers.Serializer):
+    """Serializer to authenticate existing user from FB data."""
+
+    def validate(self, data):
+        """Validate payload."""
+        pass
+
+    def login(self, user):
+        """Login from Facebook user."""
+        pass

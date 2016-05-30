@@ -21,7 +21,8 @@ from case.api.views import (
     CollectionDetail, FeedNormalList, FeedNaughtyList, VideoList, VideoDetail,
     TagList, TagDetail, PasswordResetView, PasswordResetConfirmView,
     CuratedMediaViewSet, HeartbeatViewSet, FollowUserViewSet,
-    FollowCollectionViewSet, BlockUserViewSet, BlockCollectionViewSet
+    FollowCollectionViewSet, BlockUserViewSet, BlockCollectionViewSet,
+    FacebookAuthViewSet
 )
 from case.admin import mp_admin
 
@@ -69,9 +70,21 @@ urlpatterns = [
         name='register'
     ),
     url(
+        r'^api/v1/register/facebook/?$',
+        RegistrationViewSet.as_view({'post': 'facebook_register'}),
+        name='register-from-facebook'
+    ),
+    url(
         r'^api/v1/register/check/username/(?P<username>.+)/?$',
         RegistrationViewSet.as_view({'get': 'check_username'}),
         name='register-check-username'
+    ),
+
+    # Create and/or authenticate from FB user.
+    url(
+        r'^api/v1/auth/facebook/?$',
+        FacebookAuthViewSet.as_view({'post': 'auth'}),
+        name='facebook'
     ),
 
     # Login

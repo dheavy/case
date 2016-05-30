@@ -157,6 +157,14 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
         'Collection', through='UserCollectionFollowRelationship'
     )
 
+    def attach_facebook_account(self, facebook_id):
+        """Attach a Facebook account to this user."""
+        try:
+            FacebookUser.objects.get(user=self).delete()
+        except:
+            pass
+        FacebookUser.objects.create(facebook_id=facebook_id, user=self)
+
     def follow_user(self, user):
         """Follow a user."""
         try:
@@ -284,7 +292,8 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
             "CustomUser (id: %s, username: %s, is_staff: %s, \
 is_superuser: %s)" %
             (
-                self.id, self.username, self.is_staff, self.is_superuser
+                self.id, self.username, self.is_staff,
+                self.is_superuser
             )
         )
 
@@ -351,6 +360,38 @@ is_superuser: %s)" %
 
         verbose_name = 'User'
         verbose_name_plural = 'Users'
+
+
+class FacebookUser(models.Model):
+    """
+    FacebookUser.
+
+    Attached to a CustomUser, bears the possible related Facebook identity.
+    Primarily used to log in a user using Facebook Login.
+    """
+
+    facebook_id = models.CharField(max_length=50)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='facebook',
+        blank=True, null=True
+    )
+
+    def __str__(self):
+        """Return string representation of model."""
+        return (
+            "FacebookUser (id: %s, facebook_id: %s, user: %s)" %
+            (
+                self.id, self.facebook_id, self.user
+            )
+        )
+
+    class Meta:
+        """Normalize name in admin panel."""
+
+        verbose_name = 'Related Facebook user'
+        verbose_name_plural = 'Related Facebook users'
 
 
 class Collection(models.Model):
@@ -443,7 +484,7 @@ class Video(models.Model):
         """Render string representation of instance."""
         return (
             "Video (id: %s, collection_id: %s, title: %s, slug: %s, poster: %s \
-originalurl: %s, embedurl: %s, duration: %s, isnaughty: %s)" %
+original_url: %s, embed_url: %s, duration: %s, is_naughty: %s)" %
             (
                 self.id, self.collection.id, self.title, self.slug,
                 self.poster, self.original_url, self.embed_url,

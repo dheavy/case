@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'case',
+    'corsheaders',
     'djcelery_email'
 ]
 
@@ -59,6 +60,8 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'case.middleware.SetLastVisitMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'mypleasure.urls'
@@ -121,16 +124,20 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'django.contrib.auth.password_validation.\
+UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.password_validation.\
+MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.\
+CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.\
+NumericPasswordValidator',
     },
 ]
 
@@ -164,7 +171,8 @@ ADMIN_URL = r'^admin/?'
 
 # REST framework
 REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
+    'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.\
+exception_handler',
     'DEFAULT_PERMISSION_CLASSES': [],
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework_json_api.renderers.JSONRenderer',
@@ -182,8 +190,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
-    'DEFAULT_METADATA_CLASS': 'rest_framework_json_api.metadata.JSONAPIMetadata',
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework_json_api.pagination.PageNumberPagination',
+    'DEFAULT_METADATA_CLASS': 'rest_framework_json_api.metadata.\
+JSONAPIMetadata',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework_json_api.pagination.\
+PageNumberPagination',
     'PAGE_SIZE': 100,
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning'
 }
@@ -243,13 +253,27 @@ JWT_AUTH = {
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LEEWAY': 0,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=int(os.environ.get('JWT_EXPIRATION_DELTA'))),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=int(os.environ.get(
+        'JWT_EXPIRATION_DELTA'
+    ))),
     'JWT_AUDIENCE': None,
     'JWT_ISSUER': None,
 
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
 
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
-    'JWT_RESPONSE_PAYLOAD_HANDLER': 'case.api.jwt.jwt_response_payload_handler',
+    'JWT_RESPONSE_PAYLOAD_HANDLER': 'case.api.jwt.\
+jwt_response_payload_handler',
     'JWT_ALLOW_REFRESH': True
 }
+
+FB_APP_TOKEN = os.environ.get('FB_APP_TOKEN')
+FB_CLIENT_ID = os.environ.get('FB_CLIENT_ID')
+
+# TODO: Set up whitelist for production
+CORS_ORIGIN_WHITELIST = (
+    'localhost:8001',
+)
+CORS_EXPOSE_HEADERS = (
+    'Access-Control-Allow-Origin: *',
+)
