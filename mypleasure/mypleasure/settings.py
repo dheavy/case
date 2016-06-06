@@ -270,10 +270,5 @@ jwt_response_payload_handler',
 FB_APP_TOKEN = os.environ.get('FB_APP_TOKEN')
 FB_CLIENT_ID = os.environ.get('FB_CLIENT_ID')
 
-# TODO: Set up whitelist for production
-CORS_ORIGIN_WHITELIST = (
-    'localhost:8001',
-)
-CORS_EXPOSE_HEADERS = (
-    'Access-Control-Allow-Origin: *',
-)
+CORS_ORIGIN_WHITELIST = os.environ.get('CORS_ORIGIN_WHITELIST')
+CORS_EXPOSE_HEADERS = os.environ.get('CORS_EXPOSE_HEADERS')
