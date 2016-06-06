@@ -200,14 +200,7 @@ class RegistrationViewSet(ViewSet):
         model_serializer = BasicUserSerializer(data=serializer.validated_data)
         model_serializer.is_valid(raise_exception=True)
         model_serializer.save()
-
-        # Create default collection for User.
         user = get_user_model().objects.get(username=request.data['username'])
-        collection_serializer = CollectionSerializer(
-            data={'owner': user.id, 'name': 'my first collection'}
-        )
-        collection_serializer.is_valid(raise_exception=True)
-        collection_serializer.save()
 
         return user
 
