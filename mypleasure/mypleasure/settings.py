@@ -271,4 +271,16 @@ FB_APP_TOKEN = os.environ.get('FB_APP_TOKEN')
 FB_CLIENT_ID = os.environ.get('FB_CLIENT_ID')
 
 CORS_ORIGIN_WHITELIST = os.environ.get('CORS_ORIGIN_WHITELIST')
-CORS_EXPOSE_HEADERS = os.environ.get('CORS_EXPOSE_HEADERS')
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ALLOW_HEADERS = (
+    'x-requested-with',
+    'content-type',
+    'accept',
+    'accept-encoding',
+    'origin',
+    'authorization',
+    'x-csrftoken'
+)
+CORS_EXPOSE_HEADERS = (
+    'Access-Control-Allow-Origin: *',
+)
