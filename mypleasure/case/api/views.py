@@ -1,8 +1,9 @@
 """CASE (MyPleasure API) views."""
 import os
+import crypt
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
-
+from django.http.request import QueryDict
 from rest_framework import status
 from rest_framework.generics import (
     ListCreateAPIView, RetrieveUpdateDestroyAPIView, GenericAPIView
@@ -151,7 +152,12 @@ class RegistrationViewSet(ViewSet):
         - 200 (OK) if username is available.
         """
         serializer = CheckUsernameSerializer(data={'username': username})
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
         username = serializer.validated_data['username']
 
         u = get_user_model().objects.filter(username=username)
@@ -180,8 +186,26 @@ class RegistrationViewSet(ViewSet):
     def facebook_register(self, request):
         """Finish registration using Facebook account."""
         try:
+            # Attach fake password and confirmation to bypass password
+            # validation, as for this case we will never need the password
+            # to log in the user.
+            data = dict(request.data)
+            pwd = crypt.crypt(
+                data.get('fb_id')[0],
+                crypt.METHOD_MD5
+            )
+            data['password'] = pwd
+            data['confirm_password'] = pwd
+            qdict = QueryDict('', mutable=True)
+            qdict.update(data)
+
             serializer = FacebookUserSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
+            try:
+                serializer.is_valid(raise_exception=True)
+            except:
+                return Response(
+                    serializer.errors, status.HTTP_400_BAD_REQUEST
+                )
             user = serializer.finish_create()
             return Response(
                 create_auth_token_payload(user), status=status.HTTP_201_CREATED
@@ -194,11 +218,21 @@ class RegistrationViewSet(ViewSet):
         serializer = UserRegistrationSerializer(
             data=request.data, context={'request': request}
         )
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
 
         # Everything's valid, so send it to the BasicUserSerializer
         model_serializer = BasicUserSerializer(data=serializer.validated_data)
-        model_serializer.is_valid(raise_exception=True)
+        try:
+            model_serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                model_serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
         model_serializer.save()
         user = get_user_model().objects.get(username=request.data['username'])
 
@@ -214,7 +248,12 @@ class FollowUserViewSet(ViewSet):
         serializer = FollowUserSerializer(
             data={'pk': pk, 'current_user': request.user, 'intent': 'follow'}
         )
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
         return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
 
     @list_route(methods=['post'], permission_classes=[IsAuthenticated])
@@ -223,7 +262,12 @@ class FollowUserViewSet(ViewSet):
         serializer = FollowUserSerializer(
             data={'pk': pk, 'current_user': request.user, 'intent': 'unfollow'}
         )
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
         return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
 
 
@@ -236,7 +280,12 @@ class BlockUserViewSet(ViewSet):
         serializer = BlockUserSerializer(
             data={'pk': pk, 'current_user': request.user, 'intent': 'block'}
         )
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
         return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
 
     @list_route(methods=['post'], permission_classes=[IsAuthenticated])
@@ -245,7 +294,12 @@ class BlockUserViewSet(ViewSet):
         serializer = BlockUserSerializer(
             data={'pk': pk, 'current_user': request.user, 'intent': 'unblock'}
         )
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
         return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
 
 
@@ -258,7 +312,12 @@ class FollowCollectionViewSet(ViewSet):
         serializer = FollowCollectionSerializer(
             data={'pk': pk, 'current_user': request.user, 'intent': 'follow'}
         )
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
         return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
 
     @list_route(methods=['post'], permission_classes=[IsAuthenticated])
@@ -267,7 +326,12 @@ class FollowCollectionViewSet(ViewSet):
         serializer = FollowCollectionSerializer(
             data={'pk': pk, 'current_user': request.user, 'intent': 'unfollow'}
         )
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
         return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
 
 
@@ -280,7 +344,12 @@ class BlockCollectionViewSet(ViewSet):
         serializer = BlockCollectionSerializer(
             data={'pk': pk, 'current_user': request.user, 'intent': 'block'}
         )
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
         return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
 
     @list_route(methods=['post'], permission_classes=[IsAuthenticated])
@@ -289,7 +358,12 @@ class BlockCollectionViewSet(ViewSet):
         serializer = BlockCollectionSerializer(
             data={'pk': pk, 'current_user': request.user, 'intent': 'unblock'}
         )
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
         return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
 
 
@@ -319,7 +393,12 @@ class CollectionList(CollectionMixin, ListCreateAPIView):
         data = request.data.copy()
         data.update({'owner': self.request.user.id})
         serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
         self.perform_create(serializer)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -582,7 +661,12 @@ class PasswordResetView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         """Create a serializer with request.data."""
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
 
         form = UserForgotPasswordForm(serializer.validated_data)
         existing_user = get_user_model().objects.filter(
@@ -640,7 +724,12 @@ class PasswordResetConfirmView(GenericAPIView):
             'uid': uidb64
         }
         serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
         serializer.save()
         return Response({
             'success': 'Password has been reset with the new password.'
@@ -666,7 +755,12 @@ class CuratedMediaViewSet(ViewSet):
             data=request.data,
             context={'request': request}
         )
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
         result = serializer.save()
 
         if 'code' in result and result['code'] == 'available':
@@ -691,7 +785,12 @@ class CuratedMediaViewSet(ViewSet):
             data={'userid': userid},
             context={'request': request}
         )
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
 
         new_and_ready = self.fetch_new_and_ready(
             serializer.validated_data['userid']
@@ -768,7 +867,12 @@ class FacebookAuthViewSet(ViewSet):
         If they don't: create a new user from a FB account then log in.
         """
         serializer = FacebookUserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response(
+                serializer.errors, status.HTTP_400_BAD_REQUEST
+            )
 
         # Returns either a payload to finish registration,
         # or a user if we can proceed with login.

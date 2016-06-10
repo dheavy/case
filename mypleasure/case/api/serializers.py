@@ -585,9 +585,12 @@ class FacebookUserSerializer(serializers.Serializer):
     def validate(self, data):
         """Validate data."""
         # Verify email.
+        email = self.initial_data.get('fb_email', None)
+        if type(email) is list:
+            email = email[0]
         try:
-            validate_email(self.initial_data.get('fb_email', None))
-        except ValidationError:
+            validate_email(email)
+        except ValidationError as e:
             raise serializers.ValidationError({'code': 'invalid_fb_email'})
 
         # Verify access token.
@@ -596,12 +599,11 @@ class FacebookUserSerializer(serializers.Serializer):
 
             if fb_access_token is not None:
                 fb_id = self.initial_data.get('fb_id', None)
-                req_uri = 'https://graph.facebook.com/debug_token?\
-    input_token={0}\
-    &access_token={1}'.format(
-                    fb_access_token,
-                    settings.FB_APP_TOKEN
-                )
+                req_uri = (
+                    'https://graph.facebook.com/debug_token?' +
+                    'input_token={0}' +
+                    '&access_token={1}'
+                ).format(fb_access_token, settings.FB_APP_TOKEN)
 
                 req = requests.get(req_uri)
                 res = req.json().get('data')
@@ -620,8 +622,9 @@ class FacebookUserSerializer(serializers.Serializer):
                     raise ValidationError({
                         'code': 'invalid_fb_token_through_app_id'
                     })
-        except:
-            raise ValidationError({'code': 'unknown_error_fb_token'})
+
+        except ValidationError as e:
+            raise e
 
         return self.initial_data
 
@@ -698,6 +701,10 @@ class FacebookCreateUserSerializer(serializers.Serializer):
         second batch (finish_create).
         """
         if 'tmp_username' in self.initial_data:
+            pwd = crypt.crypt(
+                self.initial_data.get('fb_email'),
+                crypt.METHOD_MD5
+            )
             username_serializer = CheckUsernameSerializer(
                 data={'username': self.initial_data.get('username', '')}
             )
@@ -705,10 +712,8 @@ class FacebookCreateUserSerializer(serializers.Serializer):
             registration_serializer = UserRegistrationSerializer(
                 data={
                     'username': self.initial_data.get('username'),
-                    'password': self.initial_data.get('password'),
-                    'confirm_password': self.initial_data.get(
-                        'confirm_password'
-                    ),
+                    'password': pwd,
+                    'confirm_password': pwd,
                     'email': self.initial_data.get('fb_email'),
                 },
                 context={'facebook': True}
@@ -743,13 +748,17 @@ class FacebookCreateUserSerializer(serializers.Serializer):
             crypt.METHOD_MD5
         )
 
+        # Notice we don't save the user's email.
+        # As the user will be de facto deactivated, it would be
+        # overriden by the email anonymizer set by deactivation.
         user_serializer = BasicUserSerializer()
         user = user_serializer.create({
             'username': tmp_username_from_fb(fb_name, fb_id),
             'password': pwd,
-            'email': fb_email
         }, is_active=False)
 
+        # Return the email along with the payload.
+        # It will be stored on actual activation.
         return {
             'intent': 'facebook_register',
             'user_id': user.id,
