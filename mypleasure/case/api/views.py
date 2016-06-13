@@ -29,7 +29,7 @@ from .serializers import (
     PasswordResetConfirmSerializer, CuratedMediaAcquisitionSerializer,
     CuratedMediaFetchSerializer, CheckUsernameSerializer, FollowUserSerializer,
     BlockUserSerializer, FollowCollectionSerializer, BlockCollectionSerializer,
-    FacebookUserSerializer, serialized_user_data
+    FacebookUserSerializer, EditPasswordSerializer, serialized_user_data
 )
 from .filters import (
     filter_private_obj_list_by_ownership,
@@ -109,6 +109,27 @@ class UserDetail(UserMixin, APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class EditAccountViewSet(ViewSet):
+    """ViewSet for direct account edits (password, email)."""
+
+    @detail_route(methods=['post'], permission_classes=[IsOwnerOrReadOnly])
+    def edit_password(self, request):
+        """Edit user's password."""
+        serializer = EditPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {'message': 'Password changed successfully'},
+                status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=['post'], permission_classes=[IsOwnerOrReadOnly])
+    def edit_email(self, request):
+        """Edit user's email."""
+        pass
+
+
 class HeartbeatViewSet(ViewSet):
     """
     Simple Viewset for testing API responsiveness.
@@ -124,7 +145,7 @@ class HeartbeatViewSet(ViewSet):
     )
     def test(self, request):
         """Return HTTP 200 for anyone."""
-        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+        return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     @detail_route(
         methods=['head', 'get', 'post', 'put', 'delete', 'options']
@@ -132,10 +153,10 @@ class HeartbeatViewSet(ViewSet):
     def test_authenticated(self, request):
         """Return HTTP 200 for anyone."""
         if type(request.user) is get_user_model():
-            return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+            return Response({'message': 'OK'}, status=status.HTTP_200_OK)
         else:
             return Response(
-                {'detail': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN
+                {'message': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN
             )
 
 
@@ -163,12 +184,12 @@ class RegistrationViewSet(ViewSet):
         u = get_user_model().objects.filter(username=username)
         if len(u) > 0:
             return Response(
-                {'detail': 'Username taken.'},
+                {'message': 'Username taken.'},
                 status=status.HTTP_206_PARTIAL_CONTENT
             )
         else:
             return Response(
-                {'detail': 'Username available.'},
+                {'message': 'Username available.'},
                 status=status.HTTP_200_OK
             )
 
@@ -254,7 +275,7 @@ class FollowUserViewSet(ViewSet):
             return Response(
                 serializer.errors, status.HTTP_400_BAD_REQUEST
             )
-        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+        return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     @list_route(methods=['post'], permission_classes=[IsAuthenticated])
     def unfollow(self, request, pk):
@@ -268,7 +289,7 @@ class FollowUserViewSet(ViewSet):
             return Response(
                 serializer.errors, status.HTTP_400_BAD_REQUEST
             )
-        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+        return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
 class BlockUserViewSet(ViewSet):
@@ -286,7 +307,7 @@ class BlockUserViewSet(ViewSet):
             return Response(
                 serializer.errors, status.HTTP_400_BAD_REQUEST
             )
-        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+        return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     @list_route(methods=['post'], permission_classes=[IsAuthenticated])
     def unblock(self, request, pk):
@@ -300,7 +321,7 @@ class BlockUserViewSet(ViewSet):
             return Response(
                 serializer.errors, status.HTTP_400_BAD_REQUEST
             )
-        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+        return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
 class FollowCollectionViewSet(ViewSet):
@@ -318,7 +339,7 @@ class FollowCollectionViewSet(ViewSet):
             return Response(
                 serializer.errors, status.HTTP_400_BAD_REQUEST
             )
-        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+        return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     @list_route(methods=['post'], permission_classes=[IsAuthenticated])
     def unfollow(self, request, pk):
@@ -332,7 +353,7 @@ class FollowCollectionViewSet(ViewSet):
             return Response(
                 serializer.errors, status.HTTP_400_BAD_REQUEST
             )
-        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+        return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
 class BlockCollectionViewSet(ViewSet):
@@ -350,7 +371,7 @@ class BlockCollectionViewSet(ViewSet):
             return Response(
                 serializer.errors, status.HTTP_400_BAD_REQUEST
             )
-        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+        return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     @list_route(methods=['post'], permission_classes=[IsAuthenticated])
     def unblock(self, request, pk):
@@ -364,7 +385,7 @@ class BlockCollectionViewSet(ViewSet):
             return Response(
                 serializer.errors, status.HTTP_400_BAD_REQUEST
             )
-        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
+        return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
 class CollectionMixin(object):
@@ -443,7 +464,7 @@ class CollectionDetail(CollectionMixin, RetrieveUpdateDestroyAPIView):
         # Ensure default collection cannot be deleted without special consent.
         if collection.is_default and 'force_deletion' not in request.data:
             return Response(
-                {'detail': 'Default collection cannot be deleted.'},
+                {'message': 'Default collection cannot be deleted.'},
                 status=status.HTTP_403_FORBIDDEN
             )
 
@@ -459,7 +480,7 @@ class CollectionDetail(CollectionMixin, RetrieveUpdateDestroyAPIView):
                     v.save()
             except Exception:
                 return Response(
-                    {'detail': 'Collection could not be deleted.'},
+                    {'message': 'Collection could not be deleted.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -538,11 +559,11 @@ class VideoDetail(VideoMixin, RetrieveUpdateDestroyAPIView):
         if video in request.user.videos:
             video.delete()
             return Response(
-                {'detail': 'OK'}, status=status.HTTP_204_NO_CONTENT
+                {'message': 'OK'}, status=status.HTTP_204_NO_CONTENT
             )
         else:
             return Response(
-                {'detail': 'Video not owned'}, status=status.HTTP_403_FORBIDDEN
+                {'message': 'Video not owned'}, status=status.HTTP_403_FORBIDDEN
             )
 
 
@@ -621,7 +642,7 @@ class TagDetail(TagMixin, APIView):
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
         return Response(
-            {'detail': 'Tag cannot be modified.'},
+            {'message': 'Tag cannot be modified.'},
             status=status.HTTP_403_FORBIDDEN
         )
 
@@ -633,7 +654,7 @@ class TagDetail(TagMixin, APIView):
             tag.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
-            {'detail': 'Tag cannot be deleted.'},
+            {'message': 'Tag cannot be deleted.'},
             status=status.HTTP_403_FORBIDDEN
         )
 
@@ -675,7 +696,7 @@ class PasswordResetView(GenericAPIView):
 
         if not existing_user:
             return Response(
-                {'detail': 'No such email in our database.'},
+                {'message': 'No such email in our database.'},
                 status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
@@ -692,13 +713,13 @@ class PasswordResetView(GenericAPIView):
                     request=request
                 )
                 return Response(
-                    {'detail': 'Password reset request sent.'},
+                    {'message': 'Password reset request sent.'},
                     status=status.HTTP_200_OK
                 )
             except Exception as e:
                 return Response(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(
-            {'detail': 'An error occured while resetting password.'},
+            {'message': 'An error occured while resetting password.'},
             status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
@@ -765,11 +786,11 @@ class CuratedMediaViewSet(ViewSet):
 
         if 'code' in result and result['code'] == 'available':
             return Response({
-                'detail': 'created_from_store'
+                'message': 'created_from_store'
             }, status=status.HTTP_200_OK)
         if 'code' in result and result['code'] == 'added':
             return Response({
-                'detail': 'added_to_queue'
+                'message': 'added_to_queue'
             }, status=status.HTTP_200_OK)
 
     @list_route(methods=['get'], permission_classes=[IsAuthenticated])

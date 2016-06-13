@@ -22,7 +22,7 @@ from case.api.views import (
     TagList, TagDetail, PasswordResetView, PasswordResetConfirmView,
     CuratedMediaViewSet, HeartbeatViewSet, FollowUserViewSet,
     FollowCollectionViewSet, BlockUserViewSet, BlockCollectionViewSet,
-    FacebookAuthViewSet
+    FacebookAuthViewSet, EditAccountViewSet
 )
 from case.admin import mp_admin
 
@@ -171,6 +171,12 @@ urlpatterns = [
     url(r'^api/v1/users/(?P<pk>[0-9]+)/?$',
         UserDetail.as_view(), name='customuser-detail'),
     url(r'^api/v1/me/?$', ProfileView.as_view(), name='me'),
+    url(r'^api/v1/edit/password/?$', EditAccountViewSet.as_view({
+        'post': 'edit_password'
+    }), name='edit-password'),
+    url(r'^api/v1/edit/email/?$', EditAccountViewSet.as_view({
+        'post': 'edit_email'
+    }), name='edit-email'),
 
     # Collections
     # -----------

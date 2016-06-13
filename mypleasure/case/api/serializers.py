@@ -53,8 +53,8 @@ def validate_user_email_password_data(data):
                 code='invalid_email'
             )
 
-    existing_email = CustomUser.objects.filter(email=email).first()
-    if existing_email and existing_email != '':
+    email_owner = CustomUser.objects.filter(email=email).first()
+    if email_owner and len(email_owner) >= 1:
         raise serializers.ValidationError(
             'Email address already exists.',
             code='existing_email'
@@ -163,6 +163,76 @@ class FullUserSerializer(BasicUserSerializer):
         fields = BasicUserSerializer.Meta.fields + (
             'email', 'is_staff', 'is_active', 'is_superuser', 'date_joined'
         )
+
+
+class EditPasswordSerializer(serializers.Serializer):
+    """Serializer for direct edit of user's password."""
+
+    def validate(self, data):
+        """Attempt validating data."""
+        current_password = self.initial_data.get('current_password', None)
+        password = self.initial_data.get('password', None)
+        confirm_password = self.initial_data.get('password', None)
+        id = self.initial_data.get('user_id', None)
+
+        try:
+            user = CustomUser.objects.get(pk=int(id))
+        except:
+            raise serializers.ValidationError({'code': 'user_not_found'})
+
+        if user.check_password(current_password) is False:
+            raise serializers.ValidationError({'code': 'password_invalid'})
+
+        if password != confirm_password:
+            raise serializers.ValidationError({'code': 'password_mismatch'})
+
+        self.user = user
+        return self.initial_data
+
+    def save(self):
+        """Save user's new password."""
+        self.user.set_password(self.validated_data.get('password'))
+        self.user.save()
+
+
+class EditEmailSerializer(serializers.Serializer):
+    """Serializer for direct edit of user's email."""
+
+    def validate(self, data):
+        """Attempt validating data."""
+        email = self.initial_data.get('email', None)
+
+        if email is not None:
+            try:
+                validate_email(email)
+            except ValidationError:
+                raise serializers.ValidationError(
+                    'Invalid email address.',
+                    code='invalid_email'
+                )
+
+        try:
+            user = CustomUser.objects.get(pk=self.initial_data.get('id', None))
+        except:
+            raise serializers.Validation(
+                'User not found.',
+                code='user_not_found'
+            )
+
+        mail_owner = CustomUser.objects.filter(email=email).first()
+        if mail_owner and len(mail_owner) >= 1 and mail_owner[0] is not user:
+            raise serializers.ValidationError(
+                'Email address already exists.',
+                code='existing_email'
+            )
+
+        self.user = user
+        return self.initial_data
+
+    def save(self):
+        """Save changes on user's email."""
+        self.user.email = self.validated_data.get('email')
+        self.user.save()
 
 
 class CollectionSerializer(serializers.ModelSerializer):
