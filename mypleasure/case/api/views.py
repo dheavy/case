@@ -29,7 +29,8 @@ from .serializers import (
     PasswordResetConfirmSerializer, CuratedMediaAcquisitionSerializer,
     CuratedMediaFetchSerializer, CheckUsernameSerializer, FollowUserSerializer,
     BlockUserSerializer, FollowCollectionSerializer, BlockCollectionSerializer,
-    FacebookUserSerializer, EditPasswordSerializer, serialized_user_data
+    FacebookUserSerializer, EditPasswordSerializer, EditEmailSerializer,
+    serialized_user_data
 )
 from .filters import (
     filter_private_obj_list_by_ownership,
@@ -127,7 +128,14 @@ class EditAccountViewSet(ViewSet):
     @detail_route(methods=['post'], permission_classes=[IsOwnerOrReadOnly])
     def edit_email(self, request):
         """Edit user's email."""
-        pass
+        serializer = EditEmailSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {'message': 'Email changed successfully'},
+                status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class HeartbeatViewSet(ViewSet):
@@ -563,7 +571,8 @@ class VideoDetail(VideoMixin, RetrieveUpdateDestroyAPIView):
             )
         else:
             return Response(
-                {'message': 'Video not owned'}, status=status.HTTP_403_FORBIDDEN
+                {'message': 'Video not owned'},
+                status=status.HTTP_403_FORBIDDEN
             )
 
 
