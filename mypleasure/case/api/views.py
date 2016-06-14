@@ -340,9 +340,11 @@ class RegistrationViewSet(ViewSet):
         user = self.registration_process(request)
 
         # Return authentication token as response to log in user immediately.
+        payload_user, payload_token = create_auth_token_payload(user)
         return Response(
             {
-                'payload': create_auth_token_payload(user),
+                'user': payload_user,
+                'token': payload_token,
                 'message': 'User registered successfully',
                 'status': status.HTTP_201_CREATED
             },
