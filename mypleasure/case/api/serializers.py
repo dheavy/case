@@ -437,7 +437,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
             uid = force_text(uid_decoder(data['uid']))
             self.user = CustomUser.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
-            raise serializers.ValidationError({'code': 'invalid_uid']})
+            raise serializers.ValidationError({'code': 'invalid_uid'})
 
         # Construct SetPasswordForm instance
         self.set_password_form = self.set_password_form_class(
