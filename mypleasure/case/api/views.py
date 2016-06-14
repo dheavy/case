@@ -32,10 +32,17 @@ from .serializers import (
     FacebookUserSerializer, EditPasswordSerializer, EditEmailSerializer,
     serialized_user_data
 )
+from case.logging import logger
 from .filters import (
     filter_private_obj_list_by_ownership,
     filter_private_obj_detail_by_ownership
 )
+
+
+def error_response(payload, status):
+    """Log an error and craft a Response with it."""
+    logger.log(payload)
+    return Response(payload, status)
 
 
 def create_auth_token_payload(user):
@@ -97,7 +104,7 @@ class UserDetail(UserMixin, APIView):
                 status=status.HTTP_200_OK
             )
         except Exception as e:
-            return Response(
+            return error_response(
                 {
                     'error': str(e),
                     'message': 'Error while getting user',
@@ -143,7 +150,7 @@ class UserDetail(UserMixin, APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         except Exception as e:
-            return Response(
+            return error_response(
                 {
                     'error': str(e),
                     'message': 'Error while editing user',
@@ -174,7 +181,7 @@ class UserDetail(UserMixin, APIView):
                 status=status.HTTP_204_NO_CONTENT
             )
         except Exception as e:
-            return Response(
+            return error_response(
                 {
                     'error': str(e),
                     'message': 'Error while deleting user',
@@ -276,7 +283,7 @@ class HeartbeatViewSet(ViewSet):
                 status=status.HTTP_200_OK
             )
         else:
-            return Response(
+            return error_response(
                 {
                     'message': 'Forbidden',
                     'status': status.HTTP_403_FORBIDDEN
@@ -717,7 +724,7 @@ class CollectionDetail(CollectionMixin, RetrieveUpdateDestroyAPIView):
                 status=status.HTTP_200_OK
             )
         except Exception as e:
-            return Response(
+            return error_response(
                 {
                     'error': str(e),
                     'message': 'Error while attempting to fetch collection',
@@ -799,7 +806,7 @@ class VideoList(VideoMixin, ListCreateAPIView):
                 pk=int(request.data.get('collection'))
             )
         except Exception as e:
-            return Response(
+            return error_response(
                 {
                     'error': str(e),
                     'message': 'Collection not found',
@@ -831,7 +838,7 @@ class VideoList(VideoMixin, ListCreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:
-            return Response(
+            return error_response(
                 {
                     'message': 'Collection not owned',
                     'status': status.HTTP_403_FORBIDDEN
@@ -861,7 +868,7 @@ class VideoDetail(VideoMixin, RetrieveUpdateDestroyAPIView):
         try:
             video = Video.objects.get(pk=int(kwargs.get('pk')))
         except Exception as e:
-            return Response(
+            return error_response(
                 {
                     'error': str(e),
                     'message': 'Video does not exist',
@@ -880,7 +887,7 @@ class VideoDetail(VideoMixin, RetrieveUpdateDestroyAPIView):
                 status=status.HTTP_204_NO_CONTENT
             )
         else:
-            return Response(
+            return error_response(
                 {
                     'message': 'Video not owned',
                     'status': status.HTTP_403_FORBIDDEN
@@ -912,7 +919,7 @@ class FeedNormalList(VideoMixin, ListCreateAPIView):
                 status=status.HTTP_200_OK
             )
         except Exception as e:
-            return Response(
+            return error_response(
                 {
                     'error': str(e),
                     'message': 'Error while attempting to fetch Feed',
@@ -952,7 +959,7 @@ class FeedNaughtyList(VideoMixin, ListCreateAPIView):
                 status=status.HTTP_200_OK
             )
         except Exception as e:
-            return Response(
+            return error_response(
                 {
                     'error': str(e),
                     'message': 'Error while attempting to fetch naughty Feed',
@@ -1008,7 +1015,7 @@ class TagDetail(TagMixin, APIView):
                 status=status.HTTP_200_OK
             )
         except Exception as e:
-            return Response(
+            return error_response(
                 {
                     'error': str(e),
                     'message': 'Error while attempting to fetch tag',
