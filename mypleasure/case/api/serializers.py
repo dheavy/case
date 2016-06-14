@@ -49,7 +49,6 @@ def validate_user_email_password_data(data):
             validate_email(email)
         except ValidationError:
             raise serializers.ValidationError(
-                'Invalid email address.',
                 {'code': 'invalid_email'}
             )
 
@@ -438,7 +437,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
             uid = force_text(uid_decoder(data['uid']))
             self.user = CustomUser.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
-            raise serializers.ValidationError({'uid': ['Invalid value']})
+            raise serializers.ValidationError({'code': 'invalid_uid']})
 
         # Construct SetPasswordForm instance
         self.set_password_form = self.set_password_form_class(
@@ -447,7 +446,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         if not self.set_password_form.is_valid():
             raise serializers.ValidationError(self.set_password_form.errors)
         if not default_token_generator.check_token(self.user, data['token']):
-            raise serializers.ValidationError({'token': ['Invalid value']})
+            raise serializers.ValidationError({'code': 'invalid_token'})
 
         return data
 
