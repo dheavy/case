@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Facebook Login JavaScript Example</title>
+    <meta charset="UTF-8">
+  </head>
+  <script type="text/javascript" src="jquery.min.js"></script>
+<body>
+
+
+<!-- <a href="https://www.facebook.com/dialog/oauth?client_id=1096543940416567&redirect_uri=http://localhost:8000/facebook" id="login">Login / Register</a> -->
+
+
+<script>
+
+  $(function() {
+    function checkUsername(username) {
+      $.ajax({
+        type: 'GET',
+        url: 'http://localhost:8000/api/v1/register/check/username/' + username,
+        statusCode: {
+          206: function (res) {
+            console.log('username taken');
+          },
+          200: function (res) {
+            console.log('username available');
+            $('#submit').removeAttr('disabled');
+          },
+        }
+      });
+    }
+
+    $('#username').keyup(function (e) {
+      checkUsername($(this).val())
+    });
+
+    $('#register').submit(submitForm);
+
+    function submitForm(e) {
+      e.preventDefault();
+      var data = {
+        fb_id: $('#fb_id').val(),
+        fb_email: $('#fb_email').val(),
+        user_id: $('#user_id').val(),
+        username: $('#username').val(),
+        password: $('#password').val(),
+        tmp_username: $('#tmp_username').val(),
+        confirm_password: $('#confirm_password').val()
+      };
+
+      console.log(data);
+
+      $.ajax({
+        type: 'POST',
+        contentType: 'application/x-www-form-urlencoded',
+        url: 'http://localhost:8000/api/v1/register/facebook/',
+        data: data,
+        statusCode: {
+          201: function (res) {
+            console.log('201 - Created');
+            console.log(res);
+          }
+        },success: function (res) {
+          console.log('Success');
+          console.log(res);
+        },
+        error: function (err) {
+          console.log('Server Error');
+          console.log(err.responseText);
+        }
+      });
+    }
+
+    function statusChangeCallback(response) {
+      // The response object is returned with a status field that lets the
+      // app know the current login status of the person.
+      // Full docs on the response object can be found in the documentation
+      // for FB.getLoginStatus().
+      if (response.status === 'connected') {
+        // Logged into your app and Facebook.
+        attemptAuth(response.authResponse.accessToken);
+      } else if (response.status === 'not_authorized') {
+        // The person is logged into Facebook, but not your app.
+        document.getElementById('status').innerHTML = 'Please log ' +
+          'into this app.';
+      } else {
+        // The person is not logged into Facebook, so we're not sure if
+        // they are logged into this app or not.
+        document.getElementById('status').innerHTML = 'Please log ' +
+          'into Facebook.';
+      }
+    }
+
+    function checkLoginState() {
+      FB.getLoginStatus(function(response) {
+        console.log(response)
+        statusChangeCallback(response);
+      });
+    }
+
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId      : '1096543940416567',
+        cookie     : true,  // enable cookies to allow the server to access
+                            // the session
+        xfbml      : true,  // parse social plugins on this page
+        version    : 'v2.6' // use graph api version 2.6
+      });
+
+      // Now that we've initialized the JavaScript SDK, we call
+      // FB.getLoginStatus().  This function gets the state of the
+      // person visiting this page and can return one of three states to
+      // the callback you provide.  They can be:
+      //
+      // 1. Logged into your app ('connected')
+      // 2. Logged into Facebook, but not your app ('not_authorized')
+      // 3. Not logged into Facebook and can't tell if they are logged into
+      //    your app or not.
+      //
+      // These three cases are handled in the callback function.
+
+      FB.getLoginStatus(function(response) {
+        statusChangeCallback(response);
+      });
+
+    };
+
+    function attemptAuth(token) {
+      FB.api('/me?fields=id,name,email', function(response) {
+        console.log(token, response)
+
+        $.ajax({
+          type: 'POST',
+          contentType: 'application/x-www-form-urlencoded',
+          url: 'http://localhost:8000/api/v1/auth/facebook/',
+          data: {
+            'fb_access_token': token,
+            'fb_id': response.id,
+            'fb_name': response.name,
+            'fb_email': response.email,
+          },
+          statusCode: {
+            200: function (res) {
+              console.log('200 - OK');
+              console.log(res);
+
+              $('#status').html(
+                '<p><strong>Logged in</strong><br>' + res.data.user.username +
+                '</p><p><strong>JWT Token</strong><br>' + res.data.token + '</p>'
+              );
+            },
+            206: function (res) {
+              console.log('206 - Partial Content')
+              console.log(res)
+
+              $('#user_id').val(res.data.user_id);
+              $('#fb_id').val(res.data.fb_id);
+              $('#fb_email').val(res.data.fb_email);
+              $('#username').val(res.data.tmp_username);
+              $('#tmp_username').val(res.data.tmp_username);
+
+              checkUsername(res.data.tmp_username);
+            }
+          },
+          error: function(xhr, status) {
+            console.log('Server Error');
+            console.log(xhr, status);
+          }
+        });
+        //document.getElementById('status').innerHTML = 'Thanks for logging in, ' + response.name + '!';
+      });
+    }
+  });
+
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<!--
+  Below we include the Login Button social plugin. This button uses
+  the JavaScript SDK to present a graphical Login button that triggers
+  the FB.login() function when clicked.
+-->
+
+<fb:login-button scope="public_profile,email" onlogin="checkLoginState();"></fb:login-button>
+
+<div id="status">
+</div>
+
+<form method="post" id="register">
+  <input id="fb_id" type="hidden" name="fb_id" value=""><br/>
+  <input id="fb_email" type="hidden" name="fb_email" value=""><br/>
+  <input id="user_id" type="hidden" name="user_id" value=""><br/>
+  <input id="tmp_username" type="hidden" name="tmp_username" value=""><br/>
+  <input id="username" type="text" placeholder="username"><br/>
+  <input type="password" id="password" placeholder="password"><br/>
+  <input type="password" id="confirm_password" placeholder="confirm password"><br/>
+  <input type="submit" id="submit" disabled="disabled" value="Register">
+</form>
+
+</body>
+</html>
