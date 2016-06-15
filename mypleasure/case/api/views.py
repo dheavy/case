@@ -32,16 +32,25 @@ from .serializers import (
     FacebookUserSerializer, EditPasswordSerializer, EditEmailSerializer,
     serialized_user_data
 )
-from case.logging import logger
+from case.logging import (
+    Mann, slack_cnf, log_file_cnf, trello_cnf
+)
 from .filters import (
     filter_private_obj_list_by_ownership,
     filter_private_obj_detail_by_ownership
 )
 
 
+logger = Mann(file=log_file_cnf, slack=slack_cnf, trello=trello_cnf)
+
+
 def error_response(payload, status):
     """Log an error and craft a Response with it."""
-    logger.log(payload)
+    try:
+        logger.log(payload)
+    except Exception as e:
+        print(e)
+
     return Response(payload, status)
 
 
@@ -393,32 +402,33 @@ class RegistrationViewSet(ViewSet):
         serializer = UserRegistrationSerializer(
             data=request.data, context={'request': request}
         )
+
         if serializer.is_valid():
             # Everything's valid, so send it to the BasicUserSerializer
             model_serializer = BasicUserSerializer(
                 data=serializer.validated_data
             )
-            try:
-                model_serializer.is_valid(raise_exception=True)
-            except:
-                # Kill all if error
-                return Response(
-                    {
-                        'error': model_serializer.errors,
-                        'message': 'Error during registration process',
-                        'status': status.HTTP_400_BAD_REQUEST
-                    },
-                    status=status.HTTP_400_BAD_REQUEST
+
+            if model_serializer.is_valid():
+                model_serializer.save()
+                user = get_user_model().objects.get(
+                    username=request.data['username']
                 )
-            model_serializer.save()
-            user = get_user_model().objects.get(
-                username=request.data['username']
+
+                # Pass payload to registration methods
+                return user
+
+            # Kill all if error
+            return error_response(
+                {
+                    'error': model_serializer.errors,
+                    'message': 'Error during registration process',
+                    'status': status.HTTP_400_BAD_REQUEST
+                },
+                status=status.HTTP_400_BAD_REQUEST
             )
 
-            # Pass payload to registration methods
-            return user
-
-        return Response(
+        return error_response(
             {
                 'error': serializer.errors,
                 'message': 'Error during registration process',

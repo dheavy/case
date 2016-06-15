@@ -131,7 +131,7 @@ class BasicUserSerializer(serializers.ModelSerializer):
         # Do not include videos as they are already passed in the
         # attached collections payload
         fields = (
-            'id', 'username', 'password', 'last_login', 'last_access',
+            'id', 'username', 'password', 'email', 'last_login', 'last_access',
             'collections',
             # 'videos'
         )

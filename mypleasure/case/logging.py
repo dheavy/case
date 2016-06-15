@@ -14,6 +14,9 @@ from email.header import Header
 from email.utils import formataddr
 
 
+env_prefix = '[ENV:' + os.environ.get('ENV') + '] '
+
+
 class Mann(object):
     """
     Mann is a logger and notifier util.
@@ -111,7 +114,7 @@ class Mann(object):
 
     def console(self, msg, error=False):
         """Print message in console."""
-        output = ''
+        output = env_prefix
         if error is True:
             output += '[ERROR] '
         output += msg
@@ -139,7 +142,7 @@ class Mann(object):
         self.__set_email_logger()
 
         mail = MIMEMultipart()
-        mail['Subject'] = ''
+        mail['Subject'] = env_prefix
         if error is True:
             mail['Subject'] += '[ERROR] '
             mail['Subject'] += self.config.get('email', {}).get('subject', '')
@@ -170,6 +173,7 @@ class Mann(object):
         """Send as Slack message."""
         self.__set_slack_logger()
 
+        msg = env_prefix + msg
         try:
             channel = self.config.get('slack', {}).get('channel', '#random')
             botname = self.config.get('slack', {}).get('username', '')
@@ -284,12 +288,12 @@ class Mann(object):
                 self.file(e, error=True)
 
 # Define defaults preconfigs.
-log_file = {
+log_file_cnf = {
     'info': os.environ.get('LOG_FILE_INFO'),
     'error': os.environ.get('LOG_FILE_ERROR')
 }
 
-email = {
+email_cnf = {
     'server': os.environ.get('EMAIl_HOST'),
     'sendername': os.environ.get('EMAIL_SENDERNAME'),
     'from': os.environ.get('DEFAULT_FROM_EMAIL'),
@@ -299,13 +303,13 @@ email = {
     'password': os.environ.get('EMAIL_HOST_PASSWORD')
 }
 
-slack = {
+slack_cnf = {
     'key': os.environ.get('SLACK_APP_KEY'),
     'channel': os.environ.get('SLACK_CHANNEL'),
     'username': os.environ.get('SLACK_USERNAME')
 }
 
-trello = {
+trello_cnf = {
     'key': os.environ.get('TRELLO_KEY'),
     'token': os.environ.get('TRELLO_TOKEN'),
     'list': os.environ.get('TRELLO_LIST'),
