@@ -265,10 +265,12 @@ class Mann(object):
     def __set_email_logger(self):
         if not hasattr(self, 'mailer'):
             try:
-                self.mailer = smtplib.SMTP(
+                self.mailer = smtplib.SMTP()
+                self.mailer.connect(
                     self.config.get('email', {}).get('server', None),
-                    self.config.get('email', {}).get('port', 587)
+                    self.config.get('email', {}).get('port', 1025)
                 )
+                self.mailer.ehlo()
             except gaierror as e:
                 self.file(e, error=True)
 
@@ -281,7 +283,8 @@ class Mann(object):
             except Exception as e:
                 self.file(e, error=True)
 
-file = {
+# Define defaults preconfigs.
+log_file = {
     'info': os.environ.get('LOG_FILE_INFO'),
     'error': os.environ.get('LOG_FILE_ERROR')
 }
@@ -291,7 +294,7 @@ email = {
     'sendername': os.environ.get('EMAIL_SENDERNAME'),
     'from': os.environ.get('DEFAULT_FROM_EMAIL'),
     'to': os.environ.get('DEFAULT_EMAIL_TO'),
-    'subject': 'TARS Error Logging',
+    'subject': 'TARS error report',
     'user': os.environ.get('EMAIL_HOST_USER'),
     'password': os.environ.get('EMAIL_HOST_PASSWORD')
 }
@@ -309,11 +312,3 @@ trello = {
     'cardname': os.environ.get('TRELLO_CARDNAME'),
     'members': (os.environ.get('TRELLO_MEMBERS_IDS'))
 }
-
-logger = Mann(
-    console=True,
-    file=file,
-    email=email,
-    slack=slack,
-    trello=trello
-)
