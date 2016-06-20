@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.generics import (
     ListCreateAPIView, RetrieveUpdateDestroyAPIView, GenericAPIView
 )
-from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -82,32 +82,18 @@ class UserMixin(object):
 class UserList(UserMixin, ListCreateAPIView):
     """Viewset for User list."""
 
-    permission_classes = (IsAdminUser,)
-
-
-class UserDetail(UserMixin, APIView):
-    """View for User detail."""
-
-    def get_serializer_class(self, pk=None):
-        """Return three flavors of serializer classes based on user status."""
-        user = get_user_model().objects.get(pk=pk)
-        return user_serializer(user, pk)
-
-    def get_object(self, pk):
-        """Return CustomUser object or 404."""
-        return get_object_or_404(get_user_model(), pk=pk)
-
-    def get(self, request, pk, format=None):
-        """GET operation on User."""
+    def list(self, request):
+        """List users."""
         try:
-            user = self.get_object(pk)
-            self.check_object_permissions(request, user)
-            serializer_class = self.get_serializer_class(pk=user.id)
-            serializer = serializer_class(user, context={'request': request})
+            serializer = BasicUserSerializer(
+                self.get_queryset(),
+                many=True, context={'request': request}
+            )
+
             return Response(
                 {
                     'payload': serializer.data,
-                    'message': 'User fetched successfully',
+                    'message': 'Users fetched successfully',
                     'status': status.HTTP_200_OK
                 },
                 status=status.HTTP_200_OK
@@ -116,7 +102,7 @@ class UserDetail(UserMixin, APIView):
             return error_response(
                 {
                     'error': str(e),
-                    'message': 'Error while getting user',
+                    'message': 'Error while attempting to fetch Users',
                     'status': status.HTTP_500_INTERNAL_SERVER_ERROR
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -124,16 +110,37 @@ class UserDetail(UserMixin, APIView):
 
         return Response(
             {
-                'message': 'Error while getting user',
+                'message': 'Error while attempting to fetch Users',
                 'status': status.HTTP_500_INTERNAL_SERVER_ERROR
             },
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
+
+class UserDetail(UserMixin, RetrieveUpdateDestroyAPIView):
+    """View for User detail."""
+
+    def retrieve(self, request, pk, format=None):
+        """GET operation to fetch single user."""
+        obj = self.get_object(pk=pk)
+        serializer = self.get_serializer_class()(obj)
+        return Response(
+            {
+                'payload': serializer.data,
+                'message': 'User fetched successfully',
+                'status': status.HTTP_200_OK
+            },
+            status=status.HTTP_200_OK
+        )
+
+    def get_object(self, pk=None):
+        """Return CustomUser object or 404."""
+        return get_object_or_404(get_user_model(), pk=pk)
+
     def put(self, request, pk, format=None):
         """PUT operation on User."""
         try:
-            user = self.get_object(pk)
+            user = self.get_object(pk=pk)
             self.check_object_permissions(request, user)
             serializer_class = self.get_serializer_class()
             serializer = serializer_class(
@@ -379,9 +386,11 @@ class RegistrationViewSet(ViewSet):
         serializer = FacebookUserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.finish_create()
+            data = create_auth_token_payload(user)
             return Response(
                 {
-                    'payload': create_auth_token_payload(user),
+                    'user': data.get('user'),
+                    'token': data.get('token'),
                     'message': 'User registered successfully',
                     'status': status.HTTP_201_CREATED
                 },
@@ -711,7 +720,7 @@ class CollectionDetail(CollectionMixin, RetrieveUpdateDestroyAPIView):
         """
         return Collection.objects.filter(pk=self.kwargs['pk'])
 
-    def get_object(self):
+    def get_object(self, pk):
         """Return data after basic checkup."""
         return filter_private_obj_detail_by_ownership(
             self.get_queryset(),
@@ -722,7 +731,7 @@ class CollectionDetail(CollectionMixin, RetrieveUpdateDestroyAPIView):
     def get(self, request, pk, format=None):
         """Fetch Collection."""
         try:
-            collection = self.get_object()
+            collection = self.get_object(pk=pk)
             self.check_object_permissions(request, collection)
             serializer = self.serializer_class(
                 collection, context={'request': request}
@@ -751,7 +760,7 @@ class CollectionDetail(CollectionMixin, RetrieveUpdateDestroyAPIView):
 
         User can NOT delete her default collection.
         """
-        collection = self.get_object()
+        collection = self.get_object(pk=pk)
         self.check_object_permissions(request, collection)
 
         # Ensure default collection cannot be deleted without special consent.
@@ -866,7 +875,7 @@ class VideoDetail(VideoMixin, RetrieveUpdateDestroyAPIView):
         """Private videos can only be seen by owner."""
         return Video.objects.filter(pk=self.kwargs['pk'])
 
-    def get_object(self):
+    def get_object(self, pk):
         """Return data after basic checkup."""
         return filter_private_obj_detail_by_ownership(
             self.get_queryset(),
@@ -1013,7 +1022,7 @@ class TagDetail(TagMixin, APIView):
     def get(self, request, pk=None, format=None):
         """Fetch Tag."""
         try:
-            tag = self.get_object(pk)
+            tag = self.get_object(pk=pk)
             self.check_object_permissions(request, tag)
             serializer = self.serializer_class(
                 tag, context={'request': request}
@@ -1040,7 +1049,7 @@ class TagDetail(TagMixin, APIView):
         """Edit Tag."""
         if self.request.user.is_staff:
             try:
-                tag = self.get_object(pk)
+                tag = self.get_object(pk=pk)
             except Exception as e:
                 return Response(
                     {
@@ -1416,9 +1425,11 @@ class FacebookAuthViewSet(ViewSet):
                 return Response(p, status=status.HTTP_206_PARTIAL_CONTENT)
 
             # ...or an auth token as response to log in user immediately.
+            data = create_auth_token_payload(p.get('user'))
             return Response(
                 {
-                    'payload': create_auth_token_payload(p.get('user')),
+                    'user': data.get('user'),
+                    'token': data.get('token'),
                     'message': 'FB user authenticated successfully',
                     'status': status.HTTP_200_OK
                 },
