@@ -214,6 +214,35 @@ class UserDetail(UserMixin, RetrieveUpdateDestroyAPIView):
         )
 
 
+class UserCollectionList(APIView):
+    """List view for fetching collections from one particular user."""
+
+    def get_queryset(self, user):
+        """Return queryset."""
+        return Collection.objects.filter(owner=user)
+
+    def filter_queryset(self, queryset):
+        """Returned a filter queryset where only owner sees private stuff."""
+        return [
+            c for c in queryset if (
+                not c.is_private or c.owner == self.request.user
+            )
+        ]
+
+    def get_serializer(self, queryset, many=False):
+        """Return serializer."""
+        return CollectionSerializer(
+            queryset, many=many, context={'request': self.request}
+        )
+
+    def get(self, request, pk, format=None):
+        """Return list of collection belonging to a user."""
+        user = get_object_or_404(get_user_model(), pk=pk)
+        queryset = self.filter_queryset(self.get_queryset(user))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
 class EditAccountViewSet(ViewSet):
     """ViewSet for direct account edits (password, email)."""
 
