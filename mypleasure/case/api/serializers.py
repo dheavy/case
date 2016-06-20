@@ -74,11 +74,12 @@ def validate_user_email_password_data(data):
 class BasicUserSerializer(serializers.ModelSerializer):
     """Serializer class for User, as seen by regular Users."""
 
-    # Do not include videos as they are already passed in the
-    # attached collections payload. Leave it commented just in case
-    # we want this feature back.
-    # videos = serializers.SerializerMethodField()
-    collections = serializers.SerializerMethodField()
+    followers = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all(), many=True
+    )
+    following = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all(), many=True
+    )
 
     def get_videos(self, obj):
         """Get filtered list of serialized Videos."""
@@ -128,12 +129,9 @@ class BasicUserSerializer(serializers.ModelSerializer):
 
         model = CustomUser
 
-        # Do not include videos as they are already passed in the
-        # attached collections payload
         fields = (
             'id', 'username', 'password', 'email', 'last_login', 'last_access',
-            'collections',
-            # 'videos'
+            'followers', 'following',
         )
         extra_kwargs = {
             'password': {'write_only': True},
