@@ -1,5 +1,6 @@
 """CASE (MyPleasure API) views."""
 import os
+import json
 import crypt
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
@@ -47,7 +48,9 @@ logger = Mann(file=log_file_cnf, slack=slack_cnf, trello=trello_cnf)
 def error_response(payload, status):
     """Log an error and craft a Response with it."""
     try:
-        logger.log(payload)
+        if type(payload) is dict:
+            serialized_payload = json.dumps(payload)
+        logger.log(serialized_payload)
     except Exception as e:
         print(e)
 
@@ -382,10 +385,13 @@ class RegistrationViewSet(ViewSet):
     @list_route(methods=['post'], permission_classes=[AllowAny])
     def register(self, request):
         """Register user with username/password."""
-        user = self.registration_process(request)
+        registration = self.registration_process(request)
+
+        if type(registration) is Response:
+            return registration
 
         # Return authentication token as response to log in user immediately.
-        data = create_auth_token_payload(user)
+        data = create_auth_token_payload(registration)
         return Response(
             {
                 'user': data.get('user'),
@@ -466,9 +472,10 @@ class RegistrationViewSet(ViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        print(serializer.errors)
         return error_response(
             {
-                'error': serializer.errors,
+                'error': str(serializer.errors),
                 'message': 'Error during registration process',
                 'status': status.HTTP_400_BAD_REQUEST
             },
