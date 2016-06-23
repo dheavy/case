@@ -1,6 +1,7 @@
 """CASE (MyPleasure API) logger."""
 # -*- coding: utf-8 -*-$
 import os
+import time
 import logging
 import logging.handlers
 import smtplib
@@ -105,6 +106,8 @@ class Mann(object):
 
         def bind(v, f, err=False):
             return bool(v) is not False and f(v, err) or None
+
+        msg = ' -- ' + time.strftime('%c') + ' -- ' + msg
 
         bind(unit(msg, self.has_enabled_console), self.console, err=error)
         bind(unit(msg, self.has_enabled_file), self.file, err=error)
