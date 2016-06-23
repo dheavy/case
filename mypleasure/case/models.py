@@ -49,8 +49,14 @@ class CustomUserManager(BaseUserManager):
 class UserFollowRelationship(models.Model):
     """Model defining `follow` relationship between users via pivot table."""
 
-    follower = models.ForeignKey('CustomUser', related_name='follower')
-    followed = models.ForeignKey('CustomUser', related_name='followed')
+    follower = models.ForeignKey(
+        'CustomUser', related_name='follower',
+        on_delete=models.CASCADE, blank=True, null=True
+    )
+    followed = models.ForeignKey(
+        'CustomUser', related_name='followed',
+        on_delete=models.CASCADE, blank=True, null=True
+    )
     since = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -70,8 +76,14 @@ since: %s)" % (self.id, self.follower, self.followed, self.since)
 class UserBlockRelationship(models.Model):
     """Model defining `block` relationship between users via pivot table."""
 
-    blocker = models.ForeignKey('CustomUser', related_name='blocker')
-    blocked = models.ForeignKey('CustomUser', related_name='blocked')
+    blocker = models.ForeignKey(
+        'CustomUser', related_name='blocker',
+        on_delete=models.CASCADE, null=True
+    )
+    blocked = models.ForeignKey(
+        'CustomUser', related_name='blocked',
+        on_delete=models.CASCADE, null=True
+    )
     since = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -91,9 +103,13 @@ since: %s)" % (self.id, self.blocker, self.blocked, self.since)
 class UserCollectionFollowRelationship(models.Model):
     """Model defining `follow` relationship between user and a collection."""
 
-    user = models.ForeignKey('CustomUser', related_name='user_following')
+    user = models.ForeignKey(
+        'CustomUser', related_name='user_following',
+        on_delete=models.CASCADE, null=True
+    )
     collection = models.ForeignKey(
-        'Collection', related_name='collection_followed'
+        'Collection', related_name='collection_followed',
+        on_delete=models.CASCADE, null=True
     )
     since = models.DateTimeField(auto_now_add=True)
 
@@ -114,9 +130,13 @@ collection: %s, since: %s)" % (self.id, self.user, self.collection, self.since)
 class UserCollectionBlockRelationship(models.Model):
     """Model defining `block` relationship between user and a collection."""
 
-    user = models.ForeignKey('CustomUser', related_name='user_blocking')
+    user = models.ForeignKey(
+        'CustomUser', related_name='user_blocking',
+        on_delete=models.CASCADE, null=True
+    )
     collection = models.ForeignKey(
-        'Collection', related_name='collection_blocked'
+        'Collection', related_name='collection_blocked',
+        on_delete=models.CASCADE, null=True
     )
     since = models.DateTimeField(auto_now_add=True)
 
