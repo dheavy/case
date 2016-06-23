@@ -75,10 +75,10 @@ class BasicUserSerializer(serializers.ModelSerializer):
     """Serializer class for User, as seen by regular Users."""
 
     followers = serializers.PrimaryKeyRelatedField(
-        queryset=CustomUser.objects.all(), many=True
+        queryset=CustomUser.objects.all(), many=True, required=False
     )
     following = serializers.PrimaryKeyRelatedField(
-        queryset=CustomUser.objects.all(), many=True
+        queryset=CustomUser.objects.all(), many=True, required=False
     )
 
     def get_videos(self, obj):
