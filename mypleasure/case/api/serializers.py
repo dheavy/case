@@ -49,23 +49,23 @@ def validate_user_email_password_data(data):
             validate_email(email)
         except ValidationError:
             raise serializers.ValidationError(
-                {'code': 'invalid_email'}
+                {'email': 'Email is invalid.'}
             )
 
     email_owner = CustomUser.objects.filter(email=email).first()
-    if email_owner and len(email_owner) >= 1:
+    if email_owner:
         raise serializers.ValidationError(
-            {'code': 'existing_email'}
+            {'email': 'Email exists.'}
         )
 
     if not data.get('password') or not data.get('confirm_password'):
         raise serializers.ValidationError(
-            {'code': 'confirm_password_missing'}
+            {'password': 'Password confirmation is missing.'}
         )
 
     if data.get('password') != data.get('confirm_password'):
         raise serializers.ValidationError(
-            {'code': 'passwords_mismatch'}
+            {'password': 'Passwords mismatch.'}
         )
 
     return True
@@ -166,21 +166,28 @@ class EditPasswordSerializer(serializers.Serializer):
         """Attempt validating data."""
         current_password = self.initial_data.get('current_password', None)
         password = self.initial_data.get('password', None)
-        confirm_password = self.initial_data.get('password', None)
+        confirm_password = self.initial_data.get('confirm_password', None)
         id = self.initial_data.get('user_id', None)
 
         try:
             user = CustomUser.objects.get(pk=int(id))
         except:
-            raise serializers.ValidationError({'code': 'user_not_found'})
+            raise serializers.ValidationError(
+                {"user": "we couldn't find that user, sorry..."}
+            )
 
         if user.check_password(current_password) is False:
-            raise serializers.ValidationError({'code': 'password_invalid'})
+            raise serializers.ValidationError(
+                {"password": "your password is invalid, sorry..."}
+            )
 
         if password != confirm_password:
-            raise serializers.ValidationError({'code': 'password_mismatch'})
+            raise serializers.ValidationError(
+                {"password": "password and confirmation mismatch..."}
+            )
 
         self.user = user
+        print(user)
         return self.initial_data
 
     def save(self):
@@ -194,15 +201,7 @@ class EditEmailSerializer(serializers.Serializer):
 
     def validate(self, data):
         """Attempt validating data."""
-        email = self.initial_data.get('email', None)
-
-        if email is not None:
-            try:
-                validate_email(email)
-            except ValidationError:
-                raise serializers.ValidationError(
-                    {'code': 'invalid_email'}
-                )
+        email = self.initial_data.get('email', '')
 
         try:
             user = CustomUser.objects.get(
@@ -210,14 +209,25 @@ class EditEmailSerializer(serializers.Serializer):
             )
         except:
             raise serializers.ValidationError(
-                {'code': 'user_not_found'}
+                {'user': "we couldn't find that user, sorry..."}
             )
 
-        mail_owner = CustomUser.objects.filter(email=email).first()
-        if mail_owner and len(mail_owner) >= 1 and mail_owner[0] is not user:
-            raise serializers.ValidationError(
-                {'code': 'existing_email'}
-            )
+        if email is not '':
+            try:
+                validate_email(email)
+            except ValidationError:
+                raise serializers.ValidationError(
+                    {'email': 'Your email is invalid, sorry...'}
+                )
+
+            owner = CustomUser.objects.filter(email=email)
+            if owner and len(owner) >= 1 and owner[0].id != user.id:
+                raise serializers.ValidationError(
+                    {'user': (
+                        "Someone already registered that" +
+                        " email address, sorry..."
+                    )}
+                )
 
         self.user = user
         return self.initial_data
@@ -654,7 +664,9 @@ class FacebookUserSerializer(serializers.Serializer):
         try:
             validate_email(email)
         except ValidationError as e:
-            raise serializers.ValidationError({'code': 'invalid_fb_email'})
+            raise serializers.ValidationError({
+                'email': 'email adress is invalid'
+            })
 
         # Verify access token.
         try:

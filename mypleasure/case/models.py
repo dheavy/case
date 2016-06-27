@@ -24,7 +24,7 @@ class CustomUserManager(BaseUserManager):
             raise ValueError('Users must have a username.')
 
         user = self.model(
-            username=username.lower(),
+            username=username,
             email=self.normalize_email(email)
         )
 
