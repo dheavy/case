@@ -131,7 +131,7 @@ class BasicUserSerializer(serializers.ModelSerializer):
 
         fields = (
             'id', 'username', 'password', 'email', 'last_login', 'last_access',
-            'followers', 'following',
+            'followers', 'following', 'blocking'
         )
         extra_kwargs = {
             'password': {'write_only': True},
@@ -567,18 +567,22 @@ class FollowUserSerializer(serializers.Serializer):
                 pk=int(self.initial_data.get('pk'))
             )
         except:
-            raise serializers.ValidationError({'code': 'user_not_found'})
+            raise serializers.ValidationError({'user': 'Not found.'})
 
         if self.initial_data.get('intent', None) == 'follow':
-            self.initial_data.get('current_user', None).follow_user(other_user)
+            self.initial_data.get('current_user').follow_user(other_user)
         elif self.initial_data.get('intent', None) == 'unfollow':
             # Will return True if unfollowed successful, False otherwise.
             if self.initial_data.get(
-                'current_user', None
+                'current_user'
             ).unfollow_user(other_user) is False:
-                raise serializers.ValidationError({'code': 'unfollow_failed'})
+                raise serializers.ValidationError({
+                    'follow': 'Unfollow failed.'
+                })
         else:
-            raise serializers.ValidationError({'code': 'intent_misunderstood'})
+            raise serializers.ValidationError({
+                'follow': 'Intent misunderstood.'
+            })
 
         return self.initial_data
 
