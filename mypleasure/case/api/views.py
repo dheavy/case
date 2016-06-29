@@ -472,7 +472,6 @@ class RegistrationViewSet(ViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        print(serializer.errors)
         return error_response(
             {
                 'error': str(serializer.errors),
@@ -490,7 +489,9 @@ class FollowUserViewSet(ViewSet):
     def follow(self, request, pk):
         """Follow a user."""
         serializer = FollowUserSerializer(
-            data={'pk': pk, 'current_user': request.user, 'intent': 'follow'}
+            data={
+                'pk': pk, 'current_user': self.request.user, 'intent': 'follow'
+            }
         )
 
         if serializer.is_valid():
@@ -515,7 +516,11 @@ class FollowUserViewSet(ViewSet):
     def unfollow(self, request, pk):
         """Unfollow a user."""
         serializer = FollowUserSerializer(
-            data={'pk': pk, 'current_user': request.user, 'intent': 'unfollow'}
+            data={
+                'pk': pk,
+                'current_user': self.request.user,
+                'intent': 'unfollow'
+            }
         )
 
         if serializer.is_valid():
