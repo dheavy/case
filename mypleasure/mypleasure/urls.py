@@ -22,7 +22,8 @@ from case.api.views import (
     TagList, TagDetail, PasswordResetView, PasswordResetConfirmView,
     CuratedMediaViewSet, HeartbeatViewSet, FollowUserViewSet,
     FollowCollectionViewSet, BlockUserViewSet, BlockCollectionViewSet,
-    FacebookAuthViewSet, EditAccountViewSet, UserCollectionList
+    FacebookAuthViewSet, EditAccountViewSet, UserCollectionList,
+    RelationshipsViewSet
 )
 from case.admin import mp_admin
 
@@ -176,6 +177,30 @@ urlpatterns = [
     # ----------------
     url(r'^api/v1/users/(?P<pk>[0-9]+)/collections/?$',
         UserCollectionList.as_view(), name='user-collection-list'),
+
+    url(
+        r'^api/v1/users/followed/?',
+        RelationshipsViewSet.as_view({'get': 'get_users_followed'}),
+        name='followed-users'
+    ),
+
+    url(
+        r'^api/v1/users/followers/?',
+        RelationshipsViewSet.as_view({'get': 'get_users_followers'}),
+        name='followers-users'
+    ),
+
+    url(
+        r'^api/v1/users/blocked/?',
+        RelationshipsViewSet.as_view({'get': 'get_users_blocked'}),
+        name='blocked-users'
+    ),
+
+    url(
+        r'^api/v1/collections/blocked/?',
+        RelationshipsViewSet.as_view({'get': 'get_collections_blocked'}),
+        name='blocked-collections'
+    ),
 
     # Users' settings edit (email/password)
     # -------------------------------------

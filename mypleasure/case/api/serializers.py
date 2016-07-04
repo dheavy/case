@@ -77,8 +77,15 @@ class BasicUserSerializer(serializers.ModelSerializer):
     followers = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(), many=True, required=False
     )
-    following = serializers.PrimaryKeyRelatedField(
+    followed = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(), many=True, required=False
+    )
+    blocking = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all(), many=True, required=False
+    )
+
+    collections_blocked = serializers.PrimaryKeyRelatedField(
+        queryset=Collection.objects.all(), many=True, required=False
     )
 
     def get_videos(self, obj):
@@ -131,7 +138,7 @@ class BasicUserSerializer(serializers.ModelSerializer):
 
         fields = (
             'id', 'username', 'password', 'email', 'last_login', 'last_access',
-            'followers', 'following', 'blocking'
+            'followers', 'followed', 'blocking', 'collections_blocked'
         )
         extra_kwargs = {
             'password': {'write_only': True},

@@ -340,6 +340,76 @@ class HeartbeatViewSet(ViewSet):
             )
 
 
+class RelationshipsViewSet(ViewSet):
+    """ViewSet returning payload for relationships."""
+
+    @list_route(methods=['get'], permission_classes=[IsAuthenticated])
+    def get_users_followed(self, request):
+        """Return the list of users current user follows."""
+        followed = [
+            BasicUserSerializer(u).data for u in request.user.followed_by
+        ]
+        return Response({
+            'message': 'Followed users fetched successfully',
+            'payload': followed,
+            'status': status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)
+
+    @list_route(methods=['get'], permission_classes=[IsAuthenticated])
+    def get_users_followers(self, request):
+        """Return the list of users following current user."""
+        followers = [
+            BasicUserSerializer(u).data for u in request.user.followers
+        ]
+        return Response({
+            'message': 'Followers fetched successfully',
+            'payload': followers,
+            'status': status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)
+
+    @list_route(methods=['get'], permission_classes=[IsAuthenticated])
+    def get_collections_followed(self, request):
+        """Return the list of collections current user follows."""
+        pass
+
+    @list_route(methods=['get'], permission_classes=[IsAuthenticated])
+    def get_users_blocked(self, request):
+        """Return the list of users current user blocks."""
+        blocked = [
+            BasicUserSerializer(u).data for u in request.user.blocking
+        ]
+        return Response({
+            'message': 'Blocked users fetched successfully',
+            'payload': blocked,
+            'status': status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)
+
+    @list_route(methods=['get'], permission_classes=[IsAuthenticated])
+    def get_users_blockers(self, request):
+        """Return the list of users blocking current user."""
+        pass
+
+    @list_route(methods=['get'], permission_classes=[IsAuthenticated])
+    def get_collections_blocked(self, request):
+        """Return the list of collections current user blocks."""
+        blocked = [
+            {
+                'collection': CollectionSerializer(c, context={
+                    'request': request
+                }).data,
+                'owner': BasicUserSerializer(
+                    get_user_model().objects.get(pk=c.owner.id)
+                ).data
+            } for c in request.user.collections_blocked
+        ]
+
+        return Response({
+            'message': 'Blocked collections fetched successfully',
+            'payload': blocked,
+            'status': status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)
+
+
 class RegistrationViewSet(ViewSet):
     """Viewset for User registration."""
 
