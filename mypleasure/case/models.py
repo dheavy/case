@@ -325,25 +325,33 @@ is_superuser: %s)" %
     def followers(self):
         """Return list of users following self."""
         relationship = UserFollowRelationship.objects.filter(followed=self.id)
-        return [r.follower for r in relationship]
+        return [
+            r.follower for r in relationship if r.follower.is_active is True
+        ]
 
     @property
-    def following(self):
+    def followed_by(self):
         """Return list of users self is following."""
         relationship = UserFollowRelationship.objects.filter(follower=self.id)
-        return [r.followed for r in relationship]
+        return [
+            r.followed for r in relationship if r.followed.is_active is True
+        ]
 
     @property
     def blocked_by(self):
         """Return list of users blocking self."""
         relationship = UserBlockRelationship.objects.filter(blocked=self.id)
-        return [r.blocker for r in relationship]
+        return [
+            r.blocker for r in relationship if r.blocker.is_active is True
+        ]
 
     @property
     def blocking(self):
         """Return list of users self has blocked."""
         relationship = UserBlockRelationship.objects.filter(blocker=self.id)
-        return [r.blocked for r in relationship]
+        return [
+            r.blocked for r in relationship if r.blocked.is_active is True
+        ]
 
     @property
     def collections_followed(self):
@@ -351,7 +359,10 @@ is_superuser: %s)" %
         relationship = UserCollectionFollowRelationship.objects.filter(
             user=self.id
         )
-        return [r.collection for r in relationship]
+        return [
+            r.collection for r in relationship
+            if r.collection.owner.is_active is True
+        ]
 
     @property
     def collections_blocked(self):
@@ -362,8 +373,14 @@ is_superuser: %s)" %
         """
         blocking = self.blocking
         r = UserCollectionBlockRelationship.objects.filter(user=self.id)
-        c = [blocked.collection for blocked in r]
-        u = [col for user in blocking for col in user.collections.all()]
+        c = [
+            blocked.collection for blocked in r
+            if blocked.collection.owner.is_active is True
+        ]
+        u = [
+            col for user in blocking for col in user.collections.all()
+            if user.is_active is True
+        ]
         return list(set(c + u))
 
     class Meta:
