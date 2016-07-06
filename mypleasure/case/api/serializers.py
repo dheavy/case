@@ -105,7 +105,7 @@ class BasicUserSerializer(serializers.ModelSerializer):
                 CollectionSerializer(
                     c, context={'request': request}
                 ).data for c in obj.collections.all()
-                if not c.is_private or c.owner.id == request.user.id
+                if not (c.is_private and c.owner.id != request.user.id)
             ]
         except:
             return []

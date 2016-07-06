@@ -217,7 +217,13 @@ class UserDetail(UserMixin, RetrieveUpdateDestroyAPIView):
         )
 
 
-class UserCollectionList(APIView):
+class PayloadEndpointMixin(object):
+    """Mixin for helper endpoints."""
+
+    permission_classes = (IsAuthenticated,)
+
+
+class UserCollectionList(PayloadEndpointMixin, APIView):
     """List view for fetching collections from one particular user."""
 
     def get_queryset(self, user):
@@ -227,8 +233,8 @@ class UserCollectionList(APIView):
     def filter_queryset(self, queryset):
         """Returned a filter queryset where only owner sees private stuff."""
         return [
-            c for c in queryset if (
-                not c.is_private or c.owner == self.request.user
+            c for c in queryset if not (
+                c.is_private and c.owner != self.request.user
             )
         ]
 
@@ -246,10 +252,8 @@ class UserCollectionList(APIView):
         return Response(serializer.data)
 
 
-class EditAccountViewSet(ViewSet):
+class EditAccountViewSet(PayloadEndpointMixin, ViewSet):
     """ViewSet for direct account edits (password, email)."""
-
-    permission_classes = (IsAuthenticated,)
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     def edit_password(self, request):
