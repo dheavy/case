@@ -330,7 +330,7 @@ is_superuser: %s)" %
         ]
 
     @property
-    def followed_by(self):
+    def following(self):
         """Return list of users self is following."""
         relationship = UserFollowRelationship.objects.filter(follower=self.id)
         return [

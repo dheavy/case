@@ -77,9 +77,11 @@ class BasicUserSerializer(serializers.ModelSerializer):
     followers = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(), many=True, required=False
     )
-    followed = serializers.PrimaryKeyRelatedField(
+
+    following = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(), many=True, required=False
     )
+
     blocking = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(), many=True, required=False
     )
@@ -138,7 +140,7 @@ class BasicUserSerializer(serializers.ModelSerializer):
 
         fields = (
             'id', 'username', 'password', 'email', 'last_login', 'last_access',
-            'followers', 'followed', 'blocking', 'collections_blocked'
+            'followers', 'following', 'blocking', 'collections_blocked'
         )
         extra_kwargs = {
             'password': {'write_only': True},
