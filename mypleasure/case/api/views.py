@@ -249,7 +249,9 @@ class UserCollectionList(APIView):
 class EditAccountViewSet(ViewSet):
     """ViewSet for direct account edits (password, email)."""
 
-    @detail_route(methods=['post'], permission_classes=[IsOwnerOrReadOnly])
+    permission_classes = (IsAuthenticated,)
+
+    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     def edit_password(self, request):
         """Edit user's password."""
         serializer = EditPasswordSerializer(data=request.data)
@@ -271,7 +273,7 @@ class EditAccountViewSet(ViewSet):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    @detail_route(methods=['post'], permission_classes=[IsOwnerOrReadOnly])
+    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     def edit_email(self, request):
         """Edit user's email."""
         serializer = EditEmailSerializer(data=request.data)
@@ -343,11 +345,13 @@ class HeartbeatViewSet(ViewSet):
 class RelationshipsViewSet(ViewSet):
     """ViewSet returning payload for relationships."""
 
-    @list_route(methods=['get'], permission_classes=[IsAuthenticated])
+    permission_classes = (IsAuthenticated,)
+
+    @list_route(methods=['get'])
     def get_users_followed(self, request):
         """Return the list of users current user follows."""
         followed = [
-            BasicUserSerializer(u).data for u in request.user.followed_by
+            BasicUserSerializer(u).data for u in request.user.following
         ]
         return Response({
             'message': 'Followed users fetched successfully',
@@ -355,7 +359,7 @@ class RelationshipsViewSet(ViewSet):
             'status': status.HTTP_200_OK
         }, status=status.HTTP_200_OK)
 
-    @list_route(methods=['get'], permission_classes=[IsAuthenticated])
+    @list_route(methods=['get'])
     def get_users_followers(self, request):
         """Return the list of users following current user."""
         followers = [
@@ -367,12 +371,12 @@ class RelationshipsViewSet(ViewSet):
             'status': status.HTTP_200_OK
         }, status=status.HTTP_200_OK)
 
-    @list_route(methods=['get'], permission_classes=[IsAuthenticated])
+    @list_route(methods=['get'])
     def get_collections_followed(self, request):
         """Return the list of collections current user follows."""
         pass
 
-    @list_route(methods=['get'], permission_classes=[IsAuthenticated])
+    @list_route(methods=['get'])
     def get_users_blocked(self, request):
         """Return the list of users current user blocks."""
         blocked = [
@@ -384,12 +388,12 @@ class RelationshipsViewSet(ViewSet):
             'status': status.HTTP_200_OK
         }, status=status.HTTP_200_OK)
 
-    @list_route(methods=['get'], permission_classes=[IsAuthenticated])
+    @list_route(methods=['get'])
     def get_users_blockers(self, request):
         """Return the list of users blocking current user."""
         pass
 
-    @list_route(methods=['get'], permission_classes=[IsAuthenticated])
+    @list_route(methods=['get'])
     def get_collections_blocked(self, request):
         """Return the list of collections current user blocks."""
         blocked = [
