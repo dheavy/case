@@ -249,7 +249,11 @@ class UserCollectionList(PayloadEndpointMixin, APIView):
         user = get_object_or_404(get_user_model(), pk=pk)
         queryset = self.filter_queryset(self.get_queryset(user))
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        return Response({
+            'payload': serializer.data,
+            'message': 'Collections fetched successfully',
+            'status': status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)
 
 
 class EditAccountViewSet(PayloadEndpointMixin, ViewSet):
@@ -839,7 +843,7 @@ class CollectionDetail(CollectionMixin, RetrieveUpdateDestroyAPIView):
         """
         return Collection.objects.filter(pk=self.kwargs['pk'])
 
-    def get_object(self, pk):
+    def get_object(self, pk=None):
         """Return data after basic checkup."""
         return filter_private_obj_detail_by_ownership(
             self.get_queryset(),

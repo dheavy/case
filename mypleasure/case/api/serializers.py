@@ -48,25 +48,17 @@ def validate_user_email_password_data(data):
         try:
             validate_email(email)
         except ValidationError:
-            raise serializers.ValidationError(
-                {'email': 'Email is invalid.'}
-            )
+            raise serializers.ValidationError({'code': 'email_invalid'})
 
     email_owner = CustomUser.objects.filter(email=email).first()
     if email_owner:
-        raise serializers.ValidationError(
-            {'email': 'Email exists.'}
-        )
+        raise serializers.ValidationError({'code': 'email_in_use'})
 
     if not data.get('password') or not data.get('confirm_password'):
-        raise serializers.ValidationError(
-            {'password': 'Password confirmation is missing.'}
-        )
+        raise serializers.ValidationError({'code': 'confirm_password_missing'})
 
     if data.get('password') != data.get('confirm_password'):
-        raise serializers.ValidationError(
-            {'password': 'Passwords mismatch.'}
-        )
+        raise serializers.ValidationError({'code': 'passwords_mismatch'})
 
     return True
 
@@ -84,6 +76,10 @@ class BasicUserSerializer(serializers.ModelSerializer):
 
     blocking = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(), many=True, required=False
+    )
+
+    collections_followed = serializers.PrimaryKeyRelatedField(
+        queryset=Collection.objects.all(), many=True, required=False
     )
 
     collections_blocked = serializers.PrimaryKeyRelatedField(
@@ -140,7 +136,8 @@ class BasicUserSerializer(serializers.ModelSerializer):
 
         fields = (
             'id', 'username', 'password', 'email', 'last_login', 'last_access',
-            'followers', 'following', 'blocking', 'collections_blocked'
+            'followers', 'following', 'blocking', 'collections_followed',
+            'collections_blocked'
         )
         extra_kwargs = {
             'password': {'write_only': True},
@@ -475,13 +472,34 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 class CuratedMediaAcquisitionSerializer(serializers.Serializer):
     """Serializer used when performing a media acquisition."""
 
+    def normalize_url(self, url):
+        """Normalize URL."""
+        return url
+
     def validate(self, attrs):
         """Attempt validation of attributes."""
+        # TODO: REMOVE URL PARAMETERS!!!
         attrs = self.initial_data
+
+        # Verify URL presence and validity.
+        if 'url' not in attrs:
+            raise serializers.ValidationError({'code': 'url_missing'})
+
+        # url = self.normalize_url(attrs['url'])
+
+        try:
+            URLValidator()(attrs['url'])
+        except ValidationError:
+            raise serializers.ValidationError({'code': 'url_invalid'})
+
+        # Prevent duplicates.
+        u = self.context['request'].user
+        if u.has_video(url=attrs['url'], include_queue=True):
+            raise serializers.ValidationError({'code': 'duplicate'})
 
         # If collection_id is provided, check if it exists,
         # belongs to user.
-        if 'collection_id' in attrs:
+        if 'collection_id' in attrs and int(attrs['collection_id']) != -1:
             try:
                 c = Collection.objects.get(pk=attrs['collection_id'])
                 assert c.owner == self.context['request'].user
@@ -498,20 +516,6 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
                 raise serializers.ValidationError({
                     'code': 'collection_id_or_name_missing'
                 })
-
-        # Verify URL presence and validity.
-        if 'url' not in attrs:
-            raise serializers.ValidationError({'code': 'url_missing'})
-
-        try:
-            URLValidator()(attrs['url'])
-        except ValidationError:
-            raise serializers.ValidationError({'code': 'url_invalid'})
-
-        # Prevent duplicates.
-        u = self.context['request'].user
-        if u.has_video(url=attrs['url'], include_queue=True):
-            raise serializers.ValidationError({'code': 'duplicate'})
 
         return attrs
 
@@ -678,7 +682,7 @@ class FacebookUserSerializer(serializers.Serializer):
             validate_email(email)
         except ValidationError as e:
             raise serializers.ValidationError({
-                'email': 'email adress is invalid'
+                'code': 'email_invalid'
             })
 
         # Verify access token.
