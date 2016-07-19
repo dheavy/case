@@ -38,7 +38,8 @@ from case.logging import (
 )
 from .filters import (
     filter_private_obj_list_by_ownership,
-    filter_private_obj_detail_by_ownership
+    filter_private_obj_detail_by_ownership,
+    filter_feed_by_user, filter_feed_by_naughtyness
 )
 
 
@@ -356,10 +357,20 @@ class RelationshipsViewSet(ViewSet):
     permission_classes = (IsAuthenticated,)
 
     @list_route(methods=['get'])
-    def get_users_followed(self, request):
+    def get_users_followed(self, request, *args, **kwargs):
         """Return the list of users current user follows."""
+        user = None
+
+        try:
+            user = get_user_model().objects.get(pk=kwargs.get('pk'))
+        except:
+            return Response({
+                'message': 'User not found',
+                'status': status.HTTP_404_NOT_FOUND
+            }, status=status.HTTP_404_NOT_FOUND)
+
         followed = [
-            BasicUserSerializer(u).data for u in request.user.following
+            BasicUserSerializer(u).data for u in user.following
         ]
         return Response({
             'message': 'Followed users fetched successfully',
@@ -368,10 +379,20 @@ class RelationshipsViewSet(ViewSet):
         }, status=status.HTTP_200_OK)
 
     @list_route(methods=['get'])
-    def get_users_followers(self, request):
+    def get_users_followers(self, request, *args, **kwargs):
         """Return the list of users following current user."""
+        user = None
+
+        try:
+            user = get_user_model().objects.get(pk=kwargs.get('pk'))
+        except:
+            return Response({
+                'message': 'User not found',
+                'status': status.HTTP_404_NOT_FOUND
+            }, status=status.HTTP_404_NOT_FOUND)
+
         followers = [
-            BasicUserSerializer(u).data for u in request.user.followers
+            BasicUserSerializer(u).data for u in user.followers
         ]
         return Response({
             'message': 'Followers fetched successfully',
@@ -380,7 +401,7 @@ class RelationshipsViewSet(ViewSet):
         }, status=status.HTTP_200_OK)
 
     @list_route(methods=['get'])
-    def get_collections_followed(self, request):
+    def get_collections_followed(self, request, *args, **kwargs):
         """Return the list of collections current user follows."""
         pass
 
@@ -1040,17 +1061,29 @@ class VideoDetail(VideoMixin, RetrieveUpdateDestroyAPIView):
             )
 
 
-class FeedNormalList(VideoMixin, ListCreateAPIView):
+class FeedNormalDetail(VideoMixin, APIView):
     """Feed list for normal mode."""
 
     permission_classes = (IsAuthenticated,)
-    queryset = Video.objects.all()
 
-    def list(self, request):
+    def get_queryset(self, pk=None):
+        """Get queryset, filtered if need be."""
+        if pk:
+            try:
+                user = get_user_model().objects.get(pk=pk)
+                return filter_feed_by_user(VideoSerializer, user)
+            except Exception as e:
+                print(e)
+                pass
+        return filter_feed_by_naughtyness(
+            Video.objects.all(), is_naughty=False
+        )
+
+    def get(self, request, pk=None, format=None):
         """Return payload."""
         try:
             serializer = FeedNormalSerializer(
-                self.get_queryset(),
+                self.get_queryset(pk),
                 many=True, context={'request': request}
             )
 
