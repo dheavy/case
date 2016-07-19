@@ -145,6 +145,15 @@ class BasicUserSerializer(serializers.ModelSerializer):
         }
 
 
+class VideoUserSerializer(BasicUserSerializer):
+    """Serializer to bundle user data in a video."""
+
+    class Meta(BasicUserSerializer.Meta):
+        """Meta for VideoUserSerializer."""
+
+        fields = ('id', 'username',)
+
+
 class ProfileUserSerializer(BasicUserSerializer):
     """Serializer for User used when displaying own profile."""
 
@@ -179,17 +188,17 @@ class EditPasswordSerializer(serializers.Serializer):
             user = CustomUser.objects.get(pk=int(id))
         except:
             raise serializers.ValidationError(
-                {"user": "we couldn't find that user, sorry..."}
+                {'code': 'user_not_found'}
             )
 
         if user.check_password(current_password) is False:
             raise serializers.ValidationError(
-                {"password": "your password is invalid, sorry..."}
+                {'code': 'password_invalid'}
             )
 
         if password != confirm_password:
             raise serializers.ValidationError(
-                {"password": "password and confirmation mismatch..."}
+                {'code': 'passwords_mismatch'}
             )
 
         self.user = user
@@ -215,7 +224,7 @@ class EditEmailSerializer(serializers.Serializer):
             )
         except:
             raise serializers.ValidationError(
-                {'user': "we couldn't find that user, sorry..."}
+                {'code': 'user_not_found'}
             )
 
         if email is not '':
@@ -223,16 +232,13 @@ class EditEmailSerializer(serializers.Serializer):
                 validate_email(email)
             except ValidationError:
                 raise serializers.ValidationError(
-                    {'email': 'Your email is invalid, sorry...'}
+                    {'code': 'email_invalid'}
                 )
 
             owner = CustomUser.objects.filter(email=email)
             if owner and len(owner) >= 1 and owner[0].id != user.id:
                 raise serializers.ValidationError(
-                    {'user': (
-                        "Someone already registered that" +
-                        " email address, sorry..."
-                    )}
+                    {'code': 'email_in_use'}
                 )
 
         self.user = user
@@ -281,7 +287,7 @@ class VideoSerializer(serializers.ModelSerializer):
 
     def get_owner(self, obj):
         """Returned serialized owner of the Video."""
-        return BasicUserSerializer(obj.collection.owner).data
+        return VideoUserSerializer(obj.collection.owner).data
 
     class Meta:
         """Meta for Video serializer."""
