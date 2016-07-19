@@ -18,7 +18,7 @@ from django.conf import settings
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from case.api.views import (
     UserList, UserDetail, ProfileView, RegistrationViewSet, CollectionList,
-    CollectionDetail, FeedNormalList, FeedNaughtyList, VideoList, VideoDetail,
+    CollectionDetail, FeedNormalDetail, FeedNaughtyList, VideoList, VideoDetail,
     TagList, TagDetail, PasswordResetView, PasswordResetConfirmView,
     CuratedMediaViewSet, HeartbeatViewSet, FollowUserViewSet,
     FollowCollectionViewSet, BlockUserViewSet, BlockCollectionViewSet,
@@ -157,11 +157,11 @@ urlpatterns = [
     # Feed
     # ----
     # Available to authenticated user. Comes in two flavor: normal/naughty.
-    url(r'^api/v1/feed/?$',
-        FeedNormalList.as_view(), name='feed-normal'),
-    url(r'^api/v1/feed/normal/?$',
-        FeedNormalList.as_view(), name='feed-normal'),
-    url(r'^api/v1/feed/naughty/?$',
+    url(r'^api/v1/feed/?(?P<pk>[0-9]+)?$',
+        FeedNormalDetail.as_view(), name='feed-normal'),
+    url(r'^api/v1/feed/?(?P<pk>[0-9]+)?/normal/?$',
+        FeedNormalDetail.as_view(), name='feed-normal'),
+    url(r'^api/v1/feed/?(?P<pk>[0-9]+)?/naughty/?$',
         FeedNaughtyList.as_view(), name='feed-naughty'),
 
     # Users
@@ -179,13 +179,13 @@ urlpatterns = [
         UserCollectionList.as_view(), name='user-collection-list'),
 
     url(
-        r'^api/v1/users/followed/?',
+        r'^api/v1/users/(?P<pk>[0-9]+)/followed/?',
         RelationshipsViewSet.as_view({'get': 'get_users_followed'}),
         name='followed-users'
     ),
 
     url(
-        r'^api/v1/users/followers/?',
+        r'^api/v1/users/(?P<pk>[0-9]+)/followers/?',
         RelationshipsViewSet.as_view({'get': 'get_users_followers'}),
         name='followers-users'
     ),
