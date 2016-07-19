@@ -355,14 +355,30 @@ is_superuser: %s)" %
 
     @property
     def collections_followed(self):
-        """Return list of collections self is following."""
+        """
+        Return list of collections self is following.
+
+        Include collections for followed users, if not inadvertently
+        blocking user or collection as well.
+        """
         relationship = UserCollectionFollowRelationship.objects.filter(
             user=self.id
         )
-        return [
+
+        followed_collections = [
             r.collection for r in relationship
             if r.collection.owner.is_active is True
         ]
+
+        followed_collections += [
+            c for u in self.following
+            for c in u.collections.all()
+            if u not in self.blocking and
+            u.collections not in self.collections_blocked and
+            u.collections not in followed_collections
+        ]
+
+        return followed_collections
 
     @property
     def collections_blocked(self):
@@ -375,7 +391,8 @@ is_superuser: %s)" %
         r = UserCollectionBlockRelationship.objects.filter(user=self.id)
         c = [
             blocked.collection for blocked in r
-            if blocked.collection.owner.is_active is True
+            if blocked.collection.owner and
+            blocked.collection.owner.is_active is True
         ]
         u = [
             col for user in blocking for col in user.collections.all()
