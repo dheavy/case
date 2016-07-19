@@ -1117,6 +1117,8 @@ class FeedNormalDetail(VideoMixin, APIView):
 class FeedNaughtyList(VideoMixin, ListCreateAPIView):
     """Feed list for naughty mode."""
 
+    # TODO: Reimplement based on normal feed changes.
+
     permission_classes = (IsAuthenticated,)
     queryset = Video.objects.all()
 
