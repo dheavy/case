@@ -296,7 +296,7 @@ class VideoSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'title', 'hash', 'slug', 'poster', 'original_url',
             'embed_url', 'duration', 'is_naughty', 'created_at', 'tags',
-            'updated_at', 'collection', 'owner', 'is_private',
+            'updated_at', 'scale', 'collection', 'owner', 'is_private',
         )
 
 
@@ -346,7 +346,7 @@ class FeedPrivateVideoSerializer(VideoSerializer):
 
         fields = (
             'id', 'title', 'hash', 'slug', 'poster', 'original_url',
-            'embed_url', 'duration', 'is_naughty', 'tags'
+            'embed_url', 'scale', 'duration', 'is_naughty', 'tags'
         )
 
 

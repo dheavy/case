@@ -515,6 +515,11 @@ class Video(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # Scale of the video. Consider it an enum:
+    # - "normal" (default)
+    # - "large"
+    scale = models.CharField(max_length=20, default='normal')
+
     @property
     def owner(self):
         """Return User owning the Collection."""
@@ -529,11 +534,11 @@ class Video(models.Model):
         """Render string representation of instance."""
         return (
             "Video (id: %s, collection_id: %s, title: %s, slug: %s, poster: %s \
-original_url: %s, embed_url: %s, duration: %s, is_naughty: %s)" %
+original_url: %s, embed_url: %s, scale: %s, duration: %s, is_naughty: %s)" %
             (
                 self.id, self.collection.id, self.title, self.slug,
                 self.poster, self.original_url, self.embed_url,
-                self.duration, self.is_naughty
+                self.scale, self.duration, self.is_naughty
             )
         )
 
