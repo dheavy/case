@@ -1083,13 +1083,12 @@ class FeedNormalDetail(VideoMixin, APIView):
         """Return payload."""
         try:
             serializer = FeedNormalSerializer(
-                self.get_queryset(pk),
-                many=True, context={'request': request}
+                self.get_queryset(pk), context={'request': request}
             )
 
             return Response(
                 {
-                    'payload': serializer.data[0],
+                    'payload': serializer.data,
                     'message': 'Feed fetched successfully',
                     'status': status.HTTP_200_OK
                 },
