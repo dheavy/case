@@ -48,25 +48,17 @@ def validate_user_email_password_data(data):
         try:
             validate_email(email)
         except ValidationError:
-            raise serializers.ValidationError(
-                {'code': 'invalid_email'}
-            )
+            raise serializers.ValidationError({'code': 'email_invalid'})
 
     email_owner = CustomUser.objects.filter(email=email).first()
-    if email_owner and len(email_owner) >= 1:
-        raise serializers.ValidationError(
-            {'code': 'existing_email'}
-        )
+    if email_owner:
+        raise serializers.ValidationError({'code': 'email_in_use'})
 
     if not data.get('password') or not data.get('confirm_password'):
-        raise serializers.ValidationError(
-            {'code': 'confirm_password_missing'}
-        )
+        raise serializers.ValidationError({'code': 'confirm_password_missing'})
 
     if data.get('password') != data.get('confirm_password'):
-        raise serializers.ValidationError(
-            {'code': 'passwords_mismatch'}
-        )
+        raise serializers.ValidationError({'code': 'passwords_mismatch'})
 
     return True
 
@@ -74,11 +66,25 @@ def validate_user_email_password_data(data):
 class BasicUserSerializer(serializers.ModelSerializer):
     """Serializer class for User, as seen by regular Users."""
 
-    # Do not include videos as they are already passed in the
-    # attached collections payload. Leave it commented just in case
-    # we want this feature back.
-    # videos = serializers.SerializerMethodField()
-    collections = serializers.SerializerMethodField()
+    followers = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all(), many=True, required=False
+    )
+
+    following = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all(), many=True, required=False
+    )
+
+    blocking = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all(), many=True, required=False
+    )
+
+    collections_followed = serializers.PrimaryKeyRelatedField(
+        queryset=Collection.objects.all(), many=True, required=False
+    )
+
+    collections_blocked = serializers.PrimaryKeyRelatedField(
+        queryset=Collection.objects.all(), many=True, required=False
+    )
 
     def get_videos(self, obj):
         """Get filtered list of serialized Videos."""
@@ -95,7 +101,7 @@ class BasicUserSerializer(serializers.ModelSerializer):
                 CollectionSerializer(
                     c, context={'request': request}
                 ).data for c in obj.collections.all()
-                if not c.is_private or c.owner.id == request.user.id
+                if not (c.is_private and c.owner.id != request.user.id)
             ]
         except:
             return []
@@ -128,17 +134,24 @@ class BasicUserSerializer(serializers.ModelSerializer):
 
         model = CustomUser
 
-        # Do not include videos as they are already passed in the
-        # attached collections payload
         fields = (
-            'id', 'username', 'password', 'last_login', 'last_access',
-            'collections',
-            # 'videos'
+            'id', 'username', 'password', 'email', 'last_login', 'last_access',
+            'followers', 'following', 'blocking', 'collections_followed',
+            'collections_blocked'
         )
         extra_kwargs = {
             'password': {'write_only': True},
             'confirm_password': {'write_only': True},
         }
+
+
+class VideoUserSerializer(BasicUserSerializer):
+    """Serializer to bundle user data in a video."""
+
+    class Meta(BasicUserSerializer.Meta):
+        """Meta for VideoUserSerializer."""
+
+        fields = ('id', 'username',)
 
 
 class ProfileUserSerializer(BasicUserSerializer):
@@ -168,21 +181,28 @@ class EditPasswordSerializer(serializers.Serializer):
         """Attempt validating data."""
         current_password = self.initial_data.get('current_password', None)
         password = self.initial_data.get('password', None)
-        confirm_password = self.initial_data.get('password', None)
+        confirm_password = self.initial_data.get('confirm_password', None)
         id = self.initial_data.get('user_id', None)
 
         try:
             user = CustomUser.objects.get(pk=int(id))
         except:
-            raise serializers.ValidationError({'code': 'user_not_found'})
+            raise serializers.ValidationError(
+                {'code': 'user_not_found'}
+            )
 
         if user.check_password(current_password) is False:
-            raise serializers.ValidationError({'code': 'password_invalid'})
+            raise serializers.ValidationError(
+                {'code': 'password_invalid'}
+            )
 
         if password != confirm_password:
-            raise serializers.ValidationError({'code': 'password_mismatch'})
+            raise serializers.ValidationError(
+                {'code': 'passwords_mismatch'}
+            )
 
         self.user = user
+        print(user)
         return self.initial_data
 
     def save(self):
@@ -196,15 +216,7 @@ class EditEmailSerializer(serializers.Serializer):
 
     def validate(self, data):
         """Attempt validating data."""
-        email = self.initial_data.get('email', None)
-
-        if email is not None:
-            try:
-                validate_email(email)
-            except ValidationError:
-                raise serializers.ValidationError(
-                    {'code': 'invalid_email'}
-                )
+        email = self.initial_data.get('email', '')
 
         try:
             user = CustomUser.objects.get(
@@ -215,11 +227,19 @@ class EditEmailSerializer(serializers.Serializer):
                 {'code': 'user_not_found'}
             )
 
-        mail_owner = CustomUser.objects.filter(email=email).first()
-        if mail_owner and len(mail_owner) >= 1 and mail_owner[0] is not user:
-            raise serializers.ValidationError(
-                {'code': 'existing_email'}
-            )
+        if email is not '':
+            try:
+                validate_email(email)
+            except ValidationError:
+                raise serializers.ValidationError(
+                    {'code': 'email_invalid'}
+                )
+
+            owner = CustomUser.objects.filter(email=email)
+            if owner and len(owner) >= 1 and owner[0].id != user.id:
+                raise serializers.ValidationError(
+                    {'code': 'email_in_use'}
+                )
 
         self.user = user
         return self.initial_data
@@ -267,7 +287,7 @@ class VideoSerializer(serializers.ModelSerializer):
 
     def get_owner(self, obj):
         """Returned serialized owner of the Video."""
-        return BasicUserSerializer(obj.collection.owner).data
+        return VideoUserSerializer(obj.collection.owner).data
 
     class Meta:
         """Meta for Video serializer."""
@@ -276,7 +296,7 @@ class VideoSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'title', 'hash', 'slug', 'poster', 'original_url',
             'embed_url', 'duration', 'is_naughty', 'created_at', 'tags',
-            'updated_at', 'collection', 'owner', 'is_private',
+            'updated_at', 'scale', 'collection', 'owner', 'is_private',
         )
 
 
@@ -326,7 +346,7 @@ class FeedPrivateVideoSerializer(VideoSerializer):
 
         fields = (
             'id', 'title', 'hash', 'slug', 'poster', 'original_url',
-            'embed_url', 'duration', 'is_naughty', 'tags'
+            'embed_url', 'scale', 'duration', 'is_naughty', 'tags'
         )
 
 
@@ -458,13 +478,34 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 class CuratedMediaAcquisitionSerializer(serializers.Serializer):
     """Serializer used when performing a media acquisition."""
 
+    def normalize_url(self, url):
+        """Normalize URL."""
+        return url
+
     def validate(self, attrs):
         """Attempt validation of attributes."""
+        # TODO: REMOVE URL PARAMETERS!!!
         attrs = self.initial_data
+
+        # Verify URL presence and validity.
+        if 'url' not in attrs:
+            raise serializers.ValidationError({'code': 'url_missing'})
+
+        # url = self.normalize_url(attrs['url'])
+
+        try:
+            URLValidator()(attrs['url'])
+        except ValidationError:
+            raise serializers.ValidationError({'code': 'url_invalid'})
+
+        # Prevent duplicates.
+        u = self.context['request'].user
+        if u.has_video(url=attrs['url'], include_queue=True):
+            raise serializers.ValidationError({'code': 'duplicate'})
 
         # If collection_id is provided, check if it exists,
         # belongs to user.
-        if 'collection_id' in attrs:
+        if 'collection_id' in attrs and int(attrs['collection_id']) != -1:
             try:
                 c = Collection.objects.get(pk=attrs['collection_id'])
                 assert c.owner == self.context['request'].user
@@ -481,20 +522,6 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
                 raise serializers.ValidationError({
                     'code': 'collection_id_or_name_missing'
                 })
-
-        # Verify URL presence and validity.
-        if 'url' not in attrs:
-            raise serializers.ValidationError({'code': 'url_missing'})
-
-        try:
-            URLValidator()(attrs['url'])
-        except ValidationError:
-            raise serializers.ValidationError({'code': 'url_invalid'})
-
-        # Prevent duplicates.
-        u = self.context['request'].user
-        if u.has_video(url=attrs['url'], include_queue=True):
-            raise serializers.ValidationError({'code': 'duplicate'})
 
         return attrs
 
@@ -559,18 +586,22 @@ class FollowUserSerializer(serializers.Serializer):
                 pk=int(self.initial_data.get('pk'))
             )
         except:
-            raise serializers.ValidationError({'code': 'user_not_found'})
+            raise serializers.ValidationError({'user': 'Not found.'})
 
         if self.initial_data.get('intent', None) == 'follow':
-            self.initial_data.get('current_user', None).follow_user(other_user)
+            self.initial_data.get('current_user').follow_user(other_user)
         elif self.initial_data.get('intent', None) == 'unfollow':
             # Will return True if unfollowed successful, False otherwise.
             if self.initial_data.get(
-                'current_user', None
+                'current_user'
             ).unfollow_user(other_user) is False:
-                raise serializers.ValidationError({'code': 'unfollow_failed'})
+                raise serializers.ValidationError({
+                    'follow': 'Unfollow failed.'
+                })
         else:
-            raise serializers.ValidationError({'code': 'intent_misunderstood'})
+            raise serializers.ValidationError({
+                'follow': 'Intent misunderstood.'
+            })
 
         return self.initial_data
 
@@ -656,7 +687,9 @@ class FacebookUserSerializer(serializers.Serializer):
         try:
             validate_email(email)
         except ValidationError as e:
-            raise serializers.ValidationError({'code': 'invalid_fb_email'})
+            raise serializers.ValidationError({
+                'code': 'email_invalid'
+            })
 
         # Verify access token.
         try:

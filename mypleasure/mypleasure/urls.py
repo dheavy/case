@@ -18,11 +18,12 @@ from django.conf import settings
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from case.api.views import (
     UserList, UserDetail, ProfileView, RegistrationViewSet, CollectionList,
-    CollectionDetail, FeedNormalList, FeedNaughtyList, VideoList, VideoDetail,
+    CollectionDetail, FeedNormalDetail, FeedNaughtyList, VideoList, VideoDetail,
     TagList, TagDetail, PasswordResetView, PasswordResetConfirmView,
     CuratedMediaViewSet, HeartbeatViewSet, FollowUserViewSet,
     FollowCollectionViewSet, BlockUserViewSet, BlockCollectionViewSet,
-    FacebookAuthViewSet, EditAccountViewSet
+    FacebookAuthViewSet, EditAccountViewSet, UserCollectionList,
+    RelationshipsViewSet
 )
 from case.admin import mp_admin
 
@@ -156,21 +157,53 @@ urlpatterns = [
     # Feed
     # ----
     # Available to authenticated user. Comes in two flavor: normal/naughty.
-    url(r'^api/v1/feed/?$',
-        FeedNormalList.as_view(), name='feed-normal'),
-    url(r'^api/v1/feed/normal/?$',
-        FeedNormalList.as_view(), name='feed-normal'),
-    url(r'^api/v1/feed/naughty/?$',
+    url(r'^api/v1/feed/?(?P<pk>[0-9]+)?$',
+        FeedNormalDetail.as_view(), name='feed-normal'),
+    url(r'^api/v1/feed/?(?P<pk>[0-9]+)?/normal/?$',
+        FeedNormalDetail.as_view(), name='feed-normal'),
+    url(r'^api/v1/feed/?(?P<pk>[0-9]+)?/naughty/?$',
         FeedNaughtyList.as_view(), name='feed-naughty'),
 
     # Users
     # -----
     # User detail is available to any authenticated user.
     # User list is available to admin user only.
-    url(r'^api/v1/users/?$', UserList.as_view(), name='customuser-list'),
+    url(r'^api/v1/users/?$', UserList.as_view(), name='user-list'),
     url(r'^api/v1/users/(?P<pk>[0-9]+)/?$',
-        UserDetail.as_view(), name='customuser-detail'),
+        UserDetail.as_view(), name='user-detail'),
     url(r'^api/v1/me/?$', ProfileView.as_view(), name='me'),
+
+    # Assets, by users
+    # ----------------
+    url(r'^api/v1/users/(?P<pk>[0-9]+)/collections/?$',
+        UserCollectionList.as_view(), name='user-collection-list'),
+
+    url(
+        r'^api/v1/users/(?P<pk>[0-9]+)/followed/?',
+        RelationshipsViewSet.as_view({'get': 'get_users_followed'}),
+        name='followed-users'
+    ),
+
+    url(
+        r'^api/v1/users/(?P<pk>[0-9]+)/followers/?',
+        RelationshipsViewSet.as_view({'get': 'get_users_followers'}),
+        name='followers-users'
+    ),
+
+    url(
+        r'^api/v1/users/blocked/?',
+        RelationshipsViewSet.as_view({'get': 'get_users_blocked'}),
+        name='blocked-users'
+    ),
+
+    url(
+        r'^api/v1/collections/blocked/?',
+        RelationshipsViewSet.as_view({'get': 'get_collections_blocked'}),
+        name='blocked-collections'
+    ),
+
+    # Users' settings edit (email/password)
+    # -------------------------------------
     url(r'^api/v1/edit/password/?$', EditAccountViewSet.as_view({
         'post': 'edit_password'
     }), name='edit-password'),
@@ -192,28 +225,28 @@ urlpatterns = [
     # Available to authenticated users only.
     # Follow/unfollow user, block/unblock user,
     # follow/unfollow collection, block/unblock collection.
-    url(r'^api/v1/users/follow/(?P<pk>[0-9]+)/?$',
+    url(r'^api/v1/users/(?P<pk>[0-9]+)/follow/?$',
         FollowUserViewSet.as_view({'post': 'follow'}),
         name='follow-user'),
-    url(r'^api/v1/users/unfollow/(?P<pk>[0-9]+)/?$',
+    url(r'^api/v1/users/(?P<pk>[0-9]+)/unfollow/?$',
         FollowUserViewSet.as_view({'post': 'unfollow'}),
         name='unfollow-user'),
-    url(r'^api/v1/users/block/(?P<pk>[0-9]+)/?$',
+    url(r'^api/v1/users/(?P<pk>[0-9]+)/block/?$',
         BlockUserViewSet.as_view({'post': 'block'}),
         name='block-user'),
-    url(r'^api/v1/users/unblock/(?P<pk>[0-9]+)/?$',
+    url(r'^api/v1/users/(?P<pk>[0-9]+)/unblock/?$',
         BlockUserViewSet.as_view({'post': 'unblock'}),
         name='unblock-user'),
-    url(r'^api/v1/collections/follow/(?P<pk>[0-9]+)/?$',
+    url(r'^api/v1/collections/(?P<pk>[0-9]+)/follow/?$',
         FollowCollectionViewSet.as_view({'post': 'follow'}),
         name='follow-collection'),
-    url(r'^api/v1/collections/unfollow/(?P<pk>[0-9]+)/?$',
+    url(r'^api/v1/collections/(?P<pk>[0-9]+)/unfollow/?$',
         FollowCollectionViewSet.as_view({'post': 'unfollow'}),
         name='unfollow-collection'),
-    url(r'^api/v1/collections/block/(?P<pk>[0-9]+)/?$',
+    url(r'^api/v1/collections/(?P<pk>[0-9]+)/block/?$',
         BlockCollectionViewSet.as_view({'post': 'block'}),
         name='block-user'),
-    url(r'^api/v1/collections/unblock/(?P<pk>[0-9]+)/?$',
+    url(r'^api/v1/collections/(?P<pk>[0-9]+)/unblock/?$',
         BlockCollectionViewSet.as_view({'post': 'unblock'}),
         name='unblock-user'),
 

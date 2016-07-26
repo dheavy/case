@@ -24,7 +24,7 @@ class CustomUserManager(BaseUserManager):
             raise ValueError('Users must have a username.')
 
         user = self.model(
-            username=username.lower(),
+            username=username,
             email=self.normalize_email(email)
         )
 
@@ -42,15 +42,18 @@ class CustomUserManager(BaseUserManager):
         user.is_staff = True
         user.is_superuser = True
         user.save()
-        self.create_default_collection(user)
         return user
 
 
 class UserFollowRelationship(models.Model):
     """Model defining `follow` relationship between users via pivot table."""
 
-    follower = models.ForeignKey('CustomUser', related_name='follower')
-    followed = models.ForeignKey('CustomUser', related_name='followed')
+    follower = models.ForeignKey(
+        'CustomUser', related_name='follower', blank=True, null=True
+    )
+    followed = models.ForeignKey(
+        'CustomUser', related_name='followed', blank=True, null=True
+    )
     since = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -70,8 +73,12 @@ since: %s)" % (self.id, self.follower, self.followed, self.since)
 class UserBlockRelationship(models.Model):
     """Model defining `block` relationship between users via pivot table."""
 
-    blocker = models.ForeignKey('CustomUser', related_name='blocker')
-    blocked = models.ForeignKey('CustomUser', related_name='blocked')
+    blocker = models.ForeignKey(
+        'CustomUser', related_name='blocker', null=True
+    )
+    blocked = models.ForeignKey(
+        'CustomUser', related_name='blocked', null=True
+    )
     since = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -91,9 +98,11 @@ since: %s)" % (self.id, self.blocker, self.blocked, self.since)
 class UserCollectionFollowRelationship(models.Model):
     """Model defining `follow` relationship between user and a collection."""
 
-    user = models.ForeignKey('CustomUser', related_name='user_following')
+    user = models.ForeignKey(
+        'CustomUser', related_name='user_following', null=True
+    )
     collection = models.ForeignKey(
-        'Collection', related_name='collection_followed'
+        'Collection', related_name='collection_followed', null=True
     )
     since = models.DateTimeField(auto_now_add=True)
 
@@ -114,9 +123,11 @@ collection: %s, since: %s)" % (self.id, self.user, self.collection, self.since)
 class UserCollectionBlockRelationship(models.Model):
     """Model defining `block` relationship between user and a collection."""
 
-    user = models.ForeignKey('CustomUser', related_name='user_blocking')
+    user = models.ForeignKey(
+        'CustomUser', related_name='user_blocking', null=True
+    )
     collection = models.ForeignKey(
-        'Collection', related_name='collection_blocked'
+        'Collection', related_name='collection_blocked', null=True
     )
     since = models.DateTimeField(auto_now_add=True)
 
@@ -314,33 +325,60 @@ is_superuser: %s)" %
     def followers(self):
         """Return list of users following self."""
         relationship = UserFollowRelationship.objects.filter(followed=self.id)
-        return [r.follower for r in relationship]
+        return [
+            r.follower for r in relationship if r.follower.is_active is True
+        ]
 
     @property
     def following(self):
         """Return list of users self is following."""
         relationship = UserFollowRelationship.objects.filter(follower=self.id)
-        return [r.followed for r in relationship]
+        return [
+            r.followed for r in relationship if r.followed.is_active is True
+        ]
 
     @property
     def blocked_by(self):
         """Return list of users blocking self."""
         relationship = UserBlockRelationship.objects.filter(blocked=self.id)
-        return [r.blocker for r in relationship]
+        return [
+            r.blocker for r in relationship if r.blocker.is_active is True
+        ]
 
     @property
     def blocking(self):
         """Return list of users self has blocked."""
         relationship = UserBlockRelationship.objects.filter(blocker=self.id)
-        return [r.blocked for r in relationship]
+        return [
+            r.blocked for r in relationship if r.blocked.is_active is True
+        ]
 
     @property
     def collections_followed(self):
-        """Return list of collections self is following."""
+        """
+        Return list of collections self is following.
+
+        Include collections for followed users, if not inadvertently
+        blocking user or collection as well.
+        """
         relationship = UserCollectionFollowRelationship.objects.filter(
             user=self.id
         )
-        return [r.collection for r in relationship]
+
+        followed_collections = [
+            r.collection for r in relationship
+            if r.collection.owner.is_active is True
+        ]
+
+        followed_collections += [
+            c for u in self.following
+            for c in u.collections.all()
+            if u not in self.blocking and
+            u.collections not in self.collections_blocked and
+            u.collections not in followed_collections
+        ]
+
+        return followed_collections
 
     @property
     def collections_blocked(self):
@@ -351,8 +389,15 @@ is_superuser: %s)" %
         """
         blocking = self.blocking
         r = UserCollectionBlockRelationship.objects.filter(user=self.id)
-        c = [blocked.collection for blocked in r]
-        u = [col for user in blocking for col in user.collections.all()]
+        c = [
+            blocked.collection for blocked in r
+            if blocked.collection.owner and
+            blocked.collection.owner.is_active is True
+        ]
+        u = [
+            col for user in blocking for col in user.collections.all()
+            if user.is_active is True
+        ]
         return list(set(c + u))
 
     class Meta:
@@ -470,6 +515,11 @@ class Video(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # Scale of the video. Consider it an enum:
+    # - "normal" (default)
+    # - "large"
+    scale = models.CharField(max_length=20, default='normal')
+
     @property
     def owner(self):
         """Return User owning the Collection."""
@@ -484,11 +534,11 @@ class Video(models.Model):
         """Render string representation of instance."""
         return (
             "Video (id: %s, collection_id: %s, title: %s, slug: %s, poster: %s \
-original_url: %s, embed_url: %s, duration: %s, is_naughty: %s)" %
+original_url: %s, embed_url: %s, scale: %s, duration: %s, is_naughty: %s)" %
             (
                 self.id, self.collection.id, self.title, self.slug,
                 self.poster, self.original_url, self.embed_url,
-                self.duration, self.is_naughty
+                self.scale, self.duration, self.is_naughty
             )
         )
 
