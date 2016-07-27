@@ -26,7 +26,7 @@ from .permissions import (
 from .serializers import (
     BasicUserSerializer, user_serializer, CollectionSerializer,
     VideoSerializer, TagSerializer, UserRegistrationSerializer,
-    FeedNormalSerializer, FeedNaughtySerializer, PasswordResetSerializer,
+    FeedNaughtySerializer, PasswordResetSerializer,
     PasswordResetConfirmSerializer, CuratedMediaAcquisitionSerializer,
     CuratedMediaFetchSerializer, CheckUsernameSerializer, FollowUserSerializer,
     BlockUserSerializer, FollowCollectionSerializer, BlockCollectionSerializer,
@@ -1071,24 +1071,41 @@ class FeedNormalDetail(VideoMixin, APIView):
         if pk:
             try:
                 user = get_user_model().objects.get(pk=pk)
-                return filter_feed_by_user(VideoSerializer, user)
+                return filter_feed_by_user(user)
             except Exception as e:
-                print(e)
-                pass
-        return filter_feed_by_naughtyness(
-            Video.objects.all(), is_naughty=False
-        )
+                return error_response(
+                    {
+                        'error': str(e),
+                        'message': 'Error while attempting to fetch Feed',
+                        'status': status.HTTP_500_INTERNAL_SERVER_ERROR
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+
+        try:
+            return filter_feed_by_naughtyness(
+                Video.objects.all(), is_naughty=False
+            )
+        except Exception as e:
+            return error_response(
+                {
+                    'error': str(e),
+                    'message': 'Error while attempting to fetch Feed',
+                    'status': status.HTTP_500_INTERNAL_SERVER_ERROR
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     def get(self, request, pk=None, format=None):
         """Return payload."""
         try:
-            serializer = FeedNormalSerializer(
-                self.get_queryset(pk), context={'request': request}
-            )
+            payload = [
+                VideoSerializer(v).data for v in self.get_queryset(pk)
+            ]
 
             return Response(
                 {
-                    'payload': serializer.data,
+                    'payload': payload,
                     'message': 'Feed fetched successfully',
                     'status': status.HTTP_200_OK
                 },

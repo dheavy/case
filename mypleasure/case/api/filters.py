@@ -77,21 +77,20 @@ def filter_feed_by_naughtyness(video_set, is_naughty):
     return r
 
 
-def filter_feed_by_user(v_serializer, user, is_naughty=False):
+def filter_feed_by_user(user, is_naughty=False):
     """Return feed based on what user follows."""
     feed = []
     collections_followed = user.collections_followed
 
     # Add own videos.
     feed += [
-        v_serializer(v).data for v in user.videos if v.is_naughty is is_naughty
+        v for v in user.videos if v.is_naughty is is_naughty
     ]
 
     # Add videos from followed collections.
     # Remove blocked content if inadvertently followed.
     feed += [
-        v_serializer(v).data
-        for c in collections_followed
+        v for c in collections_followed
         for v in c.videos.all()
         if v.is_naughty is is_naughty and
         v not in feed

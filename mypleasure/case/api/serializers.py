@@ -312,11 +312,16 @@ class FeedNormalSerializer(serializers.Serializer):
 
     def get_videos(self, obj):
         """Get videos filtered for Feed."""
-        return filter_videos_for_feed(
-            self.context['request'],
-            Video.objects.filter(is_naughty=False),
-            FeedPublicVideoSerializer, FeedPrivateVideoSerializer
-        )
+        return self.initial_data
+        # return filter_videos_for_feed(
+        #     self.context['request'],
+        #     Video.objects.filter(is_naughty=False),
+        #     FeedPublicVideoSerializer, FeedPrivateVideoSerializer
+        # )
+
+    def validate(self, data):
+        """Validate data."""
+        return self.initial_data
 
 
 class FeedNaughtySerializer(serializers.Serializer):
