@@ -275,7 +275,7 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
 
     def has_video(self, hash=None, url=None, include_queue=True):
         """Tell if user owns a video matching given hash or url."""
-        has_video = False
+        collection = None
 
         if hash is not None:
             v = Video.objects.filter(hash=hash, collection__owner=self.id)
@@ -284,7 +284,11 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
                 original_url=url, collection__owner=self.id
             )
         if len(v) > 0:
-            has_video = True
+            try:
+                collection = Collection.objects.get(pk=v[0].collection.id)
+            except Exception as e:
+                print(e)
+                pass
 
         # If required, check in media acquisition queue.
         if include_queue is True:
@@ -293,15 +297,19 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
             elif url is not None:
                 m = MediaQueue.objects.filter(url=url, requester=self.id)
             if len(m) > 0:
-                has_video = True
+                try:
+                    collection = Collection.objects.get(pk=m.collection_id)
+                except Exception as e:
+                    print(e)
+                    pass
 
-        return has_video
+        return collection
 
     def __str__(self):
         """Return string representation of model."""
         return (
-            "CustomUser (id: %s, username: %s, is_staff: %s, \
-is_superuser: %s)" %
+            "CustomUser (id: %s, username: %s, \
+is_staff: %s, is_superuser: %s)" %
             (
                 self.id, self.username, self.is_staff,
                 self.is_superuser
@@ -533,8 +541,9 @@ class Video(models.Model):
     def __str__(self):
         """Render string representation of instance."""
         return (
-            "Video (id: %s, collection_id: %s, title: %s, slug: %s, poster: %s \
-original_url: %s, embed_url: %s, scale: %s, duration: %s, is_naughty: %s)" %
+            "Video (id: %s, collection_id: %s, title: %s, slug: %s,\
+poster: %s original_url: %s, embed_url: %s, scale: %s, duration: %s, \
+is_naughty: %s)" %
             (
                 self.id, self.collection.id, self.title, self.slug,
                 self.poster, self.original_url, self.embed_url,

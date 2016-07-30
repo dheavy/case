@@ -1061,6 +1061,53 @@ class VideoDetail(VideoMixin, RetrieveUpdateDestroyAPIView):
             )
 
 
+class VideoHashViewSet(VideoMixin, ViewSet):
+    """Helper viewset checking if user owns a video given a hash."""
+
+    @list_route(methods=['get'])
+    def has_video(self, request, *args, **kwargs):
+        """
+        Check if user owns a video matching the given hash.
+
+        Returns 404 if not found, 200 (and the videos' collection) if found.
+        """
+        not_found = Response(
+            {
+                'message': 'Video not found',
+                'status': status.HTTP_404_NOT_FOUND
+            },
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+        try:
+            user = get_user_model().objects.get(pk=kwargs.get('pk'))
+        except Exception as e:
+            print(e)
+            return not_found
+
+        matching_collection = user.has_video(hash=kwargs.get('hash'))
+
+        if matching_collection:
+            serialized = CollectionSerializer(
+                matching_collection,
+                context={'request': request}
+            ).data
+
+            return Response(
+                {
+                    'message': 'User has video',
+                    'payload': {
+                        'id': serialized['id'],
+                        'name': serialized['name']
+                    },
+                    'status': status.HTTP_200_OK
+                },
+                status=status.HTTP_200_OK
+            )
+        else:
+            return not_found
+
+
 class FeedNormalDetail(VideoMixin, APIView):
     """Feed list for normal mode."""
 

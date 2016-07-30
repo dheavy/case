@@ -18,12 +18,12 @@ from django.conf import settings
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from case.api.views import (
     UserList, UserDetail, ProfileView, RegistrationViewSet, CollectionList,
-    CollectionDetail, FeedNormalDetail, FeedNaughtyList, VideoList, VideoDetail,
-    TagList, TagDetail, PasswordResetView, PasswordResetConfirmView,
-    CuratedMediaViewSet, HeartbeatViewSet, FollowUserViewSet,
-    FollowCollectionViewSet, BlockUserViewSet, BlockCollectionViewSet,
-    FacebookAuthViewSet, EditAccountViewSet, UserCollectionList,
-    RelationshipsViewSet
+    CollectionDetail, FeedNormalDetail, FeedNaughtyList, VideoList,
+    VideoDetail, TagList, TagDetail, PasswordResetView,
+    PasswordResetConfirmView, CuratedMediaViewSet, HeartbeatViewSet,
+    FollowUserViewSet, FollowCollectionViewSet, BlockUserViewSet,
+    BlockCollectionViewSet, FacebookAuthViewSet, EditAccountViewSet,
+    UserCollectionList, RelationshipsViewSet, VideoHashViewSet
 )
 from case.admin import mp_admin
 
@@ -200,6 +200,12 @@ urlpatterns = [
         r'^api/v1/collections/blocked/?',
         RelationshipsViewSet.as_view({'get': 'get_collections_blocked'}),
         name='blocked-collections'
+    ),
+
+    # Check if user has a video based on the video hash.
+    url(
+        r'^api/v1/users/(?P<pk>[0-9]+)/hash/(?P<hash>[A-Za-z0-9]+)?',
+        VideoHashViewSet.as_view({'get': 'has_video'})
     ),
 
     # Users' settings edit (email/password)
