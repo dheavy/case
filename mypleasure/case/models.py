@@ -645,6 +645,9 @@ requester: %s, collection_id: %s, status: %s)" %
 
         db_table = 'mediaqueue'
 
+        verbose_name = 'Queued video'
+        verbose_name_plural = 'Queued videos'
+
 
 class MediaStore(models.Model):
     """
@@ -692,6 +695,9 @@ embed_url: %s, poster: %s, duration: %s, naughty: %s)" %
         """Use legacy name for this table."""
 
         db_table = 'mediastore'
+
+        verbose_name = 'Stored video'
+        verbose_name_plural = 'Stored videos'
 
 
 class UserReportManager(models.Manager):

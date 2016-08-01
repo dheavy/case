@@ -8,7 +8,8 @@ from django.contrib.auth.forms import AdminPasswordChangeForm
 from .models import (
     Collection, Video, Invite, Tag, CustomUser, UserReport,
     UserFollowRelationship, UserCollectionFollowRelationship,
-    UserBlockRelationship, UserCollectionBlockRelationship
+    UserBlockRelationship, UserCollectionBlockRelationship,
+    MediaStore, MediaQueue
 )
 from .forms import (
     TagForm, CustomUserForm, CustomUserChangeForm, UserReportForm
@@ -126,6 +127,8 @@ class MyPleasureAdmin(AdminSite):
 mp_admin = MyPleasureAdmin()
 
 mp_admin.register(CustomUser, CustomUserAdmin)
+mp_admin.register(MediaStore)
+mp_admin.register(MediaQueue)
 mp_admin.register(Collection)
 mp_admin.register(Invite)
 mp_admin.register(Video)
