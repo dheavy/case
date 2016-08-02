@@ -297,6 +297,7 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
             elif url is not None:
                 m = MediaQueue.objects.filter(url=url, requester=self.id)
             if len(m) > 0:
+                m = m[0]
                 try:
                     collection = Collection.objects.get(pk=m.collection_id)
                 except Exception as e:
