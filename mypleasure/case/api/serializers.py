@@ -202,7 +202,6 @@ class EditPasswordSerializer(serializers.Serializer):
             )
 
         self.user = user
-        print(user)
         return self.initial_data
 
     def save(self):
@@ -509,7 +508,6 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
         if 'hash' in attrs:
             try:
                 # Store cached video if it exists, else raise exception.
-                print(attrs['hash'])
                 self.stored_video = MediaStore.objects.get(hash=attrs['hash'])
                 return self.STRATEGY_STORE
             except:
@@ -552,6 +550,9 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
         except Exception as e:
             raise e
 
+        # Shortcut for user.
+        u = self.context['user']
+
         # If collection_id is provided, ensure it exists and belongs to user.
         if 'collection_id' in attrs and int(attrs['collection_id']) != -1:
             try:
@@ -559,7 +560,7 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
                 self.target_collection = Collection.objects.get(
                     pk=attrs['collection_id']
                 )
-                assert self.target_collection.owner == self.context['user']
+                assert self.target_collection.owner == u
             except:
                 raise serializers.ValidationError({
                     'code': 'collection_id_invalid'
@@ -567,8 +568,12 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
         else:
             try:
                 # If not ID provided, a new collection name should have been.
+                # If everything is fine, do create the collection for our user.
                 name = attrs['new_collection_name']
                 assert bool(name) is not None and name != ''
+                self.target_collection = Collection.objects.create(
+                    name=name, owner=u
+                )
             except:
                 raise serializers.ValidationError({
                     'code': 'collection_id_or_name_missing'
@@ -578,7 +583,7 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
         if self.strategy is self.STRATEGY_QUEUE:
             # Prevent duplicates.
             url = self.normalize_url(attrs['url'])
-            if self.context['user'].has_video(url=url):
+            if u.has_video(url=url):
                 raise serializers.ValidationError({'code': 'duplicate'})
 
             # Prevent duplicates in media queue.
