@@ -13,7 +13,7 @@ from .models import (
 )
 from .forms import (
     TagForm, CustomUserForm, CustomUserChangeForm, UserReportForm,
-    VideoForm
+    VideoForm, MediaStoreForm
 )
 
 
@@ -133,10 +133,28 @@ class VideoAdmin(admin.ModelAdmin):
     )
 
 
-# class MediaStoreAdmin(admin.ModelAdmin):
-#     """Custom admin for MediaStore."""
+class MediaQueueAdmin(admin.ModelAdmin):
+    """Custom admin for MediaStore."""
 
-#     form
+    readonly_fields = ('hash', 'status',)
+    list_display = (
+        'id', 'status', 'url', 'requester', 'collection_id', 'created_at',
+    )
+    list_filter = ('status', 'requester', 'created_at',)
+    search_fields = ('status', 'url',)
+
+
+class MediaStoreAdmin(admin.ModelAdmin):
+    """Custom admin for MediaStore."""
+
+    readonly_fields = ('duration', 'hash',)
+    form = MediaStoreForm
+    list_display = (
+        'id', 'title', 'naughty', 'duration', 'poster', 'original_url',
+        'embed_url', 'hash', 'created_at',
+    )
+    list_filter = ('naughty', 'duration',)
+    search_fields = ('title', 'poster', 'original_url', 'hash',)
 
 
 class MyPleasureAdmin(AdminSite):
@@ -155,8 +173,8 @@ class MyPleasureAdmin(AdminSite):
 mp_admin = MyPleasureAdmin()
 
 mp_admin.register(CustomUser, CustomUserAdmin)
-mp_admin.register(MediaStore)
-mp_admin.register(MediaQueue)
+mp_admin.register(MediaStore, MediaStoreAdmin)
+mp_admin.register(MediaQueue, MediaQueueAdmin)
 mp_admin.register(Collection)
 mp_admin.register(Invite)
 mp_admin.register(Video, VideoAdmin)

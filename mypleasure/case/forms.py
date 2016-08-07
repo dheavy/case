@@ -118,6 +118,16 @@ class VideoForm(forms.ModelForm):
     )
 
 
+class MediaStoreForm(forms.ModelForm):
+    """Form class for MediaStore model."""
+
+    naughty = forms.ChoiceField(
+        widget=forms.Select,
+        choices=((True, 'Naughty mode'), (False, 'Normal mode'),),
+        label=('View mode'),
+    )
+
+
 class TagForm(forms.ModelForm):
     """Form class for Tag model."""
 
