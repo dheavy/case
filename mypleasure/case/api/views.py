@@ -1073,16 +1073,15 @@ class VideoHashViewSet(VideoMixin, ViewSet):
         """
         not_found = Response(
             {
-                'message': 'Video not found',
-                'status': status.HTTP_404_NOT_FOUND
+                'message': 'User does not have video',
+                'status': status.HTTP_200_OK
             },
-            status=status.HTTP_404_NOT_FOUND
+            status=status.HTTP_200_OK
         )
 
         try:
             user = get_user_model().objects.get(pk=kwargs.get('pk'))
-        except Exception as e:
-            print(e)
+        except:
             return not_found
 
         matching_collection = user.has_video(hash=kwargs.get('hash'))
@@ -1100,9 +1099,9 @@ class VideoHashViewSet(VideoMixin, ViewSet):
                         'id': serialized['id'],
                         'name': serialized['name']
                     },
-                    'status': status.HTTP_200_OK
+                    'status': status.HTTP_206_PARTIAL_CONTENT
                 },
-                status=status.HTTP_200_OK
+                status=status.HTTP_206_PARTIAL_CONTENT
             )
         else:
             return not_found
@@ -1491,7 +1490,7 @@ class CuratedMediaViewSet(ViewSet):
         """
         serializer = CuratedMediaAcquisitionSerializer(
             data=request.data,
-            context={'request': request}
+            context={'user': request.user}
         )
 
         if serializer.is_valid():

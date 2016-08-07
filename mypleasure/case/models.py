@@ -525,7 +525,7 @@ class Video(models.Model):
         'Tag', blank=True, related_name='videos'
     )
     hash = models.CharField(max_length=100, db_index=True)
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=100, blank=True)
     poster = models.CharField(max_length=100, null=True, blank=True)
     original_url = models.URLField(max_length=100)
@@ -634,12 +634,13 @@ class MediaQueue(models.Model):
     the migration system.
     """
 
-    hash = models.CharField(max_length=255, db_index=True)
+    hash = models.CharField(max_length=400, db_index=True)
     url = models.CharField(max_length=255)
     requester = models.IntegerField()
     collection_id = models.IntegerField()
     status = models.CharField(max_length=30, blank=True, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=200, default='Untitled')
 
     def __str__(self):
         """Return string representation of model."""
@@ -671,7 +672,7 @@ class MediaStore(models.Model):
     The same historical context for MediaQueue table apply to this one.
     """
 
-    hash = models.CharField(max_length=255, db_index=True)
+    hash = models.CharField(max_length=400, db_index=True)
     title = models.CharField(max_length=255)
     original_url = models.CharField(max_length=255)
     embed_url = models.CharField(max_length=255)
@@ -680,17 +681,18 @@ class MediaStore(models.Model):
     naughty = models.BooleanField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def as_video_params(self):
-        """Return parameters for creating Video from this instance."""
-        return {
-            'hash': self.hash,
-            'title': self.title,
-            'original_url': self.original_url,
-            'embed_url': self.embed_url,
-            'poster': self.poster,
-            'duration': self.duration,
-            'is_naughty': self.naughty,
-        }
+    def copy_as_video(self, media_model, collection, title=None):
+        """Create and return video instance from this stored video."""
+        return media_model.objects.create(
+            hash=self.hash,
+            title=(title and title or self.title),
+            original_url=self.original_url,
+            embed_url=self.embed_url,
+            poster=self.poster,
+            duration=self.duration,
+            is_naughty=self.naughty,
+            collection=collection
+        )
 
     def __str__(self):
         """Return string representation of model."""

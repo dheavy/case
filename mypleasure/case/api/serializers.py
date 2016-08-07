@@ -483,37 +483,83 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 class CuratedMediaAcquisitionSerializer(serializers.Serializer):
     """Serializer used when performing a media acquisition."""
 
+    strategy = None
+    stored_video = None
+    target_collection = None
+
+    STRATEGY_STORE = 'store'
+    STRATEGY_QUEUE = 'queue'
+
+    def create_hash(self, url):
+        """Return hash from a given url."""
+        return crypt.crypt(url, crypt.METHOD_MD5)
+
     def normalize_url(self, url):
         """Normalize URL."""
+        # TODO: Normalize URL depending on each provider.
         return url
+
+    def define_acquisition_strategy(self, attrs):
+        """
+        Define the media acquisition strategy.
+
+        Either by copying existing video in media store,
+        or adding a new fetching job in media queue.
+        """
+        if 'hash' in attrs:
+            try:
+                # Store cached video if it exists, else raise exception.
+                print(attrs['hash'])
+                self.stored_video = MediaStore.objects.get(hash=attrs['hash'])
+                return self.STRATEGY_STORE
+            except:
+                raise serializers.ValidationError({
+                    'code': 'hash_invalid'
+                })
+
+        if 'url' in attrs:
+            try:
+                validator = URLValidator()
+                validator(self.normalize_url(attrs['url']))
+                return self.STRATEGY_QUEUE
+            except ValidationError:
+                raise serializers.ValidationError({'code': 'url_invalid'})
+
+        # If no strategy could be defined, take the last strategy as
+        # default and consider it a failure. Mark it as such.
+        raise serializers.ValidationError({'code': 'url_missing'})
 
     def validate(self, attrs):
         """Attempt validation of attributes."""
-        # TODO: REMOVE URL PARAMETERS!!!
         attrs = self.initial_data
 
-        # Verify URL presence and validity.
-        if 'url' not in attrs:
-            raise serializers.ValidationError({'code': 'url_missing'})
-
-        # url = self.normalize_url(attrs['url'])
-
+        # Two possibilities (a.k.a. 'strategy').
+        #
+        # 1. `hash` was passed. Meaning user is trying to copy
+        #    an existing, in use video from a feed.
+        #    --> Find video in media store and make copy for user.
+        #
+        # 2. `url` was passed. Meaning user has sent a curation request
+        #    for a new video (via KIPP on 'new video' form on site).
+        #    --> Create a new job in media queue.
+        #
+        # While defining strategy, check validity of its possible tenants,
+        # i.e. `hash` provides an existing video,  or `url`
+        # is a valid URL.
         try:
-            URLValidator()(attrs['url'])
-        except ValidationError:
-            raise serializers.ValidationError({'code': 'url_invalid'})
+            # Store strategy if definable, else raise exception.
+            self.strategy = self.define_acquisition_strategy(attrs)
+        except Exception as e:
+            raise e
 
-        # Prevent duplicates.
-        u = self.context['request'].user
-        if u.has_video(url=attrs['url'], include_queue=True):
-            raise serializers.ValidationError({'code': 'duplicate'})
-
-        # If collection_id is provided, check if it exists,
-        # belongs to user.
+        # If collection_id is provided, ensure it exists and belongs to user.
         if 'collection_id' in attrs and int(attrs['collection_id']) != -1:
             try:
-                c = Collection.objects.get(pk=attrs['collection_id'])
-                assert c.owner == self.context['request'].user
+                # Store collection if it exists, else raise exception.
+                self.target_collection = Collection.objects.get(
+                    pk=attrs['collection_id']
+                )
+                assert self.target_collection.owner == self.context['user']
             except:
                 raise serializers.ValidationError({
                     'code': 'collection_id_invalid'
@@ -521,50 +567,61 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
         else:
             try:
                 # If not ID provided, a new collection name should have been.
-                name = attrs['new_collection_name'][0]
+                name = attrs['new_collection_name']
                 assert bool(name) is not None and name != ''
             except:
                 raise serializers.ValidationError({
                     'code': 'collection_id_or_name_missing'
                 })
 
-        return attrs
+        # Finish validation if "queue" strategy is chosen.
+        if self.strategy is self.STRATEGY_QUEUE:
+            # Prevent duplicates.
+            url = self.normalize_url(attrs['url'])
+            if self.context['user'].has_video(url=url):
+                raise serializers.ValidationError({'code': 'duplicate'})
+
+            # Prevent duplicates in media queue.
+            # We could do it from the user.has_video call above,
+            # but this provide more granular lookup for relevant
+            # error message.
+            # TODO: Unify methods of duplicates lookup + errors codes.
+            v = MediaQueue.objects.filter(
+                url=url,
+                requester=attrs['requester'],
+                collection_id=attrs['collection_id']
+            ).first()
+            if v:
+                raise serializers.ValidationError({
+                    'code': 'video_already_queued'
+                })
+
+        return self.initial_data
 
     def save(self):
-        """Save Video in store."""
-        hash = crypt.crypt(
-            self.validated_data['url'],
-            crypt.METHOD_MD5
-        )
-
-        # If found in store, get this previously cached version.
-        cached_video = MediaStore.objects.filter(hash=hash)
-        if len(cached_video) > 0:
-            self.get_from_store(cached_video[0])
-            return {'code': 'available'}
-        else:
-            if 'collection_id' in self.validated_data:
-                cid = self.validated_data['collection_id']
-            else:
-                new_collection = Collection.objects.create(
-                    name=self.validated_data['new_collection_name'],
-                    owner=self.context['request'].user
-                )
-                cid = new_collection.id
-
+        """Save Video in queue, or copy from store if already available."""
+        if self.strategy is self.STRATEGY_QUEUE:
             self.add_to_queue(
-                hash=hash,
+                hash=crypt.crypt(self.validated_data['url'], crypt.METHOD_MD5),
                 url=self.validated_data['url'],
-                requester=self.context['request'].user.id,
-                collection_id=cid
+                requester=self.context['user'].id,
+                collection_id=self.target_collection,
+                title=self.validated_data['title']
             )
             return {'code': 'added'}
 
-    def add_to_queue(self, hash, url, requester, collection_id):
+        if self.strategy is self.STRATEGY_STORE:
+            self.stored_video.copy_as_video(
+                Video, self.target_collection, self.validated_data['title']
+            )
+            return {'code': 'available'}
+
+    def add_to_queue(self, hash, url, requester, collection_id, title):
         """Add job to media queue."""
         MediaQueue.objects.create(
             hash=hash, url=url, requester=requester,
-            collection_id=collection_id, status='pending'
+            collection_id=collection_id, status='pending',
+            title=title
         )
 
 
