@@ -48,12 +48,12 @@ class UserReportForm(forms.ModelForm):
         widget=forms.Select,
         choices=UserReport.objects.statuses_for_form,
         help_text=(
-            "<b>new</b> is the state given by default for any new report<br />\
-            <b>reviewing</b> is the state set by a staff member when \
-            reviewing the report<br /><b>accepted</b> is set by reviewer \
-            when inquiry validates report, and video is effectively being \
-            removed<br /> <b>dismissed</b> is set by reviewer after inquiry \
-            to ignore report."
+            "<b>new</b> is the state given by default for any new report" +
+            "<br /><b>reviewing</b> is the state set by a staff member when" +
+            "reviewing the report<br /><b>accepted</b> is set by reviewer" +
+            "when inquiry validates report, and video is effectively being" +
+            "removed<br /> <b>dismissed</b> is set by reviewer after inquiry" +
+            "to ignore report."
         )
     )
 
@@ -69,8 +69,8 @@ class CustomUserChangeForm(forms.ModelForm):
     password = ReadOnlyPasswordHashField(
         label=('Password'),
         help_text=(
-            "Raw passwords are not stored, so there is no way to see "
-            "this user's password, but you can change the password "
+            "Raw passwords are not stored, so there is no way to see " +
+            "this user's password, but you can change the password " +
             "using <a href=\'../password/\'>this form</a>."
         )
     )
@@ -80,9 +80,9 @@ class CustomUserChangeForm(forms.ModelForm):
         choices=((True, 'Active'), (False, 'Deactivated'),),
         label=('Active status'),
         help_text=(
-            "Setting an account to inactive makes the user <strong>unable "
-            "to use her account.</strong> It's what happens when user chooses "
-            "to deactivate her account. So be careful!."
+            "Setting an account to inactive makes the user <strong>unable " +
+            "to use her account.</strong> It's what happens when user " +
+            "chooses to deactivate her account. So be careful!."
         )
     )
 
@@ -103,6 +103,19 @@ class CustomUserChangeForm(forms.ModelForm):
         field does not have access to the initial value.
         """
         return self.initial["password"]
+
+
+class VideoForm(forms.ModelForm):
+    """Form class for Video model."""
+
+    scale = forms.ChoiceField(
+        widget=forms.Select,
+        choices=Video.objects.scales_for_form,
+        help_text=(
+            "Use <b>large</b> for videos you want to highlight " +
+            "on feeds (i.e. when editorializing content)."
+        )
+    )
 
 
 class TagForm(forms.ModelForm):

@@ -12,7 +12,8 @@ from .models import (
     MediaStore, MediaQueue
 )
 from .forms import (
-    TagForm, CustomUserForm, CustomUserChangeForm, UserReportForm
+    TagForm, CustomUserForm, CustomUserChangeForm, UserReportForm,
+    VideoForm
 )
 
 
@@ -99,7 +100,7 @@ class UserReportAdmin(admin.ModelAdmin):
 
     form = UserReportForm
     list_display = (
-        'video', 'reporter', 'assignee', 'comments',
+        'id', 'video', 'reporter', 'assignee', 'comments',
         'status', 'created_at', 'updated_at'
     )
     list_filter = ('status',)
@@ -109,6 +110,33 @@ class UserReportAdmin(admin.ModelAdmin):
     )
     search_fields = ('status', 'reporter', 'assignee',)
     ordering = ('status', 'created_at',)
+
+
+class VideoAdmin(admin.ModelAdmin):
+    """Custom admin for Video."""
+
+    readonly_fields = ('duration', 'hash',)
+    form = VideoForm
+    list_display = (
+        'id', 'scale', 'title', 'is_naughty', 'duration', 'poster',
+        'original_url', 'embed_url', 'slug', 'hash',
+        'created_at', 'updated_at',
+    )
+    list_filter = ('scale', 'is_naughty', 'duration',)
+    search_fields = ('title', 'poster', 'original_url', 'hash',)
+    fieldsets = (
+        ('Editorialization / Classification', {
+            'fields': ('title', 'scale', 'duration', 'is_naughty',)
+        }),
+        ('Media', {'fields': ('poster', 'original_url', 'embed_url',)}),
+        ('Meta', {'fields': ('hash', 'slug',)}),
+    )
+
+
+# class MediaStoreAdmin(admin.ModelAdmin):
+#     """Custom admin for MediaStore."""
+
+#     form
 
 
 class MyPleasureAdmin(AdminSite):
@@ -131,6 +159,6 @@ mp_admin.register(MediaStore)
 mp_admin.register(MediaQueue)
 mp_admin.register(Collection)
 mp_admin.register(Invite)
-mp_admin.register(Video)
+mp_admin.register(Video, VideoAdmin)
 mp_admin.register(Tag, TagAdmin)
 mp_admin.register(UserReport, UserReportAdmin)

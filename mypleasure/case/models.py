@@ -286,8 +286,7 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
         if len(v) > 0:
             try:
                 collection = Collection.objects.get(pk=v[0].collection.id)
-            except Exception as e:
-                print(e)
+            except:
                 pass
 
         # If required, check in media acquisition queue.
@@ -300,8 +299,7 @@ class CustomUser(PermissionsMixin, AbstractBaseUser):
                 m = m[0]
                 try:
                     collection = Collection.objects.get(pk=m.collection_id)
-                except Exception as e:
-                    print(e)
+                except:
                     pass
 
         return collection
@@ -499,6 +497,17 @@ class Collection(models.Model):
         )
 
 
+class VideoManager(models.Manager):
+    """Manager for Video model."""
+
+    @property
+    def scales_for_form(self):
+        """Return available scales for form select in admin."""
+        return tuple(
+            [(e, e) for e in ('normal', 'large',)]
+        )
+
+
 class Video(models.Model):
     """
     Video.
@@ -506,6 +515,8 @@ class Video(models.Model):
     'Belongs To' one Collection.
     'Has Many' and 'Belongs To Many' Tags.
     """
+
+    objects = VideoManager()
 
     collection = models.ForeignKey(
         Collection, related_name='videos', on_delete=models.CASCADE
@@ -544,11 +555,11 @@ class Video(models.Model):
         return (
             "Video (id: %s, collection_id: %s, title: %s, slug: %s,\
 poster: %s original_url: %s, embed_url: %s, scale: %s, duration: %s, \
-is_naughty: %s)" %
+is_naughty: %s, hash: %s)" %
             (
                 self.id, self.collection.id, self.title, self.slug,
                 self.poster, self.original_url, self.embed_url,
-                self.scale, self.duration, self.is_naughty
+                self.scale, self.duration, self.is_naughty, self.hash
             )
         )
 
@@ -688,7 +699,7 @@ class MediaStore(models.Model):
 embed_url: %s, poster: %s, duration: %s, naughty: %s)" %
             (
                 self.id, self.hash, self.original_url, self.embed_url,
-                self.poster, self.duration, self.is_naughty
+                self.poster, self.duration, self.naughty
             )
         )
 
