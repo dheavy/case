@@ -39,7 +39,8 @@ from case.logging import (
 from .filters import (
     filter_private_obj_list_by_ownership,
     filter_private_obj_detail_by_ownership,
-    filter_feed_by_user, filter_feed_by_naughtyness
+    filter_feed_by_user, filter_feed_by_naughtyness,
+    filter_feed_by_video_unicity
 )
 
 
@@ -1113,11 +1114,11 @@ class FeedNormalDetail(VideoMixin, APIView):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self, pk=None):
-        """Get queryset, filtered if need be."""
+        """Get queryset, filtered."""
         if pk:
             try:
                 user = get_user_model().objects.get(pk=pk)
-                return filter_feed_by_user(user)
+                return filter_feed_by_video_unicity(filter_feed_by_user(user))
             except Exception as e:
                 return error_response(
                     {
@@ -1129,8 +1130,10 @@ class FeedNormalDetail(VideoMixin, APIView):
                 )
 
         try:
-            return filter_feed_by_naughtyness(
-                Video.objects.all(), is_naughty=False
+            return filter_feed_by_video_unicity(
+                filter_feed_by_naughtyness(
+                    Video.objects.all(), is_naughty=False
+                )
             )
         except Exception as e:
             return error_response(

@@ -97,3 +97,21 @@ def filter_feed_by_user(user, is_naughty=False):
     ]
 
     return feed
+
+
+def filter_feed_by_video_unicity(original_feed):
+    """
+    Return a feed where list is reduced to avoid duplicate videos.
+
+    Only the first instance of the video is registered,
+    the rest is ignored.
+    """
+    filtered = []
+    seen = set()
+
+    for v in original_feed:
+        if v.hash not in seen:
+            filtered.append(v)
+            seen.add(v.hash)
+
+    return filtered
