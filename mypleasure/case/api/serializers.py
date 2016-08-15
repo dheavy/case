@@ -288,6 +288,75 @@ class VideoSerializer(serializers.ModelSerializer):
         """Returned serialized owner of the Video."""
         return VideoUserSerializer(obj.collection.owner).data
 
+    def validate(self, data):
+        """
+        Validate instance's data.
+
+        - `id` should refer to an existing Video belonging to user.
+        - `title` should exist and be a string under 200 characters;
+        - `new_collection_name` if it exists, should override `collection`,
+          and be a string between 1 and 200 characters; it should be used
+          to create a new collection holding the video;
+        - `collection` should exist and refer to the integer ID of a collection
+          owned by user.
+        """
+        id = self.initial_data.get('id', None)
+        title = self.initial_data.get('title', None)
+        collection = self.initial_data.get('collection', None)
+        new_collection_name = self.initial_data.get(
+            'new_collection_name', None
+        )
+
+        self.video = None
+
+        # Check ID.
+        try:
+            self.video = Video.objects.get(pk=int(id))
+            self.video.owner == self.context['user']
+        except:
+            raise ValidationError({'code': 'invalid_id'})
+
+        # Check title if exists.
+        if title and (len(title) < 1 or len(title) > 200):
+            raise ValidationError({'code': 'invalid_title'})
+
+        # Check new collection name and create it, if need be.
+        if new_collection_name:
+            if (
+                type(new_collection_name) is not str and
+                len(new_collection_name) < 1 and
+                len(new_collection_name) > 200
+            ):
+                raise ValidationError({'code': 'invalid_new_collection_name'})
+            else:
+                new_collection = self.context['user'].collections.create(
+                    name=self.initial_data['new_collection_name'],
+                    is_private=False
+                )
+                self.initial_data.update({'collection': new_collection})
+
+        self.initial_data.pop('new_collection_name')
+
+        # Check collection ID if exists.
+        if collection:
+            try:
+                c = Collection.objects.get(pk=int(collection))
+                assert c.owner == self.context['user']
+            except:
+                raise ValidationError({'code': 'invalid_collection_id'})
+
+        return data
+
+    def save(self):
+        """Update instance."""
+        if self.validated_data.get('title'):
+            self.video.title = self.validated_data.get('title')
+
+        if self.validated_data.get('collection'):
+            self.video.collection = self.validated_data.get('collection')
+
+        self.video.save()
+
     class Meta:
         """Meta for Video serializer."""
 

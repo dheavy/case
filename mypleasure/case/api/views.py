@@ -1020,13 +1020,54 @@ class VideoDetail(VideoMixin, RetrieveUpdateDestroyAPIView):
         """Private videos can only be seen by owner."""
         return Video.objects.filter(pk=self.kwargs['pk'])
 
-    def get_object(self, pk):
+    def get_object(self, pk=None):
         """Return data after basic checkup."""
         return filter_private_obj_detail_by_ownership(
             self.get_queryset(),
             self.check_object_permissions,
             self.request
         )
+
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Apply partial update on video instance.
+
+        Three fields can be changed: `id`, `title` and `collection_id`.
+        If `new_collection_name` is given, create a new collection,
+        and set its ID as this instance's collection.
+        """
+        data = QueryDict(
+            'id=' + request.data.get('id') +
+            '&title=' + request.data.get('title') +
+            '&collection=' + request.data.get('collection_id') +
+            '&new_collection_name=' + request.data.get('new_collection_name'),
+            mutable=True
+        )
+
+        serializer = self.serializer_class(
+            data=data, context={'user': request.user}, partial=True
+        )
+
+        kwargs['partial'] = True
+
+        if serializer.is_valid(serializer.initial_data):
+            serializer.save()
+            return Response(
+                {
+                    'message': 'Video updated successfully',
+                    'status': status.HTTP_200_OK
+                },
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {
+                    'error': serializer.errors,
+                    'message': 'Error while attempting to update video',
+                    'status': status.HTTP_400_BAD_REQUEST
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
     def delete(self, request, *args, **kwargs):
         """Attempt at deleting video."""
