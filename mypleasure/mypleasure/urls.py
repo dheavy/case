@@ -18,7 +18,7 @@ from django.conf import settings
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from case.api.views import (
     UserList, UserDetail, ProfileView, RegistrationViewSet, CollectionList,
-    CollectionDetail, FeedNormalDetail, FeedNaughtyList, VideoList,
+    CollectionDetail, FeedView, VideoList,
     VideoDetail, TagList, TagDetail, PasswordResetView,
     PasswordResetConfirmView, CuratedMediaViewSet, HeartbeatViewSet,
     FollowUserViewSet, FollowCollectionViewSet, BlockUserViewSet,
@@ -158,11 +158,11 @@ urlpatterns = [
     # ----
     # Available to authenticated user. Comes in two flavor: normal/naughty.
     url(r'^api/v1/feed/?(?P<pk>[0-9]+)?$',
-        FeedNormalDetail.as_view(), name='feed-normal'),
+        FeedView.as_view(), name='feed-normal'),
     url(r'^api/v1/feed/?(?P<pk>[0-9]+)?/normal/?$',
-        FeedNormalDetail.as_view(), name='feed-normal'),
+        FeedView.as_view(), name='feed-normal'),
     url(r'^api/v1/feed/?(?P<pk>[0-9]+)?/naughty/?$',
-        FeedNaughtyList.as_view(), name='feed-naughty'),
+        FeedView.as_view(), name='feed-naughty'),
 
     # Users
     # -----

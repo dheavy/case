@@ -4,6 +4,7 @@ import json
 import crypt
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
+from django.core.urlresolvers import resolve
 from django.http.request import QueryDict
 from rest_framework import status
 from rest_framework.generics import (
@@ -26,10 +27,10 @@ from .permissions import (
 from .serializers import (
     BasicUserSerializer, user_serializer, CollectionSerializer,
     VideoSerializer, TagSerializer, UserRegistrationSerializer,
-    FeedNaughtySerializer, PasswordResetSerializer,
-    PasswordResetConfirmSerializer, CuratedMediaAcquisitionSerializer,
-    CuratedMediaFetchSerializer, CheckUsernameSerializer, FollowUserSerializer,
-    BlockUserSerializer, FollowCollectionSerializer, BlockCollectionSerializer,
+    PasswordResetSerializer, PasswordResetConfirmSerializer,
+    CuratedMediaAcquisitionSerializer, CuratedMediaFetchSerializer,
+    CheckUsernameSerializer, FollowUserSerializer, BlockUserSerializer,
+    FollowCollectionSerializer, BlockCollectionSerializer,
     FacebookUserSerializer, EditPasswordSerializer, EditEmailSerializer,
     serialized_user_data
 )
@@ -1149,17 +1150,19 @@ class VideoHashViewSet(VideoMixin, ViewSet):
             return not_found
 
 
-class FeedNormalDetail(VideoMixin, APIView):
-    """Feed list for normal mode."""
+class FeedView(VideoMixin, APIView):
+    """Feed content."""
 
     permission_classes = (IsAuthenticated,)
 
-    def get_queryset(self, pk=None):
+    def get_queryset(self, pk=None, naughty=False):
         """Get queryset, filtered."""
         if pk:
             try:
                 user = get_user_model().objects.get(pk=pk)
-                return filter_feed_by_video_unicity(filter_feed_by_user(user))
+                return filter_feed_by_video_unicity(
+                    filter_feed_by_user(user, is_naughty=naughty)
+                )
             except Exception as e:
                 return error_response(
                     {
@@ -1173,7 +1176,7 @@ class FeedNormalDetail(VideoMixin, APIView):
         try:
             return filter_feed_by_video_unicity(
                 filter_feed_by_naughtyness(
-                    Video.objects.all(), is_naughty=False
+                    Video.objects.all(), is_naughty=naughty
                 )
             )
         except Exception as e:
@@ -1186,11 +1189,14 @@ class FeedNormalDetail(VideoMixin, APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    def get(self, request, pk=None, format=None):
+    def get(self, request, pk=None, format=None, **kwargs):
         """Return payload."""
+        url_name = resolve(request.path_info).url_name
+        naughty = 'naughty' in url_name and True or False
+
         try:
             payload = [
-                VideoSerializer(v).data for v in self.get_queryset(pk)
+                VideoSerializer(v).data for v in self.get_queryset(pk, naughty)
             ]
 
             return Response(
@@ -1214,48 +1220,6 @@ class FeedNormalDetail(VideoMixin, APIView):
         return Response(
             {
                 'message': 'Error while attempting to fetch Feed',
-                'status': status.HTTP_500_INTERNAL_SERVER_ERROR
-            },
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
-
-
-class FeedNaughtyList(VideoMixin, ListCreateAPIView):
-    """Feed list for naughty mode."""
-
-    # TODO: Reimplement based on normal feed changes.
-
-    permission_classes = (IsAuthenticated,)
-    queryset = Video.objects.all()
-
-    def list(self, request):
-        """Return payload."""
-        try:
-            serializer = FeedNaughtySerializer(
-                self.get_queryset(),
-                many=True, context={'request': request}
-            )
-            return Response(
-                {
-                    'payload': serializer.data[0],
-                    'message': 'Naughty Feed fetched successfully',
-                    'status': status.HTTP_200_OK
-                },
-                status=status.HTTP_200_OK
-            )
-        except Exception as e:
-            return error_response(
-                {
-                    'error': str(e),
-                    'message': 'Error while attempting to fetch naughty Feed',
-                    'status': status.HTTP_500_INTERNAL_SERVER_ERROR
-                },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
-        return Response(
-            {
-                'message': 'Error while attempting to fetch naughty Feed',
                 'status': status.HTTP_500_INTERNAL_SERVER_ERROR
             },
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
