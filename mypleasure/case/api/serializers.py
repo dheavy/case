@@ -662,7 +662,7 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
             # TODO: Unify methods of duplicates lookup + errors codes.
             v = MediaQueue.objects.filter(
                 url=url,
-                requester=attrs['requester'],
+                requester=u.id,
                 collection_id=attrs['collection_id']
             ).first()
             if v:
@@ -679,8 +679,8 @@ class CuratedMediaAcquisitionSerializer(serializers.Serializer):
                 hash=crypt.crypt(self.validated_data['url'], crypt.METHOD_MD5),
                 url=self.validated_data['url'],
                 requester=self.context['user'].id,
-                collection_id=self.target_collection,
-                title=self.validated_data['title']
+                collection_id=self.target_collection.id,
+                title=''
             )
             return {'code': 'added'}
 
