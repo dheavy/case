@@ -1048,11 +1048,9 @@ class SearchSerializer(serializers.Serializer):
 
     def search(self, query=''):
         """Return list of serialized videos from search query."""
-        print('query', query)
         if len(query) < 2:
             return []
-        r = [
+        return [
             VideoSerializer(v).data
             for v in Video.objects.filter(title__icontains=query)
         ]
-        return r
