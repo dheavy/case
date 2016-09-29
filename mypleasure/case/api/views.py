@@ -32,7 +32,7 @@ from .serializers import (
     CheckUsernameSerializer, FollowUserSerializer, BlockUserSerializer,
     FollowCollectionSerializer, BlockCollectionSerializer,
     FacebookUserSerializer, EditPasswordSerializer, EditEmailSerializer,
-    serialized_user_data
+    serialized_user_data, SearchSerializer
 )
 from case.logging import (
     Mann, slack_cnf, log_file_cnf, trello_cnf
@@ -1672,3 +1672,39 @@ class FacebookAuthViewSet(ViewSet):
             },
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
+class SearchViewSet(ViewSet):
+    """
+    SearchViewSet.
+
+    Used to return results based on POSTed search queries.
+    """
+
+    @list_route(methods=['post'], permission_class=[IsAuthenticated])
+    def search(self, request, *args, **kwargs):
+        """Return array of videos based on search query."""
+        serializer = SearchSerializer(data=request.data)
+        if serializer.is_valid():
+            results = serializer.search(
+                query=serializer.initial_data.get('query', '')
+            )
+            return Response(
+                {
+                    'message': 'Search returned {} result(s)'.format(
+                        len(results)
+                    ),
+                    'status': status.HTTP_200_OK,
+                    'payload': results
+                },
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {
+                    'error': serializer.errors,
+                    'message': 'Error while attempting to search',
+                    'status': status.HTTP_400_BAD_REQUEST
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )

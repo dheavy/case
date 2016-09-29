@@ -18,7 +18,7 @@ from django.conf import settings
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from case.api.views import (
     UserList, UserDetail, ProfileView, RegistrationViewSet, CollectionList,
-    CollectionDetail, FeedView, VideoList,
+    CollectionDetail, FeedView, VideoList, SearchViewSet,
     VideoDetail, TagList, TagDetail, PasswordResetView,
     PasswordResetConfirmView, CuratedMediaViewSet, HeartbeatViewSet,
     FollowUserViewSet, FollowCollectionViewSet, BlockUserViewSet,
@@ -283,5 +283,11 @@ urlpatterns = [
         name='media-acquire'),
     url(r'^api/v1/curate/fetch/(?P<userid>[0-9]+)/?$',
         CuratedMediaViewSet.as_view({'get': 'fetch'}),
-        name='media-fetch')
+        name='media-fetch'),
+
+    # Search
+    # ------
+    url(r'^api/v1/search/?$',
+        SearchViewSet.as_view({'post': 'search'}),
+        name='search'),
 ]

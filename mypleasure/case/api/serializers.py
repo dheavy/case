@@ -1037,3 +1037,22 @@ class FacebookAuthenticateUserSerializer(serializers.Serializer):
         Lean of FacebookUserSerializer for now.
         """
         return self.initial_data
+
+
+class SearchSerializer(serializers.Serializer):
+    """Serializer for the search endpoint."""
+
+    def validate(self, data):
+        """Validate request data."""
+        return self.initial_data
+
+    def search(self, query=''):
+        """Return list of serialized videos from search query."""
+        print('query', query)
+        if len(query) < 2:
+            return []
+        r = [
+            VideoSerializer(v).data
+            for v in Video.objects.filter(title__icontains=query)
+        ]
+        return r
