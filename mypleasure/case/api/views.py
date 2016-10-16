@@ -1038,10 +1038,12 @@ class VideoDetail(VideoMixin, RetrieveUpdateDestroyAPIView):
         and set its ID as this instance's collection.
         """
         data = QueryDict(
-            'id=' + request.data.get('id') +
-            '&title=' + request.data.get('title') +
-            '&collection=' + request.data.get('collection_id') +
-            '&new_collection_name=' + request.data.get('new_collection_name'),
+            'id=' + request.data.get('id', '') +
+            '&title=' + request.data.get('title', '') +
+            '&collection=' + request.data.get('collection_id', '') +
+            '&new_collection_name=' + request.data.get(
+                'new_collection_name', ''
+            ),
             mutable=True
         )
 
