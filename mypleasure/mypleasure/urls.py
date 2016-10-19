@@ -124,28 +124,37 @@ urlpatterns = [
     # Password reset
     # --------------
     # Any user.
-    # `password-reset` generates email with token.
+    # `password-reset-link` trigger the email verification process
+    # and then calls on `password-reset-process` to send an email.
     # Then the link in the email sends back to frontend and lets
     # frontend form confirm the action after verifications.
     # `password-reset-confirm` effectively triggers the password reset.
     url(
         r'^api/v1/password/reset/?$',
         PasswordResetView.as_view(),
-        name='password-reset',
-
+        name='password-reset-link',
+    ),
+    url(
+        r'^password/reset/confirm/' +
+        r'(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/?$',
+        PasswordResetView.as_view(),
+        name='password-reset-process',
     ),
 
-    # TODO: Should land on user facing view in frontend - a form for password
+    # User lands on view in frontend - a form for password
     # reset - which is the same URL as this one, attainable via GET.
-    url(
-        r'^password/reset/confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/?$',
-        PasswordResetConfirmView.as_view(),
-        name='password-reset-link'
-    ),
+    #
+    # i.e.:
+    # url(
+    #     r'^password/reset/confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/?$',
+    #     PasswordResetConfirmView.as_view(),
+    #     name='password-reset'
+    # ),
 
+    # This is the API endpoint the password reset form should POST into.
     url(
-        r'^api/v1/password/reset/confirm/\
-        (?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/?$',
+        r'^api/v1/password/reset/confirm/' +
+        r'(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/?$',
         PasswordResetConfirmView.as_view(),
         name='password-reset-confirm'
     ),

@@ -1380,65 +1380,59 @@ class PasswordResetView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         """Create a serializer with request.data."""
+        # Use DRF serializer to validate data.
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            form = UserForgotPasswordForm(serializer.validated_data)
-            existing_user = get_user_model().objects.filter(
-                email=serializer.validated_data['email']
-            )
 
-            if not existing_user:
-                return Response(
-                    {'message': 'No such email in our database.'},
-                    status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-
-            if form.is_valid():
-                try:
-                    path = os.path.join(
-                        os.path.dirname(
-                            os.path.abspath(__file__ + '../../')
-                        ), 'templates/registration/password_reset_email.html'
-                    )
-                    form.save(
-                        from_email='no-reply@mypleasu.re',
-                        email_template_name=path,
-                        request=request
-                    )
-                    return Response(
-                        {
-                            'message': 'Password reset request sent',
-                            'status': status.HTTP_200_OK
-                        },
-                        status=status.HTTP_200_OK
-                    )
-                except Exception as e:
-                    return Response(
-                        {
-                            'error': str(e),
-                            'message': (
-                                'Error while attempting to reset password'
-                            ),
-                            'status': status.HTTP_500_INTERNAL_SERVER_ERROR
-                        },
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                    )
-            return Response(
-                {
-                    'message': 'Error while attempting to reset password',
-                    'status': status.HTTP_500_INTERNAL_SERVER_ERROR
-                },
-                status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
-        return Response(
-            {
+        # Ensure data is valid before proceeding.
+        if not serializer.is_valid():
+            return Response({
                 'error': serializer.errors,
                 'message': 'Error while attempting to reset password',
                 'status': status.HTTP_400_BAD_REQUEST
-            },
-            status.HTTP_400_BAD_REQUEST
-        )
+            }, status.HTTP_400_BAD_REQUEST)
+
+        else:
+            # Ensure the user exists.
+            existing_user = get_user_model().objects.filter(
+                email=serializer.validated_data.get('email')
+            )
+
+            if not existing_user:
+                return Response({
+                    'error': {'code': 'email_not_in_db'},
+                    'status': status.HTTP_400_BAD_REQUEST
+                }, status.HTTP_404_NOT_FOUND)
+
+        # Validated data fed to a child class of PasswordResetForm.
+
+        form = UserForgotPasswordForm(serializer.validated_data)
+
+        if form.is_valid():
+            path = os.path.join(
+                os.path.dirname(os.path.abspath(__file__ + '../../')),
+                'templates/registration/password_reset_email.html'
+            )
+
+            try:
+                # Save form, effectively attempting to trigger mail sending.
+                # Unfortunately an exception gets thrown!
+                form.save(
+                    from_email='no-reply@mypleasu.re',
+                    email_template_name=path,
+                    request=request
+                )
+
+                return Response({
+                    'message': 'Password reset request sent',
+                    'status': status.HTTP_200_OK
+                }, status=status.HTTP_200_OK)
+
+            except Exception as e:
+                return Response({
+                    'error': str(e),
+                    'message': 'Error while attempting to reset password',
+                    'status': status.HTTP_500_INTERNAL_SERVER_ERROR
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class PasswordResetConfirmView(GenericAPIView):
@@ -1477,7 +1471,7 @@ class PasswordResetConfirmView(GenericAPIView):
             {
                 'error': serializer.errors,
                 'message': 'Error while attempting to reset password',
-                'status': status.HTTP_200_OK
+                'status': status.HTTP_400_BAD_REQUEST
             },
             status=status.HTTP_400_BAD_REQUEST
         )
